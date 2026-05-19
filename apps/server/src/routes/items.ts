@@ -23,7 +23,11 @@ import { ulid } from 'ulid';
 import { z } from 'zod';
 import { canMove } from '../domain/depth-cap.js';
 import { descendantsOf } from '../domain/hierarchy.js';
+import { nextDueDate } from '../domain/recurrence.js';
+import { addDays, todayLocal } from '../domain/time.js';
 import { HttpError } from '../middleware/error-envelope.js';
+import type { Broker } from '../middleware/sse-broker.js';
+import type { WriteOps } from '../store/indexer.js';
 
 // Route-level schemas with relaxed project_id and parent_id to accept the Inbox sentinel
 // ('00000000000000000000INBOX0' contains I and O which are outside the ULID alphabet).
@@ -79,17 +83,73 @@ const ItemPatchRouteSchema = z
     path: ['start_date'],
   });
 
-// Inline todayLocal helper — task 11 builds the shared one in domain/time.ts
-const todayLocal = (): string => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+/**
+ * Atomic complete-recurring op: marks source done, generates fresh next instance,
+ * writes both to disk, publishes broker events. Returns both items.
+ *
+ * Callable from the PATCH route and (in task-12) from the bulk complete endpoint.
+ * Runs inside the caller's write-lock; does NOT acquire its own lock.
+ */
+export async function completeWithMaybeRecurrence(
+  source: Item,
+  ops: WriteOps,
+  broker: Broker,
+  tabId: string | null,
+  now: Date,
+): Promise<{ completed: Item; next: Item }> {
+  const completedLocal = todayLocal();
+  // source.recurrence is guaranteed non-null: caller only invokes this when recurrence !== null
+  if (source.recurrence === null) {
+    throw new Error('completeWithMaybeRecurrence: source.recurrence must not be null');
+  }
+  const next = nextDueDate({
+    rule: source.recurrence,
+    previousDueDate: source.due_date,
+    completedAt: completedLocal,
+    previousStartDate: source.start_date,
+  });
 
-const addDaysLocal = (date: string, n: number): string => {
-  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
-  const dt = new Date(y, m - 1, d + n);
-  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-};
+  const updatedSource: Item = {
+    ...source,
+    status: 'done',
+    completed_at: now.toISOString(),
+    updated_at: now.toISOString(),
+  };
+
+  const newInstance: Item = {
+    id: ItemIdSchema.parse(ulid()),
+    schema_version: 1,
+    type: source.type,
+    project_id: source.project_id,
+    parent_id: source.parent_id,
+    title: source.title,
+    notes: source.notes,
+    due_date: next.due_date,
+    start_date: next.start_date,
+    due_time: source.due_time,
+    priority: source.priority,
+    status: 'todo',
+    tags: source.tags,
+    // Subtasks are per-instance: a fresh recurrence starts with an empty subtask list.
+    subtasks: [],
+    recurrence: source.recurrence,
+    completed_at: null,
+    trashed_at: null,
+    trashed_with: null,
+    // Inherit sort_order from source: keeps siblings ordered; source moves to Completed view.
+    sort_order: source.sort_order,
+    created_at: now.toISOString(),
+    updated_at: now.toISOString(),
+  };
+
+  await ops.writeItem(updatedSource);
+  await ops.writeItem(newInstance);
+
+  broker.publish({ type: 'item.changed', payload: { id: updatedSource.id, item: updatedSource }, tabId });
+  broker.publish({ type: 'item.created', payload: { id: newInstance.id, item: newInstance }, tabId });
+
+  return { completed: updatedSource, next: newInstance };
+}
 
 const ViewSchema = z.enum(['today', 'tomorrow', 'next7', 'inbox', 'all', 'completed', 'project', 'tag']);
 const SortSchema = z.enum(['due_asc', 'priority_desc', 'title_asc', 'created_desc', 'completed_desc']);
@@ -138,8 +198,8 @@ export function registerItemRoutes(app: FastifyInstance): void {
 
     const index = app.indexer.getIndex();
     const today = todayLocal();
-    const tomorrow = addDaysLocal(today, 1);
-    const today7 = addDaysLocal(today, 7);
+    const tomorrow = addDays(today, 1);
+    const today7 = addDays(today, 7);
 
     let items = [...index.items.values()];
 
@@ -167,9 +227,7 @@ export function registerItemRoutes(app: FastifyInstance): void {
             item.trashed_at === null &&
             item.status !== 'done' &&
             ((item.due_date >= today && item.due_date < today7) ||
-              (item.start_date !== null &&
-                item.start_date <= addDaysLocal(today, 6) &&
-                item.due_date >= today)),
+              (item.start_date !== null && item.start_date <= addDays(today, 6) && item.due_date >= today)),
         );
         break;
       case 'inbox':
@@ -434,15 +492,21 @@ export function registerItemRoutes(app: FastifyInstance): void {
         }
       }
 
-      const now = new Date().toISOString();
+      const nowDate = new Date();
+      const now = nowDate.toISOString();
 
       // Handle completed_at stamping
       let completedAt = source.completed_at;
       if (patch.status !== undefined) {
         if (patch.status === 'done' && source.status !== 'done') {
+          // Atomic complete-recurring op per data-model.md §6.5
+          if (source.recurrence !== null) {
+            return completeWithMaybeRecurrence(source, ops, app.broker, tabId, nowDate);
+          }
           completedAt = now;
-          // TODO(task-11): if source.recurrence != null AND transitioning to done, run atomic complete-recurring op and return { completed, next }
         } else if (patch.status !== 'done' && source.status === 'done') {
+          // Un-check: clears completed_at only. Does NOT touch any next instance
+          // (per spec §6.6 / §9.4 #5 — the next instance is kept as-is).
           completedAt = null;
         }
       }

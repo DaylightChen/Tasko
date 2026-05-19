@@ -154,3 +154,13 @@
   margin: 0;
   line-height: 1.5;
 }
+
+.descriptionPreview {
+  font-size: var(--text-caption-size);
+  color: var(--color-text-subtle);
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--color-accent);
+}

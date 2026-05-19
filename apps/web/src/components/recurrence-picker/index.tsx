@@ -1,5 +1,6 @@
 import type { AnchorMode, RecurrenceRule, Weekday } from '@tasko/types';
 import { useId } from 'react';
+import { describeRecurrence } from '../../lib/recurrence-description';
 import { Dropdown } from '../dropdown';
 import styles from './styles.module.css';
 
@@ -239,6 +240,13 @@ export function RecurrencePicker({ value, onChange }: RecurrencePickerProps) {
             when you finish.
           </p>
         </div>
+      )}
+
+      {/* Description preview — shown when any recurrence is configured */}
+      {value !== null && (
+        <p className={styles.descriptionPreview} aria-live="polite">
+          {describeRecurrence(value)}
+        </p>
       )}
     </div>
   );

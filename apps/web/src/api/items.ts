@@ -2,12 +2,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ItemCreateSchema, ItemPatchSchema, ItemSchema } from '@tasko/types';
 import type { Item, ItemCreate, ItemId, ItemPatch, LocalDate, Priority, Status } from '@tasko/types';
 import { z } from 'zod';
+import { formatLocalDate } from '../components/date-picker/utils';
 import { useOptimisticMutation } from '../hooks/useOptimisticMutation';
 import { todayLocal } from '../lib/date-fmt';
 import { useSnackbarStore } from '../store/snackbar';
 import { useUndoStore } from '../store/undo';
 import { apiCall } from './client';
 import { itemKeys } from './keys';
+
+/**
+ * Discriminated response schema for PATCH /api/items/:id.
+ * For non-recurring completions (and all other patches), the server returns an Item.
+ * For recurring completions (status → done on an item with recurrence), the server
+ * returns { completed: Item; next: Item } per data-model.md §6.5 and api.md §2.4.
+ */
+const ItemPatchResponseSchema = z.union([z.object({ completed: ItemSchema, next: ItemSchema }), ItemSchema]);
+type ItemPatchResponse = z.infer<typeof ItemPatchResponseSchema>;
 
 export interface ItemListFilters {
   view: 'today' | 'tomorrow' | 'next7' | 'inbox' | 'all' | 'completed' | 'project' | 'tag';
@@ -78,10 +88,22 @@ export function usePatchItem() {
 
   return useMutation({
     mutationFn: ({ id, patch }: { id: ItemId; patch: ItemPatch }) =>
-      apiCall('PATCH', `/api/items/${id}`, ItemPatchSchema.parse(patch), ItemSchema),
-    onSuccess: (item) => {
+      apiCall(
+        'PATCH',
+        `/api/items/${id}`,
+        ItemPatchSchema.parse(patch),
+        ItemPatchResponseSchema,
+      ) as Promise<ItemPatchResponse>,
+    onSuccess: (response) => {
+      if ('completed' in response) {
+        // Recurring completion via PATCH — update both items in cache.
+        const { completed, next } = response;
+        queryClient.setQueryData(itemKeys.detail(completed.id as ItemId), completed);
+        queryClient.setQueryData(itemKeys.detail(next.id as ItemId), next);
+      } else {
+        queryClient.setQueryData(itemKeys.detail(response.id as ItemId), response);
+      }
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
-      queryClient.setQueryData(itemKeys.detail(item.id as ItemId), item);
     },
     onError: () => {
       snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
@@ -94,8 +116,13 @@ export function useToggleComplete() {
   const snackbar = useSnackbarStore();
   const undo = useUndoStore();
 
-  return useMutation<Item, Error, { id: ItemId; nextStatus: Status }, { prior: Item | undefined }>({
-    mutationFn: ({ id, nextStatus }) =>
+  return useMutation<
+    ItemPatchResponse,
+    Error,
+    { id: ItemId; nextStatus: Status },
+    { prior: Item | undefined }
+  >({
+    mutationFn: ({ id, nextStatus }): Promise<ItemPatchResponse> =>
       apiCall(
         'PATCH',
         `/api/items/${id}`,
@@ -103,8 +130,8 @@ export function useToggleComplete() {
           status: nextStatus,
           completed_at: nextStatus === 'done' ? new Date().toISOString() : null,
         }),
-        ItemSchema,
-      ) as Promise<Item>,
+        ItemPatchResponseSchema,
+      ) as Promise<ItemPatchResponse>,
 
     onMutate: async ({ id, nextStatus }) => {
       await queryClient.cancelQueries({ queryKey: itemKeys.detail(id) });
@@ -121,6 +148,7 @@ export function useToggleComplete() {
       );
       queryClient.invalidateQueries({ queryKey: itemKeys.lists() });
 
+      // Optimistic undo push: will be replaced in onSuccess for recurring completions.
       undo.push({
         label: nextStatus === 'done' ? 'Task completed' : 'Task reopened',
         apply: async () => {
@@ -145,17 +173,72 @@ export function useToggleComplete() {
       snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
     },
 
-    onSuccess: (item, { id, nextStatus }) => {
-      queryClient.setQueryData(itemKeys.detail(id), item);
-      queryClient.invalidateQueries({ queryKey: itemKeys.lists() });
+    onSuccess: (response, { id, nextStatus }) => {
+      if ('completed' in response) {
+        // Recurring completion: response is { completed, next }
+        const { completed, next } = response;
 
-      if (nextStatus === 'done') {
+        // Update cache for both items
+        queryClient.setQueryData(itemKeys.detail(completed.id as ItemId), completed);
+        queryClient.setQueryData(itemKeys.detail(next.id as ItemId), next);
+        queryClient.invalidateQueries({ queryKey: itemKeys.lists() });
+
+        // Replace the optimistic undo entry with the real recurring undo
+        undo.push({
+          label: 'Task completed',
+          apply: async () => {
+            // (a) Reopen the source instance
+            await apiCall(
+              'PATCH',
+              `/api/items/${completed.id}`,
+              ItemPatchSchema.parse({ status: 'todo', completed_at: null }),
+              ItemSchema,
+            );
+            // (b) Hard-delete the auto-generated next instance.
+            //     Task-12 ships soft-delete; for now we call DELETE directly.
+            //     This will be replaced with a softDelete call once task-12 ships.
+            // TODO(task-12): replace hard DELETE with useTrashItem soft-delete
+            const deleteRes = await fetch(`/api/items/${next.id}`, { method: 'DELETE' });
+            if (!deleteRes.ok) {
+              snackbar.show({
+                variant: 'error',
+                text: "Couldn't remove the new instance. Delete it manually.",
+                durationMs: 5000,
+              });
+              // continue — source has already been reopened above
+            }
+            queryClient.invalidateQueries({ queryKey: itemKeys.all });
+          },
+        });
+
+        // Format the next due date as a human-readable label for the snackbar
+        const nextDateLabel = formatLocalDate(next.due_date);
         snackbar.show({
           variant: 'success',
-          text: 'Task completed.',
+          text: `Task completed. Next: ${nextDateLabel}.`,
           durationMs: 5000,
           action: { label: 'Undo', onClick: () => undo.pop() },
         });
+      } else {
+        // Non-recurring completion (or any other patch)
+        const item = response;
+        queryClient.setQueryData(itemKeys.detail(id), item);
+        queryClient.invalidateQueries({ queryKey: itemKeys.lists() });
+
+        if (nextStatus === 'done') {
+          snackbar.show({
+            variant: 'success',
+            text: 'Task completed.',
+            durationMs: 5000,
+            action: { label: 'Undo', onClick: () => undo.pop() },
+          });
+        } else if (nextStatus === 'todo' && item.recurrence !== null) {
+          snackbar.show({
+            variant: 'info',
+            text: 'Task reopened. Next instance kept.',
+            durationMs: 5000,
+          });
+        }
       }
     },
   });
