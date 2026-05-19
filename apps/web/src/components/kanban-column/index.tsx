@@ -1,6 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useVirtualizer } from '@tanstack/react-virtual';
 /**
  * KanbanColumn — a single column in the Kanban board.
  *
@@ -15,6 +16,9 @@ import { CSS } from '@dnd-kit/utilities';
  */
 import type { Item, ItemId, ProjectId, Status } from '@tasko/types';
 import { useCallback, useRef } from 'react';
+
+const KANBAN_VIRTUALIZE_THRESHOLD = 50;
+const ESTIMATED_CARD_HEIGHT = 80;
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { KanbanCard } from '../kanban-card';
 import styles from './styles.module.css';
@@ -150,6 +154,15 @@ export function KanbanColumn({
     [setDropRef],
   );
 
+  const kanbanScrollRef = useRef<HTMLUListElement>(null);
+  const kanbanVirtualizer = useVirtualizer({
+    count: visibleItems.length,
+    getScrollElement: () => kanbanScrollRef.current,
+    estimateSize: () => ESTIMATED_CARD_HEIGHT,
+    overscan: 3,
+  });
+  const useVirtualList = visibleItems.length > KANBAN_VIRTUALIZE_THRESHOLD;
+
   return (
     <section
       className={styles.column}
@@ -181,6 +194,55 @@ export function KanbanColumn({
           <div className={styles.emptyState} aria-label={`${title} column is empty`}>
             No items
           </div>
+        ) : useVirtualList ? (
+          /* Virtual list — fires when column has > 50 items (e.g., Done column with showAll) */
+          <ul
+            ref={kanbanScrollRef}
+            className={styles.cardList}
+            aria-label={`${title} tasks`}
+            data-testid="virtualized-scroll-container"
+            style={{
+              overflowY: 'auto',
+              position: 'relative',
+              height: `${kanbanVirtualizer.getTotalSize()}px`,
+            }}
+          >
+            <li
+              data-testid="virtualized-spacer"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${kanbanVirtualizer.getTotalSize()}px`,
+                pointerEvents: 'none',
+                listStyle: 'none',
+              }}
+              aria-hidden="true"
+            />
+            {kanbanVirtualizer.getVirtualItems().map((virtualItem) => {
+              const item = visibleItems[virtualItem.index];
+              if (!item) return null;
+              const isSelected =
+                multiSelect.set.has(item.id as ItemId) && multiSelect.scope === 'kanban-column';
+              return (
+                <li
+                  key={item.id}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualItem.start}px)`,
+                    paddingBottom: 'var(--space-2)',
+                    listStyle: 'none',
+                  }}
+                >
+                  <SortableKanbanCard item={item} isSelected={isSelected} onKeyDown={handleCardKeyDown} />
+                </li>
+              );
+            })}
+          </ul>
         ) : (
           <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual card elements */}

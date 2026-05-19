@@ -1,6 +1,7 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Item, ItemId, ProjectId } from '@tasko/types';
 import { List, SquareKanban } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useCreateItem, useItems, usePatchItem } from '../../api/items';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
@@ -13,6 +14,9 @@ import { useTaskModalStore } from '../../store/task-modal';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import styles from './flat-list-view.module.css';
+
+const VIRTUALIZE_THRESHOLD = 200;
+const ESTIMATED_ROW_HEIGHT = 40;
 
 interface FlatListViewProps {
   projectId: ProjectId;
@@ -43,6 +47,15 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
 
   const activeIds = useMemo(() => activeItems.map((i) => i.id as ItemId), [activeItems]);
   const { handleListClick, multiSelect } = useMultiSelect(activeIds, 'list');
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: activeItems.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+  const useVirtualList = activeItems.length > VIRTUALIZE_THRESHOLD;
 
   const VIEW_OPTIONS: ViewOption[] = [
     { value: 'list', icon: List, label: 'List view' },
@@ -95,6 +108,7 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
             type="text"
             className={styles.quickAddInput}
             placeholder="+ Add task"
+            aria-label="Add task to project"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && e.currentTarget.value.trim()) {
                 handleQuickAdd(e.currentTarget.value.trim());
@@ -112,6 +126,71 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
             subline="Add one above."
             tone="neutral"
           />
+        ) : useVirtualList ? (
+          /* Virtual list — fires when activeItems.length > 200 */
+          <div
+            ref={scrollContainerRef}
+            data-testid="virtualized-scroll-container"
+            style={{ height: '100%', overflowY: 'auto' }}
+          >
+            <ul
+              className={styles.list}
+              aria-label={`${projectName} active tasks`}
+              style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}
+            >
+              <li
+                data-testid="virtualized-spacer"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualizer.getTotalSize()}px`,
+                  pointerEvents: 'none',
+                }}
+                aria-hidden="true"
+              />
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const item = activeItems[virtualItem.index];
+                if (!item) return null;
+                return (
+                  <li
+                    key={item.id}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                  >
+                    <TaskListRow
+                      item={item}
+                      todayLocalDate={today}
+                      isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                      inlineEditMode={inlineEditId === (item.id as ItemId)}
+                      onClick={() => taskModal.openEdit(item.id as ItemId)}
+                      onToggleCheckbox={() =>
+                        patchItem.mutate({
+                          id: item.id as ItemId,
+                          patch: { status: item.status === 'done' ? 'todo' : 'done' },
+                        })
+                      }
+                      onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                      onTitleCommitInlineEdit={(newTitle) => {
+                        setInlineEditId(null);
+                        if (newTitle !== item.title) {
+                          patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
+                        }
+                      }}
+                      onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                      onTagClick={handleTagClick}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         ) : (
           <ListDndContext items={activeItems}>
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}

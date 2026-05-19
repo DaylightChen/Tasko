@@ -1,5 +1,7 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Item, ItemId, ProjectId } from '@tasko/types';
 import { ListTree, SquareKanban } from 'lucide-react';
+import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../api/items';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
@@ -392,6 +394,153 @@ function InlineAddCommitter({
   );
 }
 
+// ─── Flat tree row type (for virtualization) ──────────────────────────────────
+
+interface FlatTreeRow {
+  item: Item;
+  level: 1 | 2 | 3;
+  siblings: Item[];
+}
+
+/**
+ * Flatten the visible (expanded) tree into a row-array for virtualization.
+ * Mirrors the recursive TreeNode traversal order.
+ */
+function buildVisibleTreeRows(
+  items: Item[],
+  parentId: ItemId | null,
+  level: 1 | 2 | 3,
+  expandedSet: Set<ItemId>,
+  out: FlatTreeRow[],
+): void {
+  const children = items
+    .filter((i) => i.parent_id === (parentId ?? null) && !i.trashed_at)
+    .sort((a, b) => a.sort_order - b.sort_order);
+
+  for (const item of children) {
+    out.push({ item, level, siblings: children });
+    if (expandedSet.has(item.id as ItemId)) {
+      const nextLevel: 1 | 2 | 3 = level === 1 ? 2 : 3;
+      buildVisibleTreeRows(items, item.id as ItemId, nextLevel, expandedSet, out);
+    }
+  }
+}
+
+const TREE_VIRTUALIZE_THRESHOLD = 200;
+const TREE_ROW_HEIGHT = 40;
+
+// ─── FlatTreeRowRenderer — renders a single tree row (no recursion) ───────────
+
+interface FlatTreeRowRendererProps {
+  row: FlatTreeRow;
+  allItems: Item[];
+  itemsMap: Map<ItemId, Item>;
+  projectId: ProjectId;
+  today: string;
+  onItemClick: (item: Item) => void;
+  onContextMenu: (item: Item, x: number, y: number) => void;
+  onMoveToOpen: (item: Item) => void;
+  onToggleCheckbox: (item: Item) => void;
+  onRowFocus: (item: Item) => void;
+  patchItem: ReturnType<typeof usePatchItem>;
+  multiSelectSet: Set<ItemId>;
+}
+
+// Note: inline-add (add epic/feature inline) only available in non-virtual path.
+// With > 200 visible tree rows, users use the per-project Tree's "+" buttons which
+// open the modal instead.
+function FlatTreeRowRenderer({
+  row,
+  allItems,
+  itemsMap,
+  projectId,
+  today,
+  onItemClick,
+  onContextMenu,
+  onMoveToOpen,
+  onToggleCheckbox,
+  onRowFocus,
+  patchItem,
+  multiSelectSet,
+}: FlatTreeRowRendererProps) {
+  const expansion = useTreeExpansionStore();
+  const { dropTargetId, depthCapRejectId } = useTreeDndState();
+  const { item, level, siblings } = row;
+
+  const expanded = expansion.isExpanded(projectId, item.id as ItemId);
+  const children = allItems
+    .filter((i) => i.parent_id === item.id && !i.trashed_at)
+    .sort((a, b) => a.sort_order - b.sort_order);
+  const hasChildren = children.length > 0;
+
+  const dragId = `tree:${item.id}`;
+  const dropId = `tree-drop:${item.id}`;
+  const isDropTarget = dropTargetId === dropId;
+  const isDepthCapReject = depthCapRejectId === dragId;
+
+  const posInSet = siblings.indexOf(item) + 1;
+  const setSize = siblings.length;
+
+  const rollup = item.type !== 'task' ? rollupProgress(item, itemsMap) : undefined;
+
+  const handleContextMenuEvent = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onContextMenu(item, e.clientX, e.clientY);
+  };
+
+  return (
+    <div onContextMenu={handleContextMenuEvent} className={styles.treeNodeWrapper}>
+      <TreeRowDraggable
+        item={item}
+        projectId={projectId}
+        isDropTarget={isDropTarget}
+        isDepthCapReject={isDepthCapReject}
+      >
+        <TreeRow
+          item={item}
+          level={level}
+          expanded={expanded}
+          posInSet={posInSet}
+          setSize={setSize}
+          hasChildren={hasChildren}
+          isSelected={multiSelectSet.has(item.id as ItemId)}
+          {...(rollup !== undefined ? { rollup } : {})}
+          todayLocalDate={today as ReturnType<typeof todayLocal>}
+          onToggleExpand={() => expansion.toggle(projectId, item.id as ItemId)}
+          onToggleCheckbox={() => onToggleCheckbox(item)}
+          {...(item.type !== 'task'
+            ? {
+                onAddChild: () => {
+                  if (item.type === 'feature') {
+                    useTaskModalStore.getState().openNew({
+                      initialProjectId: projectId,
+                      initialParentId: item.id as ItemId,
+                    });
+                  } else {
+                    expansion.setExpanded(projectId, item.id as ItemId, true);
+                  }
+                },
+              }
+            : {})}
+          onClick={() => {
+            onRowFocus(item);
+            onItemClick(item);
+          }}
+          onMenuOpen={() => onContextMenu(item, 0, 0)}
+          onMoveToOpen={() => onMoveToOpen(item)}
+          onTitleClickInlineEdit={() => {}}
+          onTitleCommitInlineEdit={(newTitle) => {
+            if (newTitle && newTitle !== item.title) {
+              patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
+            }
+          }}
+        />
+      </TreeRowDraggable>
+    </div>
+  );
+}
+
 // ─── Project root drop zone (derives isDropTarget from context) ───────────────
 
 function ProjectRootDropZoneWrapper({ projectId }: { projectId: ProjectId }) {
@@ -468,6 +617,32 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   // Separate epics/features from loose top-level tasks
   const topLevelEpicsAndFeatures = topLevelItems.filter((i) => i.type !== 'task');
   const looseTopLevelTasks = topLevelItems.filter((i) => i.type === 'task');
+
+  // Compute flat visible tree rows for virtualization threshold check
+  const expandedSet = useMemo(() => {
+    const set = new Set<ItemId>();
+    for (const id of allItemIds) {
+      if (expansion.isExpanded(projectId, id)) {
+        set.add(id);
+      }
+    }
+    return set;
+  }, [allItemIds, expansion, projectId]);
+
+  const visibleFlatRows = useMemo(() => {
+    const rows: FlatTreeRow[] = [];
+    buildVisibleTreeRows(allItems, null, 1, expandedSet, rows);
+    return rows;
+  }, [allItems, expandedSet]);
+
+  const treeScrollRef = useRef<HTMLDivElement>(null);
+  const treeVirtualizer = useVirtualizer({
+    count: visibleFlatRows.length,
+    getScrollElement: () => treeScrollRef.current,
+    estimateSize: () => TREE_ROW_HEIGHT,
+    overscan: 5,
+  });
+  const useVirtualTree = visibleFlatRows.length > TREE_VIRTUALIZE_THRESHOLD;
 
   const createItem = useCreateItem();
   const patchItem = usePatchItem();
@@ -641,69 +816,133 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
 
         {/* Tree */}
         <TreeDndContext items={allItems} itemsMap={itemsMap} projectId={projectId}>
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual treeitem rows */}
-          <div
-            role="tree"
-            aria-label={`${projectName} tasks`}
-            className={styles.tree}
-            onClick={handleListClick}
-          >
-            {/* Epics and Features at top level */}
-            {topLevelEpicsAndFeatures.map((item) => (
-              <TreeNode
-                key={item.id}
-                item={item}
-                level={1}
-                siblings={topLevelEpicsAndFeatures}
-                allItems={allItems}
-                itemsMap={itemsMap}
-                projectId={projectId}
-                today={today}
-                inlineAddState={inlineAddState}
-                setInlineAddState={setInlineAddState}
-                onItemClick={handleItemClick}
-                onContextMenu={handleContextMenu}
-                onMoveToOpen={setMoveToPickerItem}
-                onToggleCheckbox={handleToggleCheckbox}
-                onRowFocus={setFocusedItem}
-                createItem={createItem}
-                patchItem={patchItem}
-                multiSelectSet={multiSelect.set}
-              />
-            ))}
+          {useVirtualTree ? (
+            /* Virtual flat tree — fires when visible row count > 200 */
+            <div
+              ref={treeScrollRef}
+              data-testid="virtualized-scroll-container"
+              style={{ height: '100%', overflowY: 'auto' }}
+            >
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual treeitem rows */}
+              <div
+                role="tree"
+                aria-label={`${projectName} tasks`}
+                className={styles.tree}
+                onClick={handleListClick}
+                style={{ height: `${treeVirtualizer.getTotalSize()}px`, position: 'relative' }}
+              >
+                <div
+                  data-testid="virtualized-spacer"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${treeVirtualizer.getTotalSize()}px`,
+                    pointerEvents: 'none',
+                  }}
+                  aria-hidden="true"
+                />
+                {treeVirtualizer.getVirtualItems().map((virtualItem) => {
+                  const row = visibleFlatRows[virtualItem.index];
+                  if (!row) return null;
+                  return (
+                    <div
+                      key={row.item.id}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualItem.start}px)`,
+                      }}
+                    >
+                      <FlatTreeRowRenderer
+                        row={row}
+                        allItems={allItems}
+                        itemsMap={itemsMap}
+                        projectId={projectId}
+                        today={today}
+                        onItemClick={handleItemClick}
+                        onContextMenu={handleContextMenu}
+                        onMoveToOpen={setMoveToPickerItem}
+                        onToggleCheckbox={handleToggleCheckbox}
+                        onRowFocus={setFocusedItem}
+                        patchItem={patchItem}
+                        multiSelectSet={multiSelect.set}
+                      />
+                    </div>
+                  );
+                })}
+                {/* Project root drop zone always rendered */}
+                <ProjectRootDropZoneWrapper projectId={projectId} />
+              </div>
+            </div>
+          ) : (
+            /* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual treeitem rows */
+            <div
+              role="tree"
+              aria-label={`${projectName} tasks`}
+              className={styles.tree}
+              onClick={handleListClick}
+            >
+              {/* Epics and Features at top level */}
+              {topLevelEpicsAndFeatures.map((item) => (
+                <TreeNode
+                  key={item.id}
+                  item={item}
+                  level={1}
+                  siblings={topLevelEpicsAndFeatures}
+                  allItems={allItems}
+                  itemsMap={itemsMap}
+                  projectId={projectId}
+                  today={today}
+                  inlineAddState={inlineAddState}
+                  setInlineAddState={setInlineAddState}
+                  onItemClick={handleItemClick}
+                  onContextMenu={handleContextMenu}
+                  onMoveToOpen={setMoveToPickerItem}
+                  onToggleCheckbox={handleToggleCheckbox}
+                  onRowFocus={setFocusedItem}
+                  createItem={createItem}
+                  patchItem={patchItem}
+                  multiSelectSet={multiSelect.set}
+                />
+              ))}
 
-            {/* Loose tasks divider */}
-            {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
-              <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
-            )}
+              {/* Loose tasks divider */}
+              {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
+                <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
+              )}
 
-            {/* Loose top-level tasks */}
-            {looseTopLevelTasks.map((item) => (
-              <TreeNode
-                key={item.id}
-                item={item}
-                level={1}
-                siblings={looseTopLevelTasks}
-                allItems={allItems}
-                itemsMap={itemsMap}
-                projectId={projectId}
-                today={today}
-                inlineAddState={inlineAddState}
-                setInlineAddState={setInlineAddState}
-                onItemClick={handleItemClick}
-                onContextMenu={handleContextMenu}
-                onMoveToOpen={setMoveToPickerItem}
-                onToggleCheckbox={handleToggleCheckbox}
-                onRowFocus={setFocusedItem}
-                createItem={createItem}
-                patchItem={patchItem}
-                multiSelectSet={multiSelect.set}
-              />
-            ))}
+              {/* Loose top-level tasks */}
+              {looseTopLevelTasks.map((item) => (
+                <TreeNode
+                  key={item.id}
+                  item={item}
+                  level={1}
+                  siblings={looseTopLevelTasks}
+                  allItems={allItems}
+                  itemsMap={itemsMap}
+                  projectId={projectId}
+                  today={today}
+                  inlineAddState={inlineAddState}
+                  setInlineAddState={setInlineAddState}
+                  onItemClick={handleItemClick}
+                  onContextMenu={handleContextMenu}
+                  onMoveToOpen={setMoveToPickerItem}
+                  onToggleCheckbox={handleToggleCheckbox}
+                  onRowFocus={setFocusedItem}
+                  createItem={createItem}
+                  patchItem={patchItem}
+                  multiSelectSet={multiSelect.set}
+                />
+              ))}
 
-            {/* Project root drop zone */}
-            <ProjectRootDropZoneWrapper projectId={projectId} />
-          </div>
+              {/* Project root drop zone */}
+              <ProjectRootDropZoneWrapper projectId={projectId} />
+            </div>
+          )}
         </TreeDndContext>
 
         {/* Show N completed toggle */}

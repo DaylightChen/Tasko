@@ -36,6 +36,16 @@
 
 ---
 
+## Axe E2E suite deferred to task-20 (Playwright infra not present until task-20)
+
+**Discovered:** 2026-05-20 (implement, Task 19)
+**Status:** deferred to task-20
+**Symptom:** Task-19 brief listed `apps/web/test/e2e/a11y-views.spec.ts` as a required output (AxeBuilder scan across all 13 routes). However Playwright infrastructure (playwright.config.ts, test fixtures, webServer wiring) does not exist until task-20 sets it up in its step 1.
+**Workaround:** None needed pre-task-20; automated a11y coverage for individual component behaviours is provided by Vitest unit tests for reduced-motion (tokens.css) and virtualization thresholds.
+**Revisit when:** Task-20 Playwright setup is complete. The a11y-views spec is listed as a deliverable in task-20's brief step 3.
+
+---
+
 ## TreeRow `aria-label` on `role="treeitem"` (deferred to task-18)
 - **Where:** `apps/web/src/components/tree-row/index.tsx`
 - **What:** TreeRow's `role="treeitem"` div doesn't set `aria-label`. Accessibility spec §3.6 and microcopy §29 define full row labels: `"Epic: <Title>, N of M tasks complete"`, `"Feature: <Title>, N of M tasks complete"`, etc.

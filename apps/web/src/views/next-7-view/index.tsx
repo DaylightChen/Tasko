@@ -1,6 +1,7 @@
-import type { Item, ItemId, LocalDate } from '@tasko/types';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import type { Item, ItemId, LocalDate, TagId } from '@tasko/types';
 import { CalendarDays } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useDeleteItem, useEditTitleInline, useItems, useToggleComplete } from '../../api/items';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
@@ -40,6 +41,122 @@ interface DayGroup {
   date: LocalDate;
   label: string;
   items: Item[];
+}
+
+const N7_VIRTUALIZE_THRESHOLD = 200;
+const ESTIMATED_ROW_HEIGHT = 40;
+
+// Sub-component so useVirtualizer can be called per group (hooks can't be in .map())
+interface VirtualizedDayItemsProps {
+  items: Item[];
+  date: LocalDate;
+  today: ReturnType<typeof todayLocal>;
+  multiSelectSet: Set<ItemId>;
+  inlineEditId: ItemId | null;
+  taskModal: { openEdit: (id: ItemId) => void };
+  toggleComplete: ReturnType<typeof useToggleComplete>;
+  editTitleInline: ReturnType<typeof useEditTitleInline>;
+  deleteItem: ReturnType<typeof useDeleteItem>;
+  handleTagClick: (tagId: TagId) => void;
+  setInlineEditId: (id: ItemId | null) => void;
+  setDeleteConfirmItem: (item: Item | null) => void;
+}
+
+function VirtualizedDayItems({
+  items,
+  today,
+  multiSelectSet,
+  inlineEditId,
+  taskModal,
+  toggleComplete,
+  editTitleInline,
+  deleteItem: _deleteItem,
+  handleTagClick,
+  setInlineEditId,
+  setDeleteConfirmItem,
+}: VirtualizedDayItemsProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+
+  return (
+    <div
+      ref={scrollRef}
+      data-testid="virtualized-scroll-container"
+      style={{ height: '100%', overflowY: 'auto' }}
+    >
+      <ul
+        className={styles.list}
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          position: 'relative',
+          listStyle: 'none',
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        <li
+          data-testid="virtualized-spacer"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: `${virtualizer.getTotalSize()}px`,
+            pointerEvents: 'none',
+            listStyle: 'none',
+          }}
+          aria-hidden="true"
+        />
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const item = items[virtualItem.index];
+          if (!item) return null;
+          return (
+            <li
+              key={item.id}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItem.start}px)`,
+                listStyle: 'none',
+              }}
+            >
+              <TaskListRow
+                item={item}
+                todayLocalDate={today}
+                isFocused={false}
+                isMultiSelected={multiSelectSet.has(item.id as ItemId)}
+                inlineEditMode={inlineEditId === (item.id as ItemId)}
+                onClick={() => taskModal.openEdit(item.id as ItemId)}
+                onToggleCheckbox={() =>
+                  toggleComplete.mutate({
+                    id: item.id as ItemId,
+                    nextStatus: item.status === 'done' ? 'todo' : 'done',
+                  })
+                }
+                onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                onTitleCommitInlineEdit={(newTitle) => {
+                  setInlineEditId(null);
+                  if (newTitle !== item.title) {
+                    editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                  }
+                }}
+                onDeleteRequest={() => setDeleteConfirmItem(item)}
+                onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                onTagClick={handleTagClick}
+              />
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
 
 export function Next7DaysView() {
@@ -131,40 +248,58 @@ export function Next7DaysView() {
                       {label} <span className={styles.countBadge}>({items.length})</span>
                     </h2>
                     <DroppableDayGroup date={date} itemIds={items.map((i) => `${i.id}:${date}`)}>
-                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
-                      <ul className={styles.list} onClick={handleListClick}>
-                        {items.map((item) => (
-                          <SortableNext7Row key={`${item.id}-${date}`} item={item} groupDate={date}>
-                            {(sortableProps) => (
-                              <TaskListRow
-                                item={item}
-                                todayLocalDate={today}
-                                isFocused={false}
-                                isMultiSelected={multiSelect.set.has(item.id as ItemId)}
-                                inlineEditMode={inlineEditId === (item.id as ItemId)}
-                                onClick={() => taskModal.openEdit(item.id as ItemId)}
-                                onToggleCheckbox={() =>
-                                  toggleComplete.mutate({
-                                    id: item.id as ItemId,
-                                    nextStatus: item.status === 'done' ? 'todo' : 'done',
-                                  })
-                                }
-                                onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                                onTitleCommitInlineEdit={(newTitle) => {
-                                  setInlineEditId(null);
-                                  if (newTitle !== item.title) {
-                                    editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                      {items.length > N7_VIRTUALIZE_THRESHOLD ? (
+                        /* Virtual list for very large day groups */
+                        <VirtualizedDayItems
+                          items={items}
+                          date={date}
+                          today={today}
+                          multiSelectSet={multiSelect.set}
+                          inlineEditId={inlineEditId}
+                          taskModal={taskModal}
+                          toggleComplete={toggleComplete}
+                          editTitleInline={editTitleInline}
+                          deleteItem={deleteItem}
+                          handleTagClick={handleTagClick}
+                          setInlineEditId={setInlineEditId}
+                          setDeleteConfirmItem={setDeleteConfirmItem}
+                        />
+                      ) : (
+                        /* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */
+                        <ul className={styles.list} onClick={handleListClick}>
+                          {items.map((item) => (
+                            <SortableNext7Row key={`${item.id}-${date}`} item={item} groupDate={date}>
+                              {(sortableProps) => (
+                                <TaskListRow
+                                  item={item}
+                                  todayLocalDate={today}
+                                  isFocused={false}
+                                  isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                                  inlineEditMode={inlineEditId === (item.id as ItemId)}
+                                  onClick={() => taskModal.openEdit(item.id as ItemId)}
+                                  onToggleCheckbox={() =>
+                                    toggleComplete.mutate({
+                                      id: item.id as ItemId,
+                                      nextStatus: item.status === 'done' ? 'todo' : 'done',
+                                    })
                                   }
-                                }}
-                                onDeleteRequest={() => setDeleteConfirmItem(item)}
-                                onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                                onTagClick={handleTagClick}
-                                {...sortableProps}
-                              />
-                            )}
-                          </SortableNext7Row>
-                        ))}
-                      </ul>
+                                  onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                                  onTitleCommitInlineEdit={(newTitle) => {
+                                    setInlineEditId(null);
+                                    if (newTitle !== item.title) {
+                                      editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                                    }
+                                  }}
+                                  onDeleteRequest={() => setDeleteConfirmItem(item)}
+                                  onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                                  onTagClick={handleTagClick}
+                                  {...sortableProps}
+                                />
+                              )}
+                            </SortableNext7Row>
+                          ))}
+                        </ul>
+                      )}
                     </DroppableDayGroup>
                   </>
                 )}

@@ -1,7 +1,8 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Item, ItemId, LocalDate, Priority, Status } from '@tasko/types';
 import { Sun, Sunrise } from 'lucide-react';
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   useBulkMoveOverdue,
   useChangePriority,
@@ -24,6 +25,9 @@ import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import { partitionOverdue } from './partition';
 import styles from './styles.module.css';
+
+const VIRTUALIZE_THRESHOLD = 200;
+const ESTIMATED_ROW_HEIGHT = 40;
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
@@ -65,6 +69,24 @@ export function TodayView() {
   const { focusedId, moveFocus } = useFocusedRow(allVisible);
   const allVisibleIds = useMemo(() => allVisible.map((i) => i.id as ItemId), [allVisible]);
   const { handleListClick, multiSelect } = useMultiSelect(allVisibleIds, 'list');
+
+  // Virtualization for sections > 200 items
+  const overdueScrollRef = useRef<HTMLDivElement>(null);
+  const todaysScrollRef = useRef<HTMLDivElement>(null);
+  const overdueVirtualizer = useVirtualizer({
+    count: overdue.length,
+    getScrollElement: () => overdueScrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+  const todaysVirtualizer = useVirtualizer({
+    count: todays.length,
+    getScrollElement: () => todaysScrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+  const useVirtualOverdue = overdue.length > VIRTUALIZE_THRESHOLD;
+  const useVirtualTodays = todays.length > VIRTUALIZE_THRESHOLD;
 
   // Mutations
   const toggleComplete = useToggleComplete();
@@ -205,10 +227,185 @@ export function TodayView() {
                   Move all overdue to today
                 </button>
               </div>
-              <ListDndContext items={overdue}>
+              {useVirtualOverdue ? (
+                /* Virtual list for large overdue sections */
+                <div
+                  ref={overdueScrollRef}
+                  data-testid="virtualized-scroll-container"
+                  style={{ height: '100%', overflowY: 'auto' }}
+                >
+                  <ul
+                    className={styles.list}
+                    aria-label="Overdue items"
+                    style={{ height: `${overdueVirtualizer.getTotalSize()}px`, position: 'relative' }}
+                  >
+                    <li
+                      data-testid="virtualized-spacer"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: `${overdueVirtualizer.getTotalSize()}px`,
+                        pointerEvents: 'none',
+                      }}
+                      aria-hidden="true"
+                    />
+                    {overdueVirtualizer.getVirtualItems().map((virtualItem) => {
+                      const item = overdue[virtualItem.index];
+                      if (!item) return null;
+                      return (
+                        <li
+                          key={item.id}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            transform: `translateY(${virtualItem.start}px)`,
+                          }}
+                        >
+                          <TaskListRow
+                            item={item}
+                            todayLocalDate={today}
+                            isFocused={focusedId === item.id}
+                            isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                            inlineEditMode={inlineEditId === (item.id as ItemId)}
+                            onClick={() => taskModal.openEdit(item.id as ItemId)}
+                            onToggleCheckbox={() => handleToggleCheckbox(item)}
+                            onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                            onTitleCommitInlineEdit={(newTitle) => {
+                              setInlineEditId(null);
+                              if (newTitle !== item.title) {
+                                editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                              }
+                            }}
+                            onDeleteRequest={() => setDeleteConfirmItem(item)}
+                            onScheduleTodayKeyboard={() =>
+                              reschedule.mutate({ id: item.id as ItemId, newDate: today })
+                            }
+                            onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                            onTagClick={handleTagClick}
+                          />
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ) : (
+                <ListDndContext items={overdue}>
+                  {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+                  <ul className={styles.list} onClick={handleListClick}>
+                    {overdue.map((item) => (
+                      <SortableTaskRow key={item.id} item={item}>
+                        {(sortableProps) => (
+                          <TaskListRow
+                            item={item}
+                            todayLocalDate={today}
+                            isFocused={focusedId === item.id}
+                            isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                            inlineEditMode={inlineEditId === (item.id as ItemId)}
+                            onClick={() => taskModal.openEdit(item.id as ItemId)}
+                            onToggleCheckbox={() => handleToggleCheckbox(item)}
+                            onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                            onTitleCommitInlineEdit={(newTitle) => {
+                              setInlineEditId(null);
+                              if (newTitle !== item.title) {
+                                editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                              }
+                            }}
+                            onDeleteRequest={() => setDeleteConfirmItem(item)}
+                            onScheduleTodayKeyboard={() =>
+                              reschedule.mutate({ id: item.id as ItemId, newDate: today })
+                            }
+                            onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                            onTagClick={handleTagClick}
+                            {...sortableProps}
+                          />
+                        )}
+                      </SortableTaskRow>
+                    ))}
+                  </ul>
+                </ListDndContext>
+              )}
+            </section>
+          )}
+
+          {/* Today section */}
+          <section className={styles.section} aria-label={`Today, ${todays.length} items`}>
+            <h2 className={styles.sectionTitle}>
+              Today <span className={styles.sectionDate}>{formatDayMonthDD(today)}</span>
+            </h2>
+            {useVirtualTodays ? (
+              /* Virtual list for large today sections */
+              <div
+                ref={todaysScrollRef}
+                data-testid="virtualized-scroll-container"
+                style={{ height: '100%', overflowY: 'auto' }}
+              >
+                <ul
+                  className={styles.list}
+                  aria-label="Today items"
+                  style={{ height: `${todaysVirtualizer.getTotalSize()}px`, position: 'relative' }}
+                >
+                  <li
+                    data-testid="virtualized-spacer"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${todaysVirtualizer.getTotalSize()}px`,
+                      pointerEvents: 'none',
+                    }}
+                    aria-hidden="true"
+                  />
+                  {todaysVirtualizer.getVirtualItems().map((virtualItem) => {
+                    const item = todays[virtualItem.index];
+                    if (!item) return null;
+                    return (
+                      <li
+                        key={item.id}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualItem.start}px)`,
+                        }}
+                      >
+                        <TaskListRow
+                          item={item}
+                          todayLocalDate={today}
+                          isFocused={focusedId === item.id}
+                          isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                          inlineEditMode={inlineEditId === (item.id as ItemId)}
+                          onClick={() => taskModal.openEdit(item.id as ItemId)}
+                          onToggleCheckbox={() => handleToggleCheckbox(item)}
+                          onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                          onTitleCommitInlineEdit={(newTitle) => {
+                            setInlineEditId(null);
+                            if (newTitle !== item.title) {
+                              editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                            }
+                          }}
+                          onDeleteRequest={() => setDeleteConfirmItem(item)}
+                          onScheduleTodayKeyboard={() =>
+                            reschedule.mutate({ id: item.id as ItemId, newDate: today })
+                          }
+                          onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                          onTagClick={handleTagClick}
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : (
+              <ListDndContext items={todays}>
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
                 <ul className={styles.list} onClick={handleListClick}>
-                  {overdue.map((item) => (
+                  {todays.map((item) => (
                     <SortableTaskRow key={item.id} item={item}>
                       {(sortableProps) => (
                         <TaskListRow
@@ -239,48 +436,7 @@ export function TodayView() {
                   ))}
                 </ul>
               </ListDndContext>
-            </section>
-          )}
-
-          {/* Today section */}
-          <section className={styles.section} aria-label={`Today, ${todays.length} items`}>
-            <h2 className={styles.sectionTitle}>
-              Today <span className={styles.sectionDate}>{formatDayMonthDD(today)}</span>
-            </h2>
-            <ListDndContext items={todays}>
-              {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
-              <ul className={styles.list} onClick={handleListClick}>
-                {todays.map((item) => (
-                  <SortableTaskRow key={item.id} item={item}>
-                    {(sortableProps) => (
-                      <TaskListRow
-                        item={item}
-                        todayLocalDate={today}
-                        isFocused={focusedId === item.id}
-                        isMultiSelected={multiSelect.set.has(item.id as ItemId)}
-                        inlineEditMode={inlineEditId === (item.id as ItemId)}
-                        onClick={() => taskModal.openEdit(item.id as ItemId)}
-                        onToggleCheckbox={() => handleToggleCheckbox(item)}
-                        onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                        onTitleCommitInlineEdit={(newTitle) => {
-                          setInlineEditId(null);
-                          if (newTitle !== item.title) {
-                            editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
-                          }
-                        }}
-                        onDeleteRequest={() => setDeleteConfirmItem(item)}
-                        onScheduleTodayKeyboard={() =>
-                          reschedule.mutate({ id: item.id as ItemId, newDate: today })
-                        }
-                        onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                        onTagClick={handleTagClick}
-                        {...sortableProps}
-                      />
-                    )}
-                  </SortableTaskRow>
-                ))}
-              </ul>
-            </ListDndContext>
+            )}
           </section>
         </div>
       </ViewChrome>

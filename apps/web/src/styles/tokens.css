@@ -279,11 +279,16 @@
 
 /* --- Reduced-motion overrides --- */
 @media (prefers-reduced-motion: reduce) {
+  :root[data-theme="light"],
+  :root[data-theme="dark"],
   :root {
+    --motion-instant: 80ms;
     --motion-fast: 80ms;
     --motion-base: 80ms;
     --motion-medium: 80ms;
     --motion-slow: 80ms;
     --ease-spring-soft: linear;
   }
+  /* Functional motions (loaders, drag shadows, focus rings, drop highlights) are
+     retained — they are not driven by motion-* tokens. See accessibility.md §7. */
 }

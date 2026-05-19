@@ -1,6 +1,7 @@
-import type { Item, ItemId } from '@tasko/types';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import type { Item, ItemId, TagId } from '@tasko/types';
 import { CheckCircle2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useConfig } from '../../api/config';
 import { useFolders } from '../../api/folders';
 import { useDeleteItem, useItems, useToggleComplete } from '../../api/items';
@@ -14,6 +15,9 @@ import { useTaskModalStore } from '../../store/task-modal';
 import { groupCompleted } from './grouping';
 import type { CompletedGroup } from './grouping';
 import styles from './styles.module.css';
+
+const VIRTUALIZE_THRESHOLD = 200;
+const ESTIMATED_ROW_HEIGHT = 48;
 
 // ─── Timestamp formatting ─────────────────────────────────────────────────────
 
@@ -46,6 +50,108 @@ function formatCompletedTimestamp(completedAt: string, group: CompletedGroup): s
   const mon = MONTH_SHORT[d.getUTCMonth()] ?? '';
   const day = d.getUTCDate();
   return `${mon} ${day}`;
+}
+
+// ─── VirtualizedGroupList — used when a single group exceeds the threshold ────
+
+interface VirtualizedGroupListProps {
+  items: Item[];
+  today: ReturnType<typeof todayLocal>;
+  getProjectBreadcrumb: (projectId: string) => { name: string; folder?: { name: string } } | undefined;
+  group: CompletedGroup;
+  formatTimestamp: (completedAt: string, group: CompletedGroup) => string;
+  taskModal: { openEdit: (id: ItemId) => void };
+  toggleComplete: ReturnType<typeof useToggleComplete>;
+  deleteItem: ReturnType<typeof useDeleteItem>;
+  handleTagClick: (tagId: TagId) => void;
+  setDeleteConfirmItem: (item: Item | null) => void;
+}
+
+function VirtualizedGroupList({
+  items,
+  today,
+  getProjectBreadcrumb,
+  group,
+  formatTimestamp,
+  taskModal,
+  toggleComplete,
+  deleteItem: _deleteItem,
+  handleTagClick,
+  setDeleteConfirmItem,
+}: VirtualizedGroupListProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+
+  return (
+    <div
+      ref={scrollRef}
+      data-testid="virtualized-scroll-container"
+      style={{ height: '100%', overflowY: 'auto' }}
+    >
+      <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+        <div
+          data-testid="virtualized-spacer"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: `${virtualizer.getTotalSize()}px`,
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        />
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const item = items[virtualItem.index];
+          if (!item) return null;
+          const breadcrumb = getProjectBreadcrumb(item.project_id);
+          const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
+          const timestamp = item.completed_at ? formatTimestamp(item.completed_at, group) : undefined;
+          return (
+            <div
+              key={item.id}
+              className={styles.completedRowWrapper}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <TaskListRow
+                {...projectProp}
+                item={item}
+                todayLocalDate={today}
+                isFocused={false}
+                showProjectBreadcrumb
+                onClick={() => taskModal.openEdit(item.id as ItemId)}
+                onToggleCheckbox={() =>
+                  toggleComplete.mutate({
+                    id: item.id as ItemId,
+                    nextStatus: 'todo',
+                  })
+                }
+                onDeleteRequest={() => setDeleteConfirmItem(item)}
+                onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                onTagClick={handleTagClick}
+              />
+              {timestamp && (
+                <span className={styles.timestamp} aria-label={`Completed at ${timestamp}`}>
+                  {timestamp}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ─── CompletedView ────────────────────────────────────────────────────────────
@@ -149,45 +255,60 @@ export function CompletedView() {
           </div>
         </div>
 
-        {groups.map(({ group, label, items }) => (
+        {groups.map(({ group, label, items: groupItems }) => (
           <section key={group} className={styles.group} aria-label={label}>
             <h2 className={styles.groupHeader}>{label}</h2>
-            <div className={styles.list}>
-              {items.map((item) => {
-                const breadcrumb = getProjectBreadcrumb(item.project_id);
-                const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
-                const timestamp = item.completed_at
-                  ? formatCompletedTimestamp(item.completed_at, group)
-                  : undefined;
+            {groupItems.length > VIRTUALIZE_THRESHOLD ? (
+              <VirtualizedGroupList
+                items={groupItems}
+                today={today}
+                getProjectBreadcrumb={getProjectBreadcrumb}
+                group={group}
+                formatTimestamp={formatCompletedTimestamp}
+                taskModal={taskModal}
+                toggleComplete={toggleComplete}
+                deleteItem={deleteItem}
+                handleTagClick={handleTagClick}
+                setDeleteConfirmItem={setDeleteConfirmItem}
+              />
+            ) : (
+              <div className={styles.list}>
+                {groupItems.map((item) => {
+                  const breadcrumb = getProjectBreadcrumb(item.project_id);
+                  const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
+                  const timestamp = item.completed_at
+                    ? formatCompletedTimestamp(item.completed_at, group)
+                    : undefined;
 
-                return (
-                  <div key={item.id} className={styles.completedRowWrapper}>
-                    <TaskListRow
-                      {...projectProp}
-                      item={item}
-                      todayLocalDate={today}
-                      isFocused={false}
-                      showProjectBreadcrumb
-                      onClick={() => taskModal.openEdit(item.id as ItemId)}
-                      onToggleCheckbox={() =>
-                        toggleComplete.mutate({
-                          id: item.id as ItemId,
-                          nextStatus: 'todo',
-                        })
-                      }
-                      onDeleteRequest={() => setDeleteConfirmItem(item)}
-                      onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                      onTagClick={handleTagClick}
-                    />
-                    {timestamp && (
-                      <span className={styles.timestamp} aria-label={`Completed at ${timestamp}`}>
-                        {timestamp}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  return (
+                    <div key={item.id} className={styles.completedRowWrapper}>
+                      <TaskListRow
+                        {...projectProp}
+                        item={item}
+                        todayLocalDate={today}
+                        isFocused={false}
+                        showProjectBreadcrumb
+                        onClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onToggleCheckbox={() =>
+                          toggleComplete.mutate({
+                            id: item.id as ItemId,
+                            nextStatus: 'todo',
+                          })
+                        }
+                        onDeleteRequest={() => setDeleteConfirmItem(item)}
+                        onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onTagClick={handleTagClick}
+                      />
+                      {timestamp && (
+                        <span className={styles.timestamp} aria-label={`Completed at ${timestamp}`}>
+                          {timestamp}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
         ))}
       </div>

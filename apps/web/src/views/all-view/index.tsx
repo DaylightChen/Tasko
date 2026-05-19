@@ -1,6 +1,7 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Item, ItemId } from '@tasko/types';
 import { List } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useFolders } from '../../api/folders';
 import { useDeleteItem, useEditTitleInline, useItems, useToggleComplete } from '../../api/items';
 import { useProjects } from '../../api/projects';
@@ -15,6 +16,9 @@ import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import styles from './styles.module.css';
+
+const VIRTUALIZE_THRESHOLD = 200;
+const ESTIMATED_ROW_HEIGHT = 40;
 
 export function AllView() {
   const today = todayLocal();
@@ -45,6 +49,15 @@ export function AllView() {
 
   const visibleIds = useMemo(() => items.map((i) => i.id as ItemId), [items]);
   const { handleListClick, multiSelect } = useMultiSelect(visibleIds, 'list');
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 5,
+  });
+  const useVirtualList = items.length > VIRTUALIZE_THRESHOLD;
 
   // Build project breadcrumb lookup
   const getProjectBreadcrumb = (
@@ -81,15 +94,46 @@ export function AllView() {
         {/* Subline: Showing N active items across all projects */}
         <p className={styles.subline}>Showing {items.length} active items across all projects.</p>
 
-        <ListDndContext items={items}>
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
-          <ul className={styles.list} onClick={handleListClick}>
-            {items.map((item) => {
-              const breadcrumb = getProjectBreadcrumb(item.project_id);
-              const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
-              return (
-                <SortableTaskRow key={item.id} item={item}>
-                  {(sortableProps) => (
+        {useVirtualList ? (
+          /* Virtual list — fires when items.length > 200 */
+          <div
+            ref={scrollContainerRef}
+            data-testid="virtualized-scroll-container"
+            style={{ height: '100%', overflowY: 'auto' }}
+          >
+            <ul
+              className={styles.list}
+              aria-label="All items"
+              style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}
+            >
+              <li
+                data-testid="virtualized-spacer"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualizer.getTotalSize()}px`,
+                  pointerEvents: 'none',
+                }}
+                aria-hidden="true"
+              />
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const item = items[virtualItem.index];
+                if (!item) return null;
+                const breadcrumb = getProjectBreadcrumb(item.project_id);
+                const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
+                return (
+                  <li
+                    key={item.id}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                  >
                     <TaskListRow
                       {...projectProp}
                       item={item}
@@ -115,14 +159,56 @@ export function AllView() {
                       onDeleteRequest={() => setDeleteConfirmItem(item)}
                       onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
                       onTagClick={handleTagClick}
-                      {...sortableProps}
                     />
-                  )}
-                </SortableTaskRow>
-              );
-            })}
-          </ul>
-        </ListDndContext>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : (
+          <ListDndContext items={items}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+            <ul className={styles.list} onClick={handleListClick}>
+              {items.map((item) => {
+                const breadcrumb = getProjectBreadcrumb(item.project_id);
+                const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
+                return (
+                  <SortableTaskRow key={item.id} item={item}>
+                    {(sortableProps) => (
+                      <TaskListRow
+                        {...projectProp}
+                        item={item}
+                        todayLocalDate={today}
+                        isFocused={false}
+                        isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                        showProjectBreadcrumb
+                        inlineEditMode={inlineEditId === (item.id as ItemId)}
+                        onClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onToggleCheckbox={() =>
+                          toggleComplete.mutate({
+                            id: item.id as ItemId,
+                            nextStatus: item.status === 'done' ? 'todo' : 'done',
+                          })
+                        }
+                        onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                        onTitleCommitInlineEdit={(newTitle) => {
+                          setInlineEditId(null);
+                          if (newTitle !== item.title) {
+                            editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                          }
+                        }}
+                        onDeleteRequest={() => setDeleteConfirmItem(item)}
+                        onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onTagClick={handleTagClick}
+                        {...sortableProps}
+                      />
+                    )}
+                  </SortableTaskRow>
+                );
+              })}
+            </ul>
+          </ListDndContext>
+        )}
       </ViewChrome>
 
       <ConfirmationPrompt

@@ -1,3 +1,4 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 /**
  * DayDetailPopover — anchored popover (Sheet on mobile) showing all items for a day.
  *
@@ -21,6 +22,9 @@ import { TaskListRow } from '../../components/task-list-row';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import styles from './day-detail.module.css';
+
+const DAY_DETAIL_VIRTUALIZE_THRESHOLD = 50;
+const ESTIMATED_ROW_HEIGHT = 40;
 
 const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_LONG = [
@@ -71,6 +75,15 @@ export function DayDetailPopover({ date, items, onClose }: DayDetailPopoverProps
   const today = todayLocal();
   const toggleComplete = useToggleComplete();
   const deleteItem = useDeleteItem();
+
+  const listScrollRef = useRef<HTMLUListElement>(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => listScrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 3,
+  });
+  const useVirtualList = items.length > DAY_DETAIL_VIRTUALIZE_THRESHOLD;
 
   // Focus the close button on mount
   useEffect(() => {
@@ -157,29 +170,90 @@ export function DayDetailPopover({ date, items, onClose }: DayDetailPopoverProps
         </div>
 
         {/* Body: scrolling task list */}
-        <ul
-          className={styles.body}
-          aria-label={`Tasks on ${title}`}
-          style={{ listStyle: 'none', margin: 0, padding: 0 }}
-        >
-          {items.map((item) => (
-            <TaskListRow
-              key={item.id}
-              item={item}
-              todayLocalDate={today}
-              isFocused={false}
-              isMultiSelected={false}
-              inlineEditMode={false}
-              onClick={() => handleRowClick(item)}
-              onToggleCheckbox={() => handleToggleCheckbox(item)}
-              onTitleClickInlineEdit={() => {}}
-              onTitleCommitInlineEdit={() => {}}
-              onDeleteRequest={() => deleteItem.mutate({ id: item.id as ItemId, title: item.title })}
-              onScheduleTodayKeyboard={() => {}}
-              onOpenChevronClick={() => handleRowClick(item)}
+        {useVirtualList ? (
+          <ul
+            ref={listScrollRef}
+            className={styles.body}
+            aria-label={`Tasks on ${title}`}
+            data-testid="virtualized-scroll-container"
+            style={{
+              listStyle: 'none',
+              margin: 0,
+              padding: 0,
+              overflowY: 'auto',
+              position: 'relative',
+              height: `${virtualizer.getTotalSize()}px`,
+            }}
+          >
+            <li
+              data-testid="virtualized-spacer"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${virtualizer.getTotalSize()}px`,
+                pointerEvents: 'none',
+              }}
+              aria-hidden="true"
             />
-          ))}
-        </ul>
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const item = items[virtualItem.index];
+              if (!item) return null;
+              return (
+                <li
+                  key={item.id}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <TaskListRow
+                    item={item}
+                    todayLocalDate={today}
+                    isFocused={false}
+                    isMultiSelected={false}
+                    inlineEditMode={false}
+                    onClick={() => handleRowClick(item)}
+                    onToggleCheckbox={() => handleToggleCheckbox(item)}
+                    onTitleClickInlineEdit={() => {}}
+                    onTitleCommitInlineEdit={() => {}}
+                    onDeleteRequest={() => deleteItem.mutate({ id: item.id as ItemId, title: item.title })}
+                    onScheduleTodayKeyboard={() => {}}
+                    onOpenChevronClick={() => handleRowClick(item)}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <ul
+            className={styles.body}
+            aria-label={`Tasks on ${title}`}
+            style={{ listStyle: 'none', margin: 0, padding: 0 }}
+          >
+            {items.map((item) => (
+              <TaskListRow
+                key={item.id}
+                item={item}
+                todayLocalDate={today}
+                isFocused={false}
+                isMultiSelected={false}
+                inlineEditMode={false}
+                onClick={() => handleRowClick(item)}
+                onToggleCheckbox={() => handleToggleCheckbox(item)}
+                onTitleClickInlineEdit={() => {}}
+                onTitleCommitInlineEdit={() => {}}
+                onDeleteRequest={() => deleteItem.mutate({ id: item.id as ItemId, title: item.title })}
+                onScheduleTodayKeyboard={() => {}}
+                onOpenChevronClick={() => handleRowClick(item)}
+              />
+            ))}
+          </ul>
+        )}
 
         {/* Footer */}
         <div className={styles.footer}>
