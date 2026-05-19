@@ -97,21 +97,6 @@ describe('Projects CRUD', () => {
     expect(body.error.code).toBe('VALIDATION');
   });
 
-  it('DELETE returns 501', async () => {
-    const createRes = await server.inject({
-      method: 'POST',
-      url: '/api/projects',
-      payload: baseProject,
-    });
-    const created = JSON.parse(createRes.body) as { id: string };
-
-    const res = await server.inject({
-      method: 'DELETE',
-      url: `/api/projects/${created.id}`,
-    });
-    expect(res.statusCode).toBe(501);
-  });
-
   it('GET /api/projects/:id returns 404 for unknown id', async () => {
     const res = await server.inject({
       method: 'GET',

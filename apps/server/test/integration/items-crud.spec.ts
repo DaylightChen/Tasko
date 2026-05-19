@@ -216,12 +216,4 @@ describe('Items CRUD', () => {
     const body = JSON.parse(res.body) as { error: { code: string } };
     expect(body.error.code).toBe('ITEM_NOT_FOUND');
   });
-
-  it('DELETE returns 501', async () => {
-    const res = await server.inject({
-      method: 'DELETE',
-      url: '/api/items/01HWABCDEFGHJKMNPQRSTVWXYZ',
-    });
-    expect(res.statusCode).toBe(501);
-  });
 });

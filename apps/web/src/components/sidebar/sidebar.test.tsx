@@ -35,6 +35,7 @@ vi.mock('@tanstack/react-router', () => ({
     </a>
   ),
   useRouterState: () => ({ location: { pathname: '/today' } }),
+  useNavigate: () => vi.fn(),
 }));
 
 // --- Mock API hooks ---

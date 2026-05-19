@@ -1,8 +1,6 @@
 import type React from 'react';
-import { useEffect } from 'react';
 import { QuickAddInput } from '../../components/quick-add-input';
 import { SortDropdown } from '../../components/sort-dropdown';
-import { useUndoStore } from '../../store/undo';
 import styles from './ViewChrome.module.css';
 
 export interface ViewChromeProps {
@@ -22,9 +20,7 @@ export interface ViewChromeProps {
  *   - QuickAddInput row
  *   - children (the list content)
  *
- * Also registers a lightweight ⌘Z / Ctrl+Z handler that calls undoStore.pop()
- * when the active element is not in an input/textarea/contenteditable.
- * Task-18 will move this into the hotkey registry.
+ * ⌘Z global undo is handled by GlobalUndo in main.tsx (task-12).
  */
 export function ViewChrome({
   title,
@@ -34,27 +30,6 @@ export function ViewChrome({
   quickAddInitialFocus = false,
   children,
 }: ViewChromeProps) {
-  const undo = useUndoStore();
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMod = e.metaKey || e.ctrlKey;
-      if (!isMod || e.key !== 'z') return;
-
-      // Don't intercept if focus is in a text editing context
-      const active = document.activeElement;
-      if (active instanceof HTMLInputElement) return;
-      if (active instanceof HTMLTextAreaElement) return;
-      if (active instanceof HTMLElement && active.isContentEditable) return;
-
-      e.preventDefault();
-      undo.pop();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [undo]);
-
   return (
     <div className={styles.root}>
       <header className={styles.header}>

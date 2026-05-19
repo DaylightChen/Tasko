@@ -143,8 +143,47 @@ export function registerProjectRoutes(app: FastifyInstance): void {
     return reply.send(updated);
   });
 
-  // DELETE /api/projects/:id — stub (task-12)
-  app.delete('/api/projects/:id', async (_req, _reply) => {
-    throw new HttpError(501, 'INTERNAL', 'Project deletion (cascade) is task-12.');
+  // DELETE /api/projects/:id — cascade soft-delete all items, then remove the project file
+  app.delete('/api/projects/:id', async (req, reply) => {
+    const params = req.params as Record<string, unknown>;
+    const rawId = String(params.id ?? '');
+    const tabId = (req.headers['x-tasko-tab-id'] as string | undefined) ?? null;
+
+    const result = await app.indexer.withWriteLock(async (index, ops) => {
+      const source = [...index.projects.values()].find((p) => p.id === rawId);
+      if (!source) {
+        throw new HttpError(404, 'PROJECT_NOT_FOUND', 'Project not found.');
+      }
+      if (source.is_inbox) {
+        throw new HttpError(409, 'INBOX_IMMUTABLE', 'Inbox cannot be deleted.');
+      }
+
+      // Enumerate all active (non-trashed) items in the project (including completed ones)
+      const projectItems = [...index.items.values()].filter(
+        (i) => i.project_id === source.id && i.trashed_at === null,
+      );
+
+      const trashedAt = new Date().toISOString();
+      // Each item gets trashed_with: <project.id> per api.md §4.5
+      // (project id is reused as the cascade key even though it's a ProjectId, not ItemId)
+      for (const item of projectItems) {
+        const trashed = {
+          ...item,
+          trashed_at: trashedAt,
+          // trashed_with accepts ItemId | null; project id string used as coordination key per spec
+          trashed_with: source.id as unknown as (typeof item)['trashed_with'],
+          updated_at: trashedAt,
+        };
+        await ops.moveItemToTrash(trashed);
+        app.broker.publish({ type: 'item.trashed', payload: { id: item.id, item: trashed }, tabId });
+      }
+
+      await ops.removeProject(source.id);
+      app.broker.publish({ type: 'project.deleted', payload: { id: source.id }, tabId });
+
+      return { deleted_project_id: source.id, trashed_items: projectItems.length };
+    });
+
+    return reply.send(result);
   });
 }

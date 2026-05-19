@@ -1,12 +1,14 @@
 import type { Item, ItemId } from '@tasko/types';
 import { Inbox } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDeleteItem, useEditTitleInline, useItems, useToggleComplete } from '../../api/items';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
+import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import styles from './styles.module.css';
@@ -31,6 +33,9 @@ export function InboxView() {
 
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<Item | null>(null);
   const [inlineEditId, setInlineEditId] = useState<ItemId | null>(null);
+
+  const visibleIds = useMemo(() => items.map((i) => i.id as ItemId), [items]);
+  const { handleListClick, multiSelect } = useMultiSelect(visibleIds, 'list');
 
   if (isLoading && items.length === 0) {
     return (
@@ -64,6 +69,7 @@ export function InboxView() {
 
   return (
     <>
+      <BulkActionsToolbar />
       <ViewChrome
         title="Inbox"
         sortValue={sort}
@@ -74,7 +80,8 @@ export function InboxView() {
         <p className={styles.subline}>{items.length} items waiting to be filed.</p>
 
         <ListDndContext items={items}>
-          <ul className={styles.list}>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+          <ul className={styles.list} onClick={handleListClick}>
             {items.map((item) => (
               <SortableTaskRow key={item.id} item={item}>
                 {(sortableProps) => (
@@ -82,6 +89,7 @@ export function InboxView() {
                     item={item}
                     todayLocalDate={today}
                     isFocused={false}
+                    isMultiSelected={multiSelect.set.has(item.id as ItemId)}
                     inlineEditMode={inlineEditId === (item.id as ItemId)}
                     onClick={() => taskModal.openEdit(item.id as ItemId)}
                     onToggleCheckbox={() =>

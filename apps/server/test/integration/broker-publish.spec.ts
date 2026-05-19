@@ -391,13 +391,4 @@ describe('Broker publish — mutation routes emit SSE events', () => {
     const config = payload.config as Record<string, unknown>;
     expect(config.theme).toBe('dark');
   });
-
-  // ── POST /api/trash/empty — should 501 (stub not yet implemented) ─────────
-
-  it('POST /api/trash/empty returns 501 (task-12 stub)', async () => {
-    const res = await server.inject({ method: 'POST', url: '/api/trash/empty' });
-    // The brief mandates this endpoint be stubbed with 501.
-    // If 404 is returned, the stub route is missing.
-    expect(res.statusCode).toBe(501);
-  });
 });

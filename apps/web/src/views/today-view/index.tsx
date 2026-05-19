@@ -15,8 +15,10 @@ import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
 import { useFocusedRow } from '../../hooks/useFocusedRow';
+import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import { partitionOverdue } from './partition';
@@ -59,6 +61,8 @@ export function TodayView() {
 
   const allVisible = useMemo(() => [...overdue, ...todays], [overdue, todays]);
   const { focusedId, moveFocus } = useFocusedRow(allVisible);
+  const allVisibleIds = useMemo(() => allVisible.map((i) => i.id as ItemId), [allVisible]);
+  const { handleListClick, multiSelect } = useMultiSelect(allVisibleIds, 'list');
 
   // Mutations
   const toggleComplete = useToggleComplete();
@@ -187,6 +191,7 @@ export function TodayView() {
 
   return (
     <>
+      <BulkActionsToolbar />
       <ViewChrome title="Today" sortValue={sort} onSortChange={setSort} quickAddPlaceholder="Add task">
         <div className={styles.viewBody} onKeyDown={handleKeyDown} tabIndex={-1}>
           {/* Overdue strip */}
@@ -199,7 +204,8 @@ export function TodayView() {
                 </button>
               </div>
               <ListDndContext items={overdue}>
-                <ul className={styles.list}>
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+                <ul className={styles.list} onClick={handleListClick}>
                   {overdue.map((item) => (
                     <SortableTaskRow key={item.id} item={item}>
                       {(sortableProps) => (
@@ -207,6 +213,7 @@ export function TodayView() {
                           item={item}
                           todayLocalDate={today}
                           isFocused={focusedId === item.id}
+                          isMultiSelected={multiSelect.set.has(item.id as ItemId)}
                           inlineEditMode={inlineEditId === (item.id as ItemId)}
                           onClick={() => taskModal.openEdit(item.id as ItemId)}
                           onToggleCheckbox={() => handleToggleCheckbox(item)}
@@ -238,7 +245,8 @@ export function TodayView() {
               Today <span className={styles.sectionDate}>{formatDayMonthDD(today)}</span>
             </h2>
             <ListDndContext items={todays}>
-              <ul className={styles.list}>
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+              <ul className={styles.list} onClick={handleListClick}>
                 {todays.map((item) => (
                   <SortableTaskRow key={item.id} item={item}>
                     {(sortableProps) => (
@@ -246,6 +254,7 @@ export function TodayView() {
                         item={item}
                         todayLocalDate={today}
                         isFocused={focusedId === item.id}
+                        isMultiSelected={multiSelect.set.has(item.id as ItemId)}
                         inlineEditMode={inlineEditId === (item.id as ItemId)}
                         onClick={() => taskModal.openEdit(item.id as ItemId)}
                         onToggleCheckbox={() => handleToggleCheckbox(item)}

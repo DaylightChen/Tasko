@@ -8,11 +8,13 @@ import { MoveToPickerModal } from '../../components/move-to-picker';
 import { TreeRow } from '../../components/tree-row';
 import { ViewToggle } from '../../components/view-toggle';
 import type { ViewOption } from '../../components/view-toggle';
+import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { rollupProgress } from '../../lib/rollup';
 import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
 import { useTreeExpansionStore } from '../../store/tree-expansion';
+import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ProjectRootDropZone, TreeDndContext, TreeRowDraggable, useTreeDndState } from './TreeDndContext';
 import styles from './tree-view.module.css';
 
@@ -177,6 +179,7 @@ interface TreeNodeProps {
   onRowFocus: (item: Item) => void;
   createItem: ReturnType<typeof useCreateItem>;
   patchItem: ReturnType<typeof usePatchItem>;
+  multiSelectSet: Set<ItemId>;
 }
 
 interface InlineAddState {
@@ -209,6 +212,7 @@ function TreeNode({
   onRowFocus,
   createItem,
   patchItem,
+  multiSelectSet,
 }: TreeNodeProps) {
   const expansion = useTreeExpansionStore();
   const expanded = expansion.isExpanded(projectId, item.id as ItemId);
@@ -271,6 +275,7 @@ function TreeNode({
             posInSet={posInSet}
             setSize={setSize}
             hasChildren={hasChildren}
+            isSelected={multiSelectSet.has(item.id as ItemId)}
             {...(rollup !== undefined ? { rollup } : {})}
             todayLocalDate={today as ReturnType<typeof todayLocal>}
             onToggleExpand={() => expansion.toggle(projectId, item.id as ItemId)}
@@ -331,6 +336,7 @@ function TreeNode({
               onRowFocus={onRowFocus}
               createItem={createItem}
               patchItem={patchItem}
+              multiSelectSet={multiSelectSet}
             />
           ))}
         </div>
@@ -439,6 +445,9 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
     () => allItems.filter((i) => i.parent_id === null).sort((a, b) => a.sort_order - b.sort_order),
     [allItems],
   );
+
+  const allItemIds = useMemo(() => allItems.map((i) => i.id as ItemId), [allItems]);
+  const { handleListClick, multiSelect } = useMultiSelect(allItemIds, 'tree');
 
   // Initialise expansion defaults (top-level epics expanded) once
   useEffect(() => {
@@ -593,152 +602,167 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   }
 
   return (
-    <div className={styles.root}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.heading}>{projectName}</h1>
-        <div className={styles.headerControls}>
-          <ViewToggle options={VIEW_OPTIONS} value={currentView} onChange={handleViewChange} />
-          <button
-            type="button"
-            className={styles.addEpicBtn}
-            onClick={() => setInlineAddState({ parentId: null, type: 'epic', afterItemId: null })}
-          >
-            + Add Epic
-          </button>
-          <button
-            type="button"
-            className={styles.addTaskBtn}
-            onClick={() => taskModal.openNew({ initialProjectId: projectId })}
-          >
-            + Add Task in project
-          </button>
+    <>
+      <BulkActionsToolbar />
+      <div className={styles.root}>
+        {/* Header */}
+        <div className={styles.header}>
+          <h1 className={styles.heading}>{projectName}</h1>
+          <div className={styles.headerControls}>
+            <ViewToggle options={VIEW_OPTIONS} value={currentView} onChange={handleViewChange} />
+            <button
+              type="button"
+              className={styles.addEpicBtn}
+              onClick={() => setInlineAddState({ parentId: null, type: 'epic', afterItemId: null })}
+            >
+              + Add Epic
+            </button>
+            <button
+              type="button"
+              className={styles.addTaskBtn}
+              onClick={() => taskModal.openNew({ initialProjectId: projectId })}
+            >
+              + Add Task in project
+            </button>
+          </div>
         </div>
+
+        {/* + Add Epic inline row (top-level) */}
+        {inlineAddState?.parentId === null && (
+          <InlineAddCommitter
+            level={1}
+            type="epic"
+            parentId={null}
+            projectId={projectId}
+            createItem={createItem}
+            onDone={() => setInlineAddState(null)}
+          />
+        )}
+
+        {/* Tree */}
+        <TreeDndContext items={allItems} itemsMap={itemsMap} projectId={projectId}>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual treeitem rows */}
+          <div
+            role="tree"
+            aria-label={`${projectName} tasks`}
+            className={styles.tree}
+            onClick={handleListClick}
+          >
+            {/* Epics and Features at top level */}
+            {topLevelEpicsAndFeatures.map((item) => (
+              <TreeNode
+                key={item.id}
+                item={item}
+                level={1}
+                siblings={topLevelEpicsAndFeatures}
+                allItems={allItems}
+                itemsMap={itemsMap}
+                projectId={projectId}
+                today={today}
+                inlineAddState={inlineAddState}
+                setInlineAddState={setInlineAddState}
+                onItemClick={handleItemClick}
+                onContextMenu={handleContextMenu}
+                onMoveToOpen={setMoveToPickerItem}
+                onToggleCheckbox={handleToggleCheckbox}
+                onRowFocus={setFocusedItem}
+                createItem={createItem}
+                patchItem={patchItem}
+                multiSelectSet={multiSelect.set}
+              />
+            ))}
+
+            {/* Loose tasks divider */}
+            {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
+              <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
+            )}
+
+            {/* Loose top-level tasks */}
+            {looseTopLevelTasks.map((item) => (
+              <TreeNode
+                key={item.id}
+                item={item}
+                level={1}
+                siblings={looseTopLevelTasks}
+                allItems={allItems}
+                itemsMap={itemsMap}
+                projectId={projectId}
+                today={today}
+                inlineAddState={inlineAddState}
+                setInlineAddState={setInlineAddState}
+                onItemClick={handleItemClick}
+                onContextMenu={handleContextMenu}
+                onMoveToOpen={setMoveToPickerItem}
+                onToggleCheckbox={handleToggleCheckbox}
+                onRowFocus={setFocusedItem}
+                createItem={createItem}
+                patchItem={patchItem}
+                multiSelectSet={multiSelect.set}
+              />
+            ))}
+
+            {/* Project root drop zone */}
+            <ProjectRootDropZoneWrapper projectId={projectId} />
+          </div>
+        </TreeDndContext>
+
+        {/* Show N completed toggle */}
+        {completedCount > 0 && (
+          <button
+            type="button"
+            className={styles.showCompletedBtn}
+            onClick={() => setShowCompleted((v) => !v)}
+          >
+            {showCompleted ? 'Hide completed' : `Show ${completedCount} completed`}
+          </button>
+        )}
+
+        {/* Context menu */}
+        {contextMenuState && (
+          <ContextMenu
+            item={contextMenuState.item}
+            position={{ x: contextMenuState.x, y: contextMenuState.y }}
+            onClose={() => setContextMenuState(null)}
+            onOpen={() => handleItemClick(contextMenuState.item)}
+            onMarkComplete={() => handleMarkComplete(contextMenuState.item)}
+            onMoveTo={() => setMoveToPickerItem(contextMenuState.item)}
+            onDelete={() => {
+              snackbar.show({ variant: 'info', text: 'Trash (task-12)', durationMs: 3000 });
+            }}
+          />
+        )}
+
+        {/* Move-to picker */}
+        {moveToPickerItem && (
+          <MoveToPickerModal
+            source={moveToPickerItem}
+            items={itemsMap}
+            onClose={() => setMoveToPickerItem(null)}
+            onMove={({ new_parent_id, new_project_id }) => {
+              const moveArgs: { id: ItemId; new_parent_id: ItemId | null; new_project_id?: string } = {
+                id: moveToPickerItem.id as ItemId,
+                new_parent_id: new_parent_id ?? null,
+              };
+              if (new_project_id !== undefined) {
+                moveArgs.new_project_id = new_project_id;
+              }
+              moveItem.mutate(moveArgs);
+              setMoveToPickerItem(null);
+            }}
+          />
+        )}
+
+        {/* Parent completion blocking prompt */}
+        <ConfirmationPrompt
+          open={parentCompletionItem !== null}
+          onCancel={() => setParentCompletionItem(null)}
+          onConfirm={handleConfirmParentCompletion}
+          title="Complete all children and continue?"
+          body={parentCompletionBody}
+          confirmLabel="Complete all"
+          destructive={false}
+        />
       </div>
-
-      {/* + Add Epic inline row (top-level) */}
-      {inlineAddState?.parentId === null && (
-        <InlineAddCommitter
-          level={1}
-          type="epic"
-          parentId={null}
-          projectId={projectId}
-          createItem={createItem}
-          onDone={() => setInlineAddState(null)}
-        />
-      )}
-
-      {/* Tree */}
-      <TreeDndContext items={allItems} itemsMap={itemsMap} projectId={projectId}>
-        <div role="tree" aria-label={`${projectName} tasks`} className={styles.tree}>
-          {/* Epics and Features at top level */}
-          {topLevelEpicsAndFeatures.map((item) => (
-            <TreeNode
-              key={item.id}
-              item={item}
-              level={1}
-              siblings={topLevelEpicsAndFeatures}
-              allItems={allItems}
-              itemsMap={itemsMap}
-              projectId={projectId}
-              today={today}
-              inlineAddState={inlineAddState}
-              setInlineAddState={setInlineAddState}
-              onItemClick={handleItemClick}
-              onContextMenu={handleContextMenu}
-              onMoveToOpen={setMoveToPickerItem}
-              onToggleCheckbox={handleToggleCheckbox}
-              onRowFocus={setFocusedItem}
-              createItem={createItem}
-              patchItem={patchItem}
-            />
-          ))}
-
-          {/* Loose tasks divider */}
-          {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
-            <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
-          )}
-
-          {/* Loose top-level tasks */}
-          {looseTopLevelTasks.map((item) => (
-            <TreeNode
-              key={item.id}
-              item={item}
-              level={1}
-              siblings={looseTopLevelTasks}
-              allItems={allItems}
-              itemsMap={itemsMap}
-              projectId={projectId}
-              today={today}
-              inlineAddState={inlineAddState}
-              setInlineAddState={setInlineAddState}
-              onItemClick={handleItemClick}
-              onContextMenu={handleContextMenu}
-              onMoveToOpen={setMoveToPickerItem}
-              onToggleCheckbox={handleToggleCheckbox}
-              onRowFocus={setFocusedItem}
-              createItem={createItem}
-              patchItem={patchItem}
-            />
-          ))}
-
-          {/* Project root drop zone */}
-          <ProjectRootDropZoneWrapper projectId={projectId} />
-        </div>
-      </TreeDndContext>
-
-      {/* Show N completed toggle */}
-      {completedCount > 0 && (
-        <button type="button" className={styles.showCompletedBtn} onClick={() => setShowCompleted((v) => !v)}>
-          {showCompleted ? 'Hide completed' : `Show ${completedCount} completed`}
-        </button>
-      )}
-
-      {/* Context menu */}
-      {contextMenuState && (
-        <ContextMenu
-          item={contextMenuState.item}
-          position={{ x: contextMenuState.x, y: contextMenuState.y }}
-          onClose={() => setContextMenuState(null)}
-          onOpen={() => handleItemClick(contextMenuState.item)}
-          onMarkComplete={() => handleMarkComplete(contextMenuState.item)}
-          onMoveTo={() => setMoveToPickerItem(contextMenuState.item)}
-          onDelete={() => {
-            snackbar.show({ variant: 'info', text: 'Trash (task-12)', durationMs: 3000 });
-          }}
-        />
-      )}
-
-      {/* Move-to picker */}
-      {moveToPickerItem && (
-        <MoveToPickerModal
-          source={moveToPickerItem}
-          items={itemsMap}
-          onClose={() => setMoveToPickerItem(null)}
-          onMove={({ new_parent_id, new_project_id }) => {
-            const moveArgs: { id: ItemId; new_parent_id: ItemId | null; new_project_id?: string } = {
-              id: moveToPickerItem.id as ItemId,
-              new_parent_id: new_parent_id ?? null,
-            };
-            if (new_project_id !== undefined) {
-              moveArgs.new_project_id = new_project_id;
-            }
-            moveItem.mutate(moveArgs);
-            setMoveToPickerItem(null);
-          }}
-        />
-      )}
-
-      {/* Parent completion blocking prompt */}
-      <ConfirmationPrompt
-        open={parentCompletionItem !== null}
-        onCancel={() => setParentCompletionItem(null)}
-        onConfirm={handleConfirmParentCompletion}
-        title="Complete all children and continue?"
-        body={parentCompletionBody}
-        confirmLabel="Complete all"
-        destructive={false}
-      />
-    </div>
+    </>
   );
 }

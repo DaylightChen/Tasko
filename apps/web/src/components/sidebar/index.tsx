@@ -1,4 +1,4 @@
-import { Link, useRouterState } from '@tanstack/react-router';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import type { FolderId, ProjectId } from '@tasko/types';
 import { CalendarDays, CheckCircle2, Hash, Inbox, List, Sun, Sunrise, Trash2 } from 'lucide-react';
 import type React from 'react';
@@ -10,6 +10,7 @@ import { useItems } from '../../api/items';
 import { useCreateProject, useDeleteProject, usePatchProject, useProjects } from '../../api/projects';
 import { useTags } from '../../api/tags';
 import { Button } from '../button';
+import { ConfirmationPrompt } from '../confirmation-prompt';
 import { Dropdown } from '../dropdown';
 import { FolderHeader } from '../folder-header';
 import { Modal } from '../modal';
@@ -57,6 +58,7 @@ export function Sidebar() {
   const { data: tagsData } = useTags();
   const { data: health } = useHealth();
   const { total: todayTotal, overdue: todayOverdue } = useTodayBadge();
+  const { data: allItemsData } = useItems({ view: 'all' });
 
   const createProject = useCreateProject();
   const patchProject = usePatchProject();
@@ -70,6 +72,11 @@ export function Sidebar() {
     open: false,
     folderId: null,
   });
+  const [deleteProjectConfirm, setDeleteProjectConfirm] = useState<{
+    id: ProjectId;
+    name: string;
+    itemCount: number;
+  } | null>(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [inlineFolderInput, setInlineFolderInput] = useState(false);
   const [folderName, setFolderName] = useState('');
@@ -82,6 +89,7 @@ export function Sidebar() {
 
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
+  const navigate = useNavigate();
 
   const addMenuRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -525,7 +533,15 @@ export function Sidebar() {
                 role="menuitem"
                 className={styles.contextMenuItemDestructive}
                 onClick={() => {
-                  deleteProject.mutate(contextMenu.id as unknown as ProjectId);
+                  const projectId = contextMenu.id as unknown as ProjectId;
+                  const activeItemCount = (allItemsData?.items ?? []).filter(
+                    (i) => i.project_id === contextMenu.id && i.trashed_at === null,
+                  ).length;
+                  setDeleteProjectConfirm({
+                    id: projectId,
+                    name: contextMenu.name,
+                    itemCount: activeItemCount,
+                  });
                   setContextMenu(null);
                 }}
               >
@@ -591,6 +607,25 @@ export function Sidebar() {
         isPending={createProject.isPending}
         folderOptions={folderOptions}
         returnFocusTo={addProjectBtnRef as React.RefObject<HTMLElement>}
+      />
+
+      {/* Delete Project Confirmation */}
+      <ConfirmationPrompt
+        open={deleteProjectConfirm !== null}
+        onCancel={() => setDeleteProjectConfirm(null)}
+        onConfirm={async () => {
+          if (deleteProjectConfirm) {
+            await deleteProject.mutateAsync(deleteProjectConfirm.id);
+            setDeleteProjectConfirm(null);
+            // Navigate to /today after project deletion per brief step 14
+            void navigate({ to: '/today' });
+          }
+        }}
+        title={`Delete project "${deleteProjectConfirm?.name ?? ''}"?`}
+        body={`${deleteProjectConfirm?.itemCount ?? 0} active items will be moved to Trash. This cannot be undone in v1.`}
+        confirmLabel="Delete project"
+        destructive={true}
+        isPending={deleteProject.isPending}
       />
     </nav>
   );

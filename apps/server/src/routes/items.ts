@@ -568,19 +568,106 @@ export function registerItemRoutes(app: FastifyInstance): void {
     return reply.send(merged);
   });
 
-  // DELETE /api/items/:id — stub (task-12)
-  app.delete('/api/items/:id', async (_req, _reply) => {
-    throw new HttpError(501, 'INTERNAL', 'Soft-delete not yet implemented (task-12).');
+  // DELETE /api/items/:id
+  // - Without ?permanent=true: soft-delete (move to trash), cascade non-trashed descendants.
+  // - With ?permanent=true: hard-delete from trash (item must already be in trash).
+  app.delete('/api/items/:id', async (req, reply) => {
+    const params = req.params as Record<string, unknown>;
+    const query = req.query as Record<string, unknown>;
+    const idParsed = ItemIdSchema.safeParse(params.id);
+    if (!idParsed.success) {
+      throw new HttpError(400, 'VALIDATION', 'Invalid item id.');
+    }
+    const id = idParsed.data;
+    const permanent = query.permanent === 'true';
+    const tabId = (req.headers['x-tasko-tab-id'] as string | undefined) ?? null;
+
+    if (permanent) {
+      // Permanent delete: item must be in trash
+      await app.indexer.withWriteLock(async (index, ops) => {
+        const source = index.trash.get(id);
+        if (!source) {
+          throw new HttpError(400, 'VALIDATION', 'Item must be in Trash before permanent deletion.');
+        }
+        // Cascade: find all items whose trashed_with === id (descendants trashed with this root)
+        const cascaded = [...index.trash.values()].filter((t) => t.trashed_with === id);
+        for (const item of cascaded) {
+          await ops.removeFromTrash(item.id);
+          app.broker.publish({ type: 'item.permanently_deleted', payload: { id: item.id }, tabId });
+        }
+        await ops.removeFromTrash(id);
+        app.broker.publish({ type: 'item.permanently_deleted', payload: { id }, tabId });
+      });
+      return reply.code(204).send();
+    }
+    // Soft-delete: cascade non-trashed descendants
+    const result = await app.indexer.withWriteLock(async (index, ops) => {
+      const source = index.items.get(id);
+      if (!source) {
+        throw new HttpError(404, 'ITEM_NOT_FOUND', 'Item not found.');
+      }
+      const descendants = descendantsOf(id, index.items).filter((i) => i.trashed_at === null);
+      const trashedAt = new Date().toISOString();
+      const cascade: Item[] = [source, ...descendants].map((i) => ({
+        ...i,
+        trashed_at: trashedAt,
+        trashed_with: i.id === source.id ? null : source.id,
+        updated_at: trashedAt,
+      }));
+      for (const item of cascade) {
+        await ops.moveItemToTrash(item);
+      }
+      const firstCascaded = cascade[0];
+      if (firstCascaded) {
+        app.broker.publish({ type: 'item.trashed', payload: { id: source.id, item: firstCascaded }, tabId });
+      }
+      return { trashed: cascade };
+    });
+    return reply.send(result);
   });
 
-  // POST /api/items/:id/restore — stub (task-12)
-  app.post('/api/items/:id/restore', async (_req, _reply) => {
-    throw new HttpError(501, 'INTERNAL', 'Restore not yet implemented (task-12).');
-  });
+  // POST /api/items/:id/restore
+  app.post('/api/items/:id/restore', async (req, reply) => {
+    const params = req.params as Record<string, unknown>;
+    const idParsed = ItemIdSchema.safeParse(params.id);
+    if (!idParsed.success) {
+      throw new HttpError(400, 'VALIDATION', 'Invalid item id.');
+    }
+    const id = idParsed.data;
+    const tabId = (req.headers['x-tasko-tab-id'] as string | undefined) ?? null;
 
-  // POST /api/trash/empty — stub (task-12)
-  app.post('/api/trash/empty', async (_req, _reply) => {
-    throw new HttpError(501, 'INTERNAL', 'Trash flow not yet implemented (task-12).');
+    const result = await app.indexer.withWriteLock(async (index, ops) => {
+      const source = index.trash.get(id);
+      if (!source) {
+        throw new HttpError(404, 'ITEM_NOT_FOUND', 'Item not found in trash.');
+      }
+      // Find all cascade descendants (trashed_with === source.id)
+      const descendants = [...index.trash.values()].filter((t) => t.trashed_with === source.id);
+      const now = new Date().toISOString();
+      const restoredSet = new Set([source.id, ...descendants.map((d) => d.id)]);
+
+      const restored: Item[] = [source, ...descendants].map((i) => {
+        const item: Item = { ...i, trashed_at: null, trashed_with: null, updated_at: now };
+        // Orphan-parent rule: if parent_id no longer exists in active items and isn't in the
+        // restored set, reparent to project root.
+        if (item.parent_id !== null && !index.items.has(item.parent_id) && !restoredSet.has(item.parent_id)) {
+          return { ...item, parent_id: null };
+        }
+        return item;
+      });
+
+      for (const item of restored) {
+        await ops.moveItemFromTrash(item);
+      }
+
+      const firstRestored = restored[0];
+      if (firstRestored) {
+        app.broker.publish({ type: 'item.restored', payload: { id: source.id, item: firstRestored }, tabId });
+      }
+      return { restored };
+    });
+
+    return reply.send(result);
   });
 
   // POST /api/items/:id/move

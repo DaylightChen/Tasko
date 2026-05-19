@@ -194,10 +194,9 @@ export function useToggleComplete() {
               ItemPatchSchema.parse({ status: 'todo', completed_at: null }),
               ItemSchema,
             );
-            // (b) Hard-delete the auto-generated next instance.
-            //     Task-12 ships soft-delete; for now we call DELETE directly.
-            //     This will be replaced with a softDelete call once task-12 ships.
-            // TODO(task-12): replace hard DELETE with useTrashItem soft-delete
+            // (b) Soft-delete the auto-generated next instance (DELETE /api/items/:id
+            //     moves the item to Trash, where the user can restore it manually if
+            //     the next instance shouldn't have been undone too).
             const deleteRes = await fetch(`/api/items/${next.id}`, { method: 'DELETE' });
             if (!deleteRes.ok) {
               snackbar.show({
@@ -401,50 +400,65 @@ export function useMoveItem() {
 }
 
 /**
- * useDeleteItem — stub for task-08. Real soft-delete endpoint lands in task-12.
- * For now, shows a "Coming in task-12" snackbar.
+ * useDeleteItem — soft-delete a single item (DELETE /api/items/:id).
+ * Optimistic: removes from list caches. Undo: restore via POST /restore.
  */
 export function useDeleteItem() {
+  const queryClient = useQueryClient();
   const snackbar = useSnackbarStore();
+  const undo = useUndoStore();
 
-  return useMutation<void, Error, { id: ItemId }>({
-    mutationFn: async ({ id: _id }) => {
-      // task-12 will wire DELETE /api/items/:id here
-      void _id;
+  return useMutation<{ trashed: Item[] }, Error, { id: ItemId; title?: string; childCount?: number }>({
+    mutationFn: ({ id }) => {
+      const TrashedResponseSchema = z.object({ trashed: z.array(z.unknown()) });
+      return apiCall('DELETE', `/api/items/${id}`, undefined, TrashedResponseSchema) as Promise<{
+        trashed: Item[];
+      }>;
     },
-    onSuccess: () => {
+
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: itemKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: itemKeys.lists() });
+    },
+
+    onSuccess: (_, { id, title, childCount }) => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+
+      const hasChildren = (childCount ?? 0) > 0;
+      const text = hasChildren
+        ? `${title ?? 'Item'} and ${childCount} items moved to Trash.`
+        : 'Task moved to Trash.';
+
+      undo.push({
+        label: 'Task moved to Trash',
+        apply: async () => {
+          await apiCall(
+            'POST',
+            `/api/items/${id}/restore`,
+            undefined,
+            z.object({ restored: z.array(z.unknown()) }),
+          );
+          queryClient.invalidateQueries({ queryKey: itemKeys.all });
+        },
+      });
+
       snackbar.show({
         variant: 'info',
-        text: 'Coming in task-12.',
-        durationMs: 3000,
+        text,
+        durationMs: 5000,
+        action: { label: 'Undo', onClick: () => undo.pop() },
       });
     },
+
     onError: () => {
-      snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      snackbar.show({ variant: 'error', text: "Couldn't delete. Try again.", durationMs: 5000 });
     },
   });
 }
 
 /**
- * useBulkMoveOverdue — stub for task-08. Real bulk endpoint lands in task-12.
+ * useBulkMoveOverdue — move all overdue items to today.
  * POST /api/bulk/move-overdue-to-today
  */
-export function useBulkMoveOverdue() {
-  const snackbar = useSnackbarStore();
-
-  return useMutation<void, Error, void>({
-    mutationFn: async () => {
-      // Bulk endpoint coming in task-12
-    },
-    onSuccess: () => {
-      snackbar.show({
-        variant: 'info',
-        text: 'Bulk endpoint coming in task-12.',
-        durationMs: 3000,
-      });
-    },
-    onError: () => {
-      snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
-    },
-  });
-}
+export { useBulkMoveOverdue } from './bulk';

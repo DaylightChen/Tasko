@@ -65,20 +65,32 @@ export function usePatchProject() {
   });
 }
 
+const DeleteProjectResponseSchema = z.object({
+  deleted_project_id: z.string(),
+  trashed_items: z.number(),
+});
+
 export function useDeleteProject() {
+  const queryClient = useQueryClient();
   const snackbar = useSnackbarStore();
 
   return useMutation({
-    mutationFn: (_id: ProjectId) => {
+    mutationFn: (id: ProjectId) =>
+      apiCall('DELETE', `/api/projects/${id}`, undefined, DeleteProjectResponseSchema),
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['trash'] });
       snackbar.show({
         variant: 'info',
-        text: 'Project deletion not yet implemented.',
+        text: `Project deleted. ${data.trashed_items} items moved to Trash.`,
         durationMs: 5000,
       });
-      return Promise.reject(new Error('Not yet implemented'));
     },
+
     onError: () => {
-      /* stub — task-12 implements real cascade delete */
+      snackbar.show({ variant: 'error', text: "Couldn't delete project. Try again.", durationMs: 5000 });
     },
   });
 }

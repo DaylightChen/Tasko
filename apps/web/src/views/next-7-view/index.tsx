@@ -5,8 +5,10 @@ import { useDeleteItem, useEditTitleInline, useItems, useToggleComplete } from '
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
+import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
 import { ViewChrome } from '../_shared/ViewChrome';
 import { DroppableDayGroup, Next7DndContext, SortableNext7Row } from './Next7DndContext';
 import styles from './styles.module.css';
@@ -83,6 +85,10 @@ export function Next7DaysView() {
   const [deleteConfirmItem, setDeleteConfirmItem] = useState<Item | null>(null);
   const [inlineEditId, setInlineEditId] = useState<ItemId | null>(null);
 
+  // Deduplicated visible ids (items can appear in multiple day buckets but only count once)
+  const allVisibleIds = useMemo(() => [...new Set(rawItems.map((i) => i.id as ItemId))], [rawItems]);
+  const { handleListClick, multiSelect } = useMultiSelect(allVisibleIds, 'list');
+
   const totalItems = rawItems.length;
 
   if (isLoading && totalItems === 0) {
@@ -107,6 +113,7 @@ export function Next7DaysView() {
 
   return (
     <>
+      <BulkActionsToolbar />
       <ViewChrome title="Next 7 Days" sortValue={sort} onSortChange={setSort}>
         <Next7DndContext allItems={rawItems}>
           <div className={styles.groups}>
@@ -122,7 +129,8 @@ export function Next7DaysView() {
                       {label} <span className={styles.countBadge}>({items.length})</span>
                     </h2>
                     <DroppableDayGroup date={date} itemIds={items.map((i) => `${i.id}:${date}`)}>
-                      <ul className={styles.list}>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+                      <ul className={styles.list} onClick={handleListClick}>
                         {items.map((item) => (
                           <SortableNext7Row key={`${item.id}-${date}`} item={item} groupDate={date}>
                             {(sortableProps) => (
@@ -130,6 +138,7 @@ export function Next7DaysView() {
                                 item={item}
                                 todayLocalDate={today}
                                 isFocused={false}
+                                isMultiSelected={multiSelect.set.has(item.id as ItemId)}
                                 inlineEditMode={inlineEditId === (item.id as ItemId)}
                                 onClick={() => taskModal.openEdit(item.id as ItemId)}
                                 onToggleCheckbox={() =>

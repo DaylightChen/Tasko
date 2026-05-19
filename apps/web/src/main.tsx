@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CommandPaletteHost } from './app/command-palette-host';
 import { ErrorBoundary } from './app/error-boundary';
+import { GlobalUndo } from './app/global-undo';
 import { HotkeyProvider } from './app/hotkey-provider';
 import { SSEConnector } from './app/sse-connector';
 import { ThemeBootstrap } from './app/theme-bootstrap';
@@ -45,6 +46,7 @@ createRoot(rootEl).render(
       <QueryClientProvider client={queryClient}>
         <ThemeBootstrap>
           <HotkeyProvider>
+            <GlobalUndo />
             <SSEConnector />
             <SnackbarHost />
             <CommandPaletteHost />

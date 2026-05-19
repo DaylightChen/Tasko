@@ -5,12 +5,14 @@ import type { FastifyInstance } from 'fastify';
 import type { ServerConfig } from './config/load.js';
 import { envelope } from './middleware/error-envelope.js';
 import { type Broker, buildBroker } from './middleware/sse-broker.js';
+import { registerBulkRoutes } from './routes/bulk.js';
 import { registerConfigRoutes } from './routes/config.js';
 import { registerFolderRoutes } from './routes/folders.js';
 import { registerHealthRoute } from './routes/health.js';
 import { registerItemRoutes } from './routes/items.js';
 import { registerProjectRoutes } from './routes/projects.js';
 import { registerTagRoutes } from './routes/tags.js';
+import { registerTrashRoutes } from './routes/trash.js';
 import { ensureDir } from './store/fs-store.js';
 import { type Indexer, buildIndexer } from './store/indexer.js';
 import { buildPaths } from './store/paths.js';
@@ -65,10 +67,12 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
   // Routes
   registerHealthRoute(app);
   registerItemRoutes(app);
+  registerTrashRoutes(app);
   registerProjectRoutes(app);
   registerFolderRoutes(app);
   registerTagRoutes(app);
   registerConfigRoutes(app);
+  registerBulkRoutes(app);
 
   // 404 handler for unmatched routes
   app.setNotFoundHandler((_req, reply) => {
