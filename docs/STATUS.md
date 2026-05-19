@@ -16,10 +16,11 @@ project
 - `engineering` — approved 2026-05-18. Output: 8 spec files under `docs/engineering/`
 - `plan` — approved 2026-05-18. Output: implementation plan + 20 task briefs under `docs/tasks/`
 - `task-01-foundation-vertical-slice` — completed 2026-05-19 (commit `fa86afb`). 1 iteration.
-- `task-02-types-and-fs-store` — completed 2026-05-19 (commit `47d7482`). 2 iterations. All 11 acceptance criteria pass. Spec bug with INBOX_PROJECT_ID mitigated; logged in `docs/known-issues.md`.
+- `task-02-types-and-fs-store` — completed 2026-05-19 (commit `47d7482`). 2 iterations.
+- `task-03-server-crud-routes` — completed 2026-05-19 (commit `0736f3d`). 2 iterations. 115 server tests pass. Route-level INBOX_PROJECT_ID mitigation added (same root cause as known-issue #1).
 
 ## What's Next
-- Run `/phased-dev:start-task 03` for `task-03-server-crud-routes` (Items / Projects / Folders / Tags / Subtask / Config CRUD + error envelope + broker stub).
+- Run `/phased-dev:start-task 04` for `task-04-frontend-shell-router-sidebar` (provider tree + TanStack Router + sidebar + Settings + apiCall wrapper).
 
 ## Task Progress
 
@@ -27,8 +28,8 @@ project
 |---|------|--------|
 | 01 | foundation-vertical-slice | done (`fa86afb`) |
 | 02 | types-and-fs-store | done (`47d7482`) |
-| 03 | server-crud-routes | in progress |
-| 04 | frontend-shell-router-sidebar | pending |
+| 03 | server-crud-routes | done (`0736f3d`) |
+| 04 | frontend-shell-router-sidebar | in progress |
 | 05 | components-chrome-and-dialogs | pending |
 | 06 | components-rows-and-pickers | pending |
 | 07 | task-modal | pending |

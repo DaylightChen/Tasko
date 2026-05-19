@@ -45,20 +45,84 @@ Test Files  1 failed | 18 passed (19)
 **Notes on implementer's route-level relaxed schemas:** justified and tightly scoped — same pattern as `indexer.ts`. Strict schemas used at ID-generation time; existence checks against the in-memory index. Acceptable.
 
 ### Review
-_(pending — fix iteration first)_
+
+Skipped at iteration 1 — proceeded directly to fix iteration since the test failure was a clear stub-route omission.
 
 ---
 
 ## Iteration 2
 
 ### Fix
-_(pending fix-implementer)_
+
+**What was fixed:** Added `POST /api/trash/empty` 501 stub in `apps/server/src/routes/items.ts` alongside the existing task-12 stubs. Throws `HttpError(501, 'INTERNAL', 'Trash flow not yet implemented (task-12).')`.
+
+**Files modified:**
+- `apps/server/src/routes/items.ts` — added trash-empty stub route
+
+**Deviations from plan:** none.
 
 ### Test
-_(pending)_
+
+**Failures:** none.
+
+**Full suite output:**
+```
+$ pnpm --filter @tasko/server test
+Test Files  19 passed (19)
+     Tests  115 passed (115)
+
+$ pnpm lint
+Checked 69 files. No fixes applied.
+
+$ pnpm --filter @tasko/server typecheck → 0 errors
+$ pnpm --filter @tasko/types typecheck → 0 errors
+$ pnpm --filter @tasko/web typecheck → 0 errors
+```
 
 ### Review
-_(pending)_
+
+**Verdict:** Approved.
+
+**Stub fix status:** correct. `POST /api/trash/empty` returns 501 with the exact error envelope.
+
+**Per-criterion:** all acceptance criteria pass. Error envelope shape matches `ApiErrorSchema` exactly. Every mutation publishes to broker. All 4 TODO comments in place. INBOX_IMMUTABLE 409 enforced. Tag find-or-create 200/201. Folder DELETE cascade verified. Cross-project move cascades to descendants.
+
+**Downstream-contract findings:** all preserved.
+- Task 04: error envelope `safeParse`-compatible with `ApiErrorSchema`
+- Task 08: ViewSchema is strict enum; unknown views fail 400
+- Task 09: 3 depth-cap TODO comments at `items.ts:283, 391, 545`
+- Task 11: recurrence TODO at `items.ts:411`
+- Task 12: 5 stub routes (items DELETE/restore, project DELETE, trash-empty, tag DELETE) all return 501
+- Task 17: every mutation calls `app.broker.publish(...)` with typed payload
+
+**Code quality:** clean. Route-level relaxed schemas tightly scoped (INBOX mitigation only).
+
+**Test quality:** adequate (115 tests across 19 files cover happy paths, validation, edge cases).
+
+**Regressions:** none.
+
+**Issues to fix:** none.
+
+---
+
+## Completion
+
+- **Commit:** `0736f3d` — "Task 03: Server REST CRUD routes"
+- **Iterations:** 2 (one fix iteration to add the overlooked trash-empty 501 stub)
+- **Verification evidence:**
+  ```
+  $ pnpm --filter @tasko/server test
+  Test Files  19 passed (19)  Tests  115 passed (115)
+
+  $ pnpm --filter @tasko/types test
+  Test Files  2 passed (2)  Tests  30 passed (30)
+
+  $ pnpm --filter @tasko/{types,server,web} typecheck → all 0 errors
+  $ pnpm lint → Checked 69 files. No fixes applied.
+  ```
+- **Acceptance criteria:** all verified. Every curl example mapped to specific assertions. Stubs in place. SSE publish verified end-to-end.
+- **Regressions:** none.
+- **Deviations from plan:** route-level relaxed schemas for INBOX mitigation (same root cause as known-issue #1 in `docs/known-issues.md`). Otherwise none.
 
 ### Review
 _(filled in after reviewer returns)_
