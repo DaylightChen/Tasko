@@ -1,0 +1,51 @@
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.dayGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dayHeader {
+  font-size: var(--text-h2-size, 1.125rem);
+  font-weight: var(--text-h2-weight, 600);
+  color: var(--text);
+  margin: 0;
+}
+
+.dayHeaderEmpty {
+  font-size: var(--text-h2-size, 1.125rem);
+  font-weight: var(--text-h2-weight, 600);
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+.countBadge {
+  font-size: var(--text-small-size, 0.8125rem);
+  font-weight: 400;
+  color: var(--text-subtle);
+}
+
+.emptyDash {
+  font-size: var(--text-small-size, 0.8125rem);
+  font-weight: 400;
+  color: var(--text-subtle);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  background: var(--canvas-subtle);
+  border-radius: var(--radius-md, 8px);
+}

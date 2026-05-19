@@ -1,5 +1,6 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router';
 import { Sidebar } from '../components/sidebar';
+import { TaskModal } from '../views/task-modal';
 import styles from './__root.module.css';
 
 export const Route = createRootRoute({
@@ -20,6 +21,8 @@ function RootLayout() {
           <Outlet />
         </main>
       </div>
+      {/* Global TaskModal — mounts once; opens in edit mode when rows trigger taskModalStore.openEdit */}
+      <TaskModal />
     </>
   );
 }

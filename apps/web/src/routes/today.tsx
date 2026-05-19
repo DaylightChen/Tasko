@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { TodayView } from '../views/today-view';
 
 export const Route = createFileRoute('/today')({
-  component: TodayStub,
+  component: TodayView,
 });
-
-function TodayStub() {
-  return (
-    <div style={{ padding: 'var(--space-6)' }}>
-      <h1>Today</h1>
-      <p>Coming soon</p>
-    </div>
-  );
-}

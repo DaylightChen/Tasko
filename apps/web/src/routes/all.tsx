@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { AllView } from '../views/all-view';
 
 export const Route = createFileRoute('/all')({
-  component: AllStub,
+  component: AllView,
 });
-
-function AllStub() {
-  return (
-    <div style={{ padding: 'var(--space-6)' }}>
-      <h1>All</h1>
-      <p>Coming soon</p>
-    </div>
-  );
-}

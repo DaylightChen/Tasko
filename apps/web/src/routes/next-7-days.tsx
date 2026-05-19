@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { Next7DaysView } from '../views/next-7-view';
 
 export const Route = createFileRoute('/next-7-days')({
-  component: Next7DaysStub,
+  component: Next7DaysView,
 });
-
-function Next7DaysStub() {
-  return (
-    <div style={{ padding: 'var(--space-6)' }}>
-      <h1>Next 7 Days</h1>
-      <p>Coming soon</p>
-    </div>
-  );
-}

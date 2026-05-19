@@ -1,6 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
-  "files": { "ignore": ["dist/**", "node_modules/**", "docs/**", "**/routeTree.gen.ts"] },
+  "files": { "ignore": ["dist/**", "node_modules/**", "docs/**", ".remember/**", "**/routeTree.gen.ts"] },
   "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },
   "linter": {
     "enabled": true,

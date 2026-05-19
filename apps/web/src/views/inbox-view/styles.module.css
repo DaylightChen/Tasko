@@ -1,0 +1,19 @@
+.subline {
+  font-size: var(--text-small-size, 0.8125rem);
+  color: var(--text-subtle);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  background: var(--canvas-subtle);
+  border-radius: var(--radius-md, 8px);
+}

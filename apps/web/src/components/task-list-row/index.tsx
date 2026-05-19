@@ -389,6 +389,7 @@ export function TaskListRow({
       aria-busy={isLoading ? 'true' : undefined}
       data-state={dataStates.length > 0 ? dataStates.join(' ') : undefined}
       data-density={density}
+      data-item-id={item.id}
       tabIndex={isFocused ? 0 : -1}
       style={
         swipeOffset !== 0 ? { transform: `translateX(${swipeOffset}px)`, transition: 'none' } : undefined
