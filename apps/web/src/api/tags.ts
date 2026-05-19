@@ -34,3 +34,12 @@ export function useCreateTag() {
     },
   });
 }
+
+export function useTagAutocomplete(q: string) {
+  return useQuery({
+    queryKey: tagKeys.autocomplete(q),
+    queryFn: () =>
+      apiCall('GET', `/api/tags/autocomplete?q=${encodeURIComponent(q)}`, undefined, TagListSchema),
+    enabled: q.length > 0,
+  });
+}

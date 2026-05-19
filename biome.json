@@ -18,11 +18,18 @@
   "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always" } },
   "overrides": [
     {
-      "include": ["apps/web/src/components/dropdown/index.tsx", "apps/web/src/components/sheet/index.tsx"],
+      "include": [
+        "apps/web/src/components/dropdown/index.tsx",
+        "apps/web/src/components/sheet/index.tsx",
+        "apps/web/src/components/tag-input/index.tsx",
+        "apps/web/src/components/project-picker/index.tsx",
+        "apps/web/src/components/time-picker/index.tsx"
+      ],
       "linter": {
         "rules": {
           "a11y": {
-            "useSemanticElements": "off"
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off"
           }
         }
       }

@@ -1,0 +1,156 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--motion-fast) var(--ease-standard);
+  position: relative;
+}
+
+.row:hover {
+  background-color: var(--color-canvas-subtle);
+}
+
+.row:hover .dragHandle {
+  opacity: 1;
+}
+
+.row:hover .deleteBtn {
+  opacity: 1;
+}
+
+.dragHandle {
+  color: var(--color-text-disabled);
+  cursor: grab;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  flex: 1;
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.title[data-done] {
+  text-decoration: line-through;
+  color: var(--color-text-subtle);
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.editInput {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid var(--color-accent);
+  background-color: transparent;
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  outline: none;
+  padding: 0;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-standard), background-color var(--motion-fast)
+    var(--ease-standard);
+  flex-shrink: 0;
+}
+
+.deleteBtn:hover {
+  background-color: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
+
+.deleteBtn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 32px;
+  padding: 0 var(--space-2);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small-size);
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard);
+}
+
+.addBtn:hover {
+  background-color: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
+
+.addBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-1);
+  flex-direction: column;
+  height: auto;
+  align-items: flex-start;
+}
+
+.addRowIcon {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+.addError {
+  font-size: var(--text-caption-size);
+  color: var(--color-overdue);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .dragHandle,
+  .deleteBtn,
+  .addBtn {
+    transition: none;
+  }
+}

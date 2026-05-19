@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { ItemSchema } from '@tasko/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ItemCreateSchema, ItemPatchSchema, ItemSchema } from '@tasko/types';
+import type { ItemCreate, ItemId, ItemPatch } from '@tasko/types';
 import { z } from 'zod';
+import { useSnackbarStore } from '../store/snackbar';
 import { apiCall } from './client';
 import { itemKeys } from './keys';
 
@@ -43,5 +45,43 @@ export function useItems(filters: ItemListFilters) {
   return useQuery({
     queryKey: itemKeys.list(filters),
     queryFn: () => apiCall('GET', buildItemsUrl(filters), undefined, ItemListResponseSchema),
+  });
+}
+
+export function useItem(id: ItemId | undefined) {
+  // When id is undefined, use a placeholder key that never fires (enabled: false)
+  const safeId = id ?? ('' as ItemId);
+  return useQuery({
+    queryKey: itemKeys.detail(safeId),
+    queryFn: () => apiCall('GET', `/api/items/${safeId}`, undefined, ItemSchema),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: ItemCreate) => apiCall('POST', '/api/items', ItemCreateSchema.parse(body), ItemSchema),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+  });
+}
+
+export function usePatchItem() {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbarStore();
+
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: ItemId; patch: ItemPatch }) =>
+      apiCall('PATCH', `/api/items/${id}`, ItemPatchSchema.parse(patch), ItemSchema),
+    onSuccess: (item) => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      queryClient.setQueryData(itemKeys.detail(item.id as ItemId), item);
+    },
+    onError: () => {
+      snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
+    },
   });
 }
