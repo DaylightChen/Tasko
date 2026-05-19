@@ -28,9 +28,10 @@ project
 - `task-11-recurrence` — completed 2026-05-19 (commit `f675ca0`). 3 iterations. Server 312 + Web 649 tests pass (+159 server, +28 web). `domain/time.ts` + `domain/recurrence.ts` + atomic complete-recurring op in PATCH, union response handling in `usePatchItem`/`useToggleComplete`, recurring + un-check snackbars, `describeRecurrence` preview. 80+-case matrix is a release gate.
 - `task-12-bulk-trash-undo` — completed 2026-05-19 (commit `26f5613`). 2 iterations. Server 368 + Web 683 tests pass (+56 server, +34 web). Real cascade soft-delete/restore/permanent/empty + project-delete cascade + 4 bulk endpoints; Trash view + multi-select store + BulkActionsToolbar + GlobalUndo (⌘Z) + 7 real hooks replacing task-03's 501 stubs and task-08's task-12-pending stubs.
 - `task-13-markdown-notes` — completed 2026-05-19 (commit `e771707`). 2 iterations. Web 749 tests pass (+66 new). `lib/markdown.ts` (marked v14 + DOMPurify) + `lib/textarea-ops.ts` + `<TextareaMarkdown>` component (edit/preview toggle, ⌘B/⌘I/⌘K, Tab/Shift+Tab, Enter list continuation/terminate, display-only checkboxes) + Task-modal Notes integration.
+- `task-14-calendar-month` — completed 2026-05-19 (commit `775e0d2`). 3 iterations. Web 833 tests pass (+84 net new — 91 calendar cases, 7 absorbed via fold-in deletion). `views/calendar-view/` + `components/calendar-day-cell/` + `components/calendar-event-chip/` + `routes/calendar.{index,month,week}.tsx`. Iter-1 shipped all 11 steps; iter-2 added the `+ Filter` sub-pickers + microcopy + repaired 6 test files; iter-3 closed 6 reviewer ARIA/microcopy/export gaps + a follow-on keyboard-nav regression. Drag CUT (no dnd-kit import in any calendar file); `CalendarFiltersBar` exported for task-15 reuse.
 
 ## What's Next
-- **PAUSED** after task 13 at user request — they want to manually try the markdown notes flow. Resume with `/phased-dev:start-task 14` for `task-14-calendar-month` when ready.
+- Continuing autonomous execution at user's direction. Next: `task-15-calendar-week-and-kanban`.
 
 ## Task Progress
 
@@ -49,8 +50,8 @@ project
 | 11 | recurrence | done (`f675ca0`) |
 | 12 | bulk-trash-undo | done (`26f5613`) |
 | 13 | markdown-notes | done (`e771707`) |
-| 14 | calendar-month | pending (paused) |
-| 15 | calendar-week-and-kanban | pending |
+| 14 | calendar-month | done (`775e0d2`) |
+| 15 | calendar-week-and-kanban | in progress |
 | 16 | tag-completed-views | pending |
 | 17 | sse-multitab | pending |
 | 18 | hotkeys-palette-a11y-shell | pending |
