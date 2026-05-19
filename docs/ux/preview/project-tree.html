@@ -1,0 +1,242 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Per-project view (hierarchical Tree)" -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Q3 Launch (Tree)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> §"Per-project Tree" + component <a href="../component-inventory.md">§21 Tree row</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Hierarchical project (Tree view): Epic → Feature → Task with one Task expanded to show a subtask row inline.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="project-kanban.html">Q3 Launch (Kanban)</a>
+        <a href="today.html">Today</a>
+      </nav>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="q3launch"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">
+            Q3 Launch <span class="view-header__subtitle">(in Work)</span>
+          </h1>
+          <div class="view-header__controls">
+            <div class="toggle-group" role="tablist" aria-label="View">
+              <button class="icon-btn is-selected" role="tab" aria-selected="true" aria-label="Tree">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+              </button>
+              <a href="project-kanban.html" class="icon-btn" role="tab" aria-selected="false" aria-label="Kanban">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="15" y="3" width="6" height="18" rx="1"/></svg>
+              </a>
+            </div>
+            <button class="btn btn--secondary btn--sm">
+              Sort: Due
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn btn--ghost btn--sm">Filter</button>
+          </div>
+        </header>
+
+        <div class="row row--wrap" style="margin-bottom: 16px; gap: 8px;">
+          <button class="btn btn--primary btn--sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Epic
+          </button>
+          <button class="btn btn--secondary btn--sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Task in project
+          </button>
+        </div>
+
+        <div class="tree" role="tree" aria-label="Q3 Launch items">
+          <!-- Epic: Marketing site relaunch (expanded) -->
+          <div class="tree-row" role="treeitem" aria-expanded="true" aria-level="1" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <span class="tree-row__type-icon" title="Epic">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            </span>
+            <span class="tree-row__title t-body-strong">Marketing site relaunch</span>
+            <span class="tree-row__rollup">
+              <span>2/9</span>
+              <span class="tree-row__progress-bar"><span class="tree-row__progress-fill" style="width: 22%;"></span></span>
+            </span>
+          </div>
+
+          <!-- Feature: Hero section copy (expanded) -->
+          <div class="tree-row tree--indent-1" role="treeitem" aria-expanded="true" aria-level="2" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <span class="tree-row__type-icon" title="Feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="tree-row__title">Hero section copy</span>
+            <span class="tree-row__rollup">
+              <span>1/3</span>
+              <span class="tree-row__progress-bar"><span class="tree-row__progress-fill" style="width: 33%;"></span></span>
+            </span>
+          </div>
+
+          <!-- Tasks under Hero feature -->
+          <div class="tree-row tree--indent-2" role="treeitem" aria-level="3" tabindex="0">
+            <span class="tree-row__chevron tree-row__chevron--empty"></span>
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="tree-row__title">Draft hero copy</span>
+            <span class="tree-row__rollup">
+              <span class="date-chip is-today">Today</span>
+            </span>
+          </div>
+
+          <div class="tree-row tree--indent-2 is-completed" role="treeitem" aria-level="3" tabindex="0">
+            <span class="tree-row__chevron tree-row__chevron--empty"></span>
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox is-checked" aria-checked="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="tree-row__title">Brief from PM</span>
+          </div>
+
+          <!-- Task with one subtask expanded inline (for demonstration) -->
+          <div class="tree-row tree--indent-2" role="treeitem" aria-level="3" aria-expanded="true" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+            <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+            <span class="checkbox"></span>
+            <span class="tree-row__title">Get sign-off from VPM</span>
+            <span class="tree-row__rollup">
+              <span class="subtask-progress">1/2</span>
+              <span class="date-chip">May 22</span>
+            </span>
+          </div>
+
+          <!-- Subtask row (rendered inline only for visual demonstration — in real product, subtasks live only inside the Task modal) -->
+          <div class="tree-row tree--indent-3" role="treeitem" aria-level="4" tabindex="0" style="opacity: 0.95; background: var(--canvas-subtle);">
+            <span class="tree-row__chevron tree-row__chevron--empty"></span>
+            <span class="tree-row__type-icon" title="Subtask" style="color: var(--text-subtle);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+            </span>
+            <span class="checkbox checkbox--sm is-checked" aria-checked="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="tree-row__title is-completed t-small">Compile slide deck</span>
+          </div>
+          <div class="tree-row tree--indent-3" role="treeitem" aria-level="4" tabindex="0" style="opacity: 0.95; background: var(--canvas-subtle);">
+            <span class="tree-row__chevron tree-row__chevron--empty"></span>
+            <span class="tree-row__type-icon" title="Subtask" style="color: var(--text-subtle);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+            </span>
+            <span class="checkbox checkbox--sm"></span>
+            <span class="tree-row__title t-small">Walk through with VPM</span>
+          </div>
+
+          <!-- Collapsed Feature: Pricing page -->
+          <div class="tree-row tree--indent-1" role="treeitem" aria-expanded="false" aria-level="2" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+            <span class="tree-row__type-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="tree-row__title">Pricing page</span>
+            <span class="tree-row__rollup">
+              <span>0/4</span>
+              <span class="tree-row__progress-bar"><span class="tree-row__progress-fill" style="width: 0%;"></span></span>
+            </span>
+          </div>
+
+          <!-- Collapsed Feature: FAQ update -->
+          <div class="tree-row tree--indent-1" role="treeitem" aria-expanded="false" aria-level="2" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+            <span class="tree-row__type-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="tree-row__title">FAQ update</span>
+            <span class="tree-row__rollup">
+              <span>1/2</span>
+              <span class="tree-row__progress-bar"><span class="tree-row__progress-fill" style="width: 50%;"></span></span>
+            </span>
+          </div>
+
+          <!-- Epic: Backend rewrite (collapsed) -->
+          <div class="tree-row" role="treeitem" aria-expanded="false" aria-level="1" tabindex="0">
+            <span class="tree-row__chevron">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+            <span class="tree-row__type-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            </span>
+            <span class="tree-row__title t-body-strong">Backend rewrite</span>
+            <span class="tree-row__rollup">
+              <span>3/15</span>
+              <span class="tree-row__progress-bar"><span class="tree-row__progress-fill" style="width: 20%;"></span></span>
+            </span>
+          </div>
+
+          <!-- Loose tasks divider -->
+          <div style="display: flex; align-items: center; gap: 12px; padding: 24px 0 8px 0;">
+            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            <span class="t-caption text-subtle" style="text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">
+              Loose tasks in project (no Epic parent)
+            </span>
+            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+          </div>
+
+          <!-- Loose task -->
+          <div class="tree-row" role="treeitem" aria-level="1" tabindex="0">
+            <span class="tree-row__chevron tree-row__chevron--empty"></span>
+            <span class="tree-row__type-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+            </span>
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="tree-row__title">Update Slack channel topic</span>
+            <span class="tree-row__rollup">
+              <span class="date-chip">May 19</span>
+            </span>
+          </div>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 32px;">
+          <strong>Annotation:</strong> rollup progress chips on Epics + Features are
+          live; on hover the row shows the ⋯ menu and Open chevron (omitted in this static preview for clarity).
+          Indent levels: Epic (0), Feature (24px), Task (48px), Subtask (72px). The faint vertical
+          guide line per indent stop is drawn via a 1px <code class="code">--border-subtle</code> pseudo-element.
+        </p>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

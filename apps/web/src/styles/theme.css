@@ -1,0 +1,55 @@
+/* ============================================================
+   Tasko Theme Bootstrap
+   Sets data-theme='light' as the default if unset.
+   The themeStore (task-04) mutates document.documentElement.dataset.theme.
+   ============================================================ */
+
+:root:not([data-theme]) {
+  /* Mirrors :root[data-theme='light'] — ensures tokens resolve before themeStore mounts */
+  --color-canvas: #fcfcfc;
+  --color-canvas-subtle: #f6f6f6;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-sunken: #f2f2f2;
+  --color-text: #0f1115;
+  --color-text-strong: #000000;
+  --color-text-subtle: #5b6068;
+  --color-text-muted: #8b9098;
+  --color-text-disabled: #b4b8be;
+  --color-text-on-accent: #ffffff;
+  --color-text-overdue: #b91c1c;
+  --color-border: #e5e7eb;
+  --color-border-strong: #cbd0d7;
+  --color-border-subtle: #f0f1f4;
+  --color-border-overlay: rgba(0, 0, 0, 0.08);
+  --color-accent: #d97706;
+  --color-accent-hover: #b45309;
+  --color-accent-pressed: #92400e;
+  --color-accent-subtle: #fef3c7;
+  --color-accent-on-subtle: #92400e;
+  --color-focus-ring: #d97706;
+  --color-focus-ring-on-accent: #ffffff;
+  --color-overdue: #dc2626;
+  --color-overdue-subtle: #fee2e2;
+  --color-overdue-text: #991b1b;
+  --color-success: #16a34a;
+  --color-success-subtle: #dcfce7;
+  --color-success-text: #166534;
+  --color-status-todo: #9ca3af;
+  --color-status-in-progress: #0ea5e9;
+  --color-status-done: #16a34a;
+  --color-priority-none: #d1d5db;
+  --color-priority-low: #9ca3af;
+  --color-priority-medium: #f59e0b;
+  --color-priority-high: #dc2626;
+  --color-tag-bg: #f3f4f6;
+  --color-tag-text: #374151;
+  --color-tag-border: transparent;
+  --color-scrim: rgba(0, 0, 0, 0.4);
+  --color-drag-shadow-overlay: rgba(0, 0, 0, 0.16);
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-3: 0 12px 32px rgba(15, 17, 21, 0.1), 0 4px 12px rgba(15, 17, 21, 0.06);
+  --elevation-drag: 0 18px 36px rgba(0, 0, 0, 0.16), 0 6px 12px rgba(0, 0, 0, 0.1);
+}

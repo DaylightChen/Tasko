@@ -1,0 +1,250 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Task modal (desktop)" + component-inventory §14 -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Task modal (new)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+    <style>
+      /* Backdrop sits inside the page flow, not fixed, to keep the preview
+         visible alongside the modal preview annotation. */
+      .modal-stage {
+        position: relative;
+        background: var(--scrim);
+        min-height: 720px;
+        padding: 48px 24px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+      }
+      [data-theme="dark"] .modal-stage { background: rgba(0, 0, 0, 0.65); }
+
+      .priority-radio-group {
+        display: inline-flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .priority-radio {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .priority-radio:hover { background: var(--canvas-subtle); }
+      .priority-radio.is-selected {
+        background: var(--accent-subtle);
+        color: var(--accent-on-subtle);
+        border-color: var(--accent);
+      }
+
+      .date-chip-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .date-chip-trigger:hover { border-color: var(--border-strong); }
+      .date-chip-trigger.is-focused {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 2px;
+        border-color: var(--accent);
+      }
+
+      .more-disclosure {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-subtle);
+        font-weight: 500;
+        cursor: pointer;
+        padding: 8px 0;
+        border-top: 1px solid var(--border-subtle);
+        margin-top: 8px;
+      }
+      .more-disclosure svg { color: var(--text-subtle); }
+    </style>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> §"Task modal" + component <a href="../component-inventory.md">§14 Modal</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Task modal (new) — title pre-filled, due-date focused on open, project field empty + required. Click "Save" disabled until all required fields are filled.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today.html">Today</a>
+      </nav>
+    </div>
+
+    <div class="modal-stage">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal__header">
+          <h2 id="modal-title" class="modal__title">Add task</h2>
+          <button class="icon-btn" aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="modal__body">
+          <!-- Title (pre-filled from quick-add) -->
+          <div>
+            <label class="field-label" for="task-title">Title</label>
+            <div class="input">
+              <input
+                id="task-title"
+                class="input--text"
+                type="text"
+                value="Buy laptop charger"
+                placeholder="Task title"
+              />
+            </div>
+          </div>
+
+          <!-- Due date — FOCUSED on open -->
+          <div>
+            <label class="field-label">
+              Due date <span class="field-required">· Required</span>
+            </label>
+            <div class="row" style="gap: 8px; flex-wrap: wrap;">
+              <button class="date-chip-trigger is-focused" type="button" aria-label="Pick due date">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Today, May 18</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <button class="btn btn--ghost btn--sm" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Add time
+              </button>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); margin-left: auto;">
+                <input type="checkbox" checked />
+                All-day
+              </label>
+            </div>
+          </div>
+
+          <!-- Start date (optional) -->
+          <div>
+            <label class="field-label">Start date (optional)</label>
+            <button class="date-chip-trigger" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+              <span class="text-subtle">— none</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Project (REQUIRED, empty) -->
+          <div>
+            <label class="field-label">
+              Project <span class="field-required">· Required</span>
+            </label>
+            <button class="date-chip-trigger" type="button" style="width: 100%; justify-content: flex-start;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <span class="text-muted">Pick a project (or Inbox)</span>
+            </button>
+            <p class="field-helper">Required — defaults are not picked from view context.</p>
+          </div>
+
+          <!-- Tags -->
+          <div>
+            <label class="field-label">Tags</label>
+            <div class="input" style="height: auto; min-height: 44px; padding: 6px 12px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1;">
+                <span class="tag-chip">
+                  #urgent
+                  <svg class="x" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+                <span class="tag-chip">
+                  #call
+                  <svg class="x" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Add tag…"
+                  style="border: 0; outline: 0; background: transparent; flex: 1; min-width: 80px; font-size: 14px; color: var(--text);"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div>
+            <label class="field-label">Priority</label>
+            <div class="priority-radio-group" role="radiogroup">
+              <button class="priority-radio" type="button" role="radio" aria-checked="false">
+                <span class="priority-dot priority-dot--none"></span>
+                <span>None</span>
+              </button>
+              <button class="priority-radio" type="button" role="radio" aria-checked="false">
+                <span class="priority-dot priority-dot--low"></span>
+                <span>Low</span>
+              </button>
+              <button class="priority-radio is-selected" type="button" role="radio" aria-checked="true">
+                <span class="priority-dot priority-dot--medium"></span>
+                <span>Medium</span>
+              </button>
+              <button class="priority-radio" type="button" role="radio" aria-checked="false">
+                <span class="priority-dot priority-dot--high"></span>
+                <span>High</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- More disclosure -->
+          <div class="more-disclosure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            More
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button class="btn btn--ghost">Cancel</button>
+          <button class="btn btn--primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="max-width: 720px; margin: 24px auto; color: var(--text-subtle); font-size: 13px; padding: 0 24px;">
+      <strong>Annotation:</strong> per spec §6.1 and locked decisions, the Title
+      field is pre-filled when the modal opens from quick-add. The
+      <strong>due-date</strong> field is the initial keyboard focus (it has the focus
+      ring drawn in the preview). The <strong>Project</strong> field is required and
+      <strong>empty</strong> — Tasko never auto-fills project from view context (one
+      explicit click per task is the friction by design). Notes and Recurrence
+      live behind the "More" disclosure so the modal stays scannable on first
+      open.
+    </p>
+
+    <script src="theme.js"></script>
+  </body>
+</html>

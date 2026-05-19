@@ -1,0 +1,289 @@
+/* ============================================================
+   Tasko Design Tokens
+   Source of truth: docs/ux/design-language.md §1–7
+   ============================================================ */
+
+/* --- Typography families --- */
+:root {
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+}
+
+/* --- Desktop type ramp --- */
+:root {
+  --text-display-size: 28px;
+  --text-display-line-height: 36px;
+  --text-display-weight: 600;
+  --text-display-tracking: -0.01em;
+
+  --text-h1-size: 22px;
+  --text-h1-line-height: 30px;
+  --text-h1-weight: 600;
+  --text-h1-tracking: -0.005em;
+
+  --text-h2-size: 18px;
+  --text-h2-line-height: 26px;
+  --text-h2-weight: 600;
+  --text-h2-tracking: 0;
+
+  --text-h3-size: 15px;
+  --text-h3-line-height: 22px;
+  --text-h3-weight: 600;
+  --text-h3-tracking: 0;
+
+  --text-body-size: 14px;
+  --text-body-line-height: 20px;
+  --text-body-weight: 400;
+  --text-body-tracking: 0;
+
+  --text-body-strong-size: 14px;
+  --text-body-strong-line-height: 20px;
+  --text-body-strong-weight: 500;
+  --text-body-strong-tracking: 0;
+
+  --text-small-size: 13px;
+  --text-small-line-height: 18px;
+  --text-small-weight: 400;
+  --text-small-tracking: 0;
+
+  --text-small-strong-size: 13px;
+  --text-small-strong-line-height: 18px;
+  --text-small-strong-weight: 500;
+  --text-small-strong-tracking: 0;
+
+  --text-caption-size: 12px;
+  --text-caption-line-height: 16px;
+  --text-caption-weight: 400;
+  --text-caption-tracking: 0.005em;
+
+  --text-mono-size: 12px;
+  --text-mono-line-height: 16px;
+  --text-mono-weight: 500;
+  --text-mono-tracking: 0;
+}
+
+/* --- Mobile type ramp overrides --- */
+@media (max-width: 768px) {
+  :root {
+    --text-display-size: 24px;
+    --text-display-line-height: 32px;
+
+    --text-h1-size: 20px;
+    --text-h1-line-height: 28px;
+
+    --text-h2-size: 17px;
+    --text-h2-line-height: 24px;
+
+    /* h3 unchanged */
+
+    --text-body-size: 15px;
+    --text-body-line-height: 22px;
+
+    --text-body-strong-size: 15px;
+    --text-body-strong-line-height: 22px;
+
+    --text-small-size: 14px;
+    --text-small-line-height: 20px;
+
+    --text-small-strong-size: 14px;
+    --text-small-strong-line-height: 20px;
+
+    /* caption and mono unchanged */
+  }
+}
+
+/* --- Light theme (default fallback) --- */
+:root,
+:root[data-theme="light"] {
+  /* Canvas & surface */
+  --color-canvas: #fcfcfc;
+  --color-canvas-subtle: #f6f6f6;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-sunken: #f2f2f2;
+
+  /* Text */
+  --color-text: #0f1115;
+  --color-text-strong: #000000;
+  --color-text-subtle: #5b6068;
+  --color-text-muted: #8b9098;
+  --color-text-disabled: #b4b8be;
+  --color-text-on-accent: #ffffff;
+  --color-text-overdue: #b91c1c;
+
+  /* Border / divider */
+  --color-border: #e5e7eb;
+  --color-border-strong: #cbd0d7;
+  --color-border-subtle: #f0f1f4;
+  --color-border-overlay: rgba(0, 0, 0, 0.08);
+
+  /* Accent (amber) */
+  --color-accent: #d97706;
+  --color-accent-hover: #b45309;
+  --color-accent-pressed: #92400e;
+  --color-accent-subtle: #fef3c7;
+  --color-accent-on-subtle: #92400e;
+
+  /* Focus */
+  --color-focus-ring: #d97706;
+  --color-focus-ring-on-accent: #ffffff;
+
+  /* Status: overdue */
+  --color-overdue: #dc2626;
+  --color-overdue-subtle: #fee2e2;
+  --color-overdue-text: #991b1b;
+
+  /* Status: success */
+  --color-success: #16a34a;
+  --color-success-subtle: #dcfce7;
+  --color-success-text: #166534;
+
+  /* Item status */
+  --color-status-todo: #9ca3af;
+  --color-status-in-progress: #0ea5e9;
+  --color-status-done: #16a34a;
+
+  /* Priority */
+  --color-priority-none: #d1d5db;
+  --color-priority-low: #9ca3af;
+  --color-priority-medium: #f59e0b;
+  --color-priority-high: #dc2626;
+
+  /* Tag */
+  --color-tag-bg: #f3f4f6;
+  --color-tag-text: #374151;
+  --color-tag-border: transparent;
+
+  /* Translucent overlays */
+  --color-scrim: rgba(0, 0, 0, 0.4);
+  --color-drag-shadow-overlay: rgba(0, 0, 0, 0.16);
+
+  /* Elevation shadows */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-3: 0 12px 32px rgba(15, 17, 21, 0.1), 0 4px 12px rgba(15, 17, 21, 0.06);
+  --elevation-drag: 0 18px 36px rgba(0, 0, 0, 0.16), 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Dark theme --- */
+:root[data-theme="dark"] {
+  /* Canvas & surface */
+  --color-canvas: #0e0f11;
+  --color-canvas-subtle: #16181b;
+  --color-surface: #1a1c1f;
+  --color-surface-elevated: #22252a;
+  --color-surface-sunken: #0a0b0d;
+
+  /* Text */
+  --color-text: #f1f2f4;
+  --color-text-strong: #ffffff;
+  --color-text-subtle: #a5abb3;
+  --color-text-muted: #6e747c;
+  --color-text-disabled: #54595f;
+  --color-text-on-accent: #0f1115;
+  --color-text-overdue: #fca5a5;
+
+  /* Border / divider */
+  --color-border: #2a2d32;
+  --color-border-strong: #3a3e45;
+  --color-border-subtle: #202327;
+  --color-border-overlay: rgba(255, 255, 255, 0.1);
+
+  /* Accent (amber) */
+  --color-accent: #f59e0b;
+  --color-accent-hover: #fbbf24;
+  --color-accent-pressed: #d97706;
+  --color-accent-subtle: #3a2a0a;
+  --color-accent-on-subtle: #fcd34d;
+
+  /* Focus */
+  --color-focus-ring: #f59e0b;
+  --color-focus-ring-on-accent: #0f1115;
+
+  /* Status: overdue */
+  --color-overdue: #ef4444;
+  --color-overdue-subtle: #3a1414;
+  --color-overdue-text: #fca5a5;
+
+  /* Status: success */
+  --color-success: #22c55e;
+  --color-success-subtle: #0f2a18;
+  --color-success-text: #86efac;
+
+  /* Item status */
+  --color-status-todo: #6b7280;
+  --color-status-in-progress: #38bdfa;
+  --color-status-done: #22c55e;
+
+  /* Priority */
+  --color-priority-none: #3a3e45;
+  --color-priority-low: #6b7280;
+  --color-priority-medium: #fbbf24;
+  --color-priority-high: #ef4444;
+
+  /* Tag */
+  --color-tag-bg: #262a30;
+  --color-tag-text: #d1d5db;
+  --color-tag-border: transparent;
+
+  /* Translucent overlays */
+  --color-scrim: rgba(0, 0, 0, 0.6);
+  --color-drag-shadow-overlay: rgba(0, 0, 0, 0.32);
+
+  /* Elevation shadows */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --elevation-3: 0 16px 40px rgba(0, 0, 0, 0.48), 0 6px 16px rgba(0, 0, 0, 0.32);
+  --elevation-drag: 0 24px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Spacing scale (theme-independent) --- */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+}
+
+/* --- Radius scale (theme-independent) --- */
+:root {
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+}
+
+/* --- Motion duration tokens (theme-independent) --- */
+:root {
+  --motion-instant: 80ms;
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-medium: 300ms;
+  --motion-slow: 480ms;
+}
+
+/* --- Motion easing tokens (theme-independent) --- */
+:root {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring-soft: cubic-bezier(0.34, 1.32, 0.64, 1);
+}
+
+/* --- Reduced-motion overrides --- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 80ms;
+    --motion-base: 80ms;
+    --motion-medium: 80ms;
+    --motion-slow: 80ms;
+    --ease-spring-soft: linear;
+  }
+}

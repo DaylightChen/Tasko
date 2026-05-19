@@ -1,0 +1,148 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Inbox view" -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Inbox</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Inbox — weekly triage emphasis. Note the soft "8 items waiting to be filed" prompt at the top.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today.html">Today</a>
+        <a href="project-tree.html">Project (Tree)</a>
+      </nav>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="inbox"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">Inbox</h1>
+          <div class="view-header__controls">
+            <button class="btn btn--secondary btn--sm">
+              Sort: Created
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn btn--ghost btn--sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Filter
+            </button>
+          </div>
+        </header>
+
+        <div class="quick-add">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <input type="text" placeholder="Add task to Inbox" />
+        </div>
+
+        <p class="t-small text-subtle" style="margin: 4px 0 16px 0;">8 items waiting to be filed</p>
+
+        <div class="task-list">
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--none"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Investigate that podcast Alice mentioned</span>
+            <span class="task-row__meta">
+              <span class="date-chip">May 22</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Look into pottery class</span>
+            <span class="task-row__meta">
+              <span class="date-chip">May 28</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Read the McKinsey paper</span>
+            <span class="task-row__meta">
+              <span class="date-chip">May 30</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Find a new pair of running shoes</span>
+            <span class="task-row__meta">
+              <span class="tag-chip">#urgent</span>
+              <span class="date-chip">Jun 1</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Renew passport</span>
+            <span class="task-row__meta">
+              <span class="date-chip">Jul 14</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--none"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Replace bike chain</span>
+            <span class="task-row__meta">
+              <span class="date-chip">Jun 5</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Schedule a haircut</span>
+            <span class="task-row__meta">
+              <span class="date-chip">May 24</span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Look up income tax thing</span>
+            <span class="task-row__meta">
+              <span class="date-chip">Jun 30</span>
+            </span>
+          </div>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 32px;">
+          <strong>Annotation:</strong> the "<em>8 items waiting to be filed</em>" subline appears at the top in
+          <code class="code">--text-subtle</code>. No CTA — just a soft prompt to triage. Empty-state copy:
+          "Inbox is clear." / "Quick-add lands here when no project is picked."
+        </p>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

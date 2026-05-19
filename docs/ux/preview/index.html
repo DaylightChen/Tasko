@@ -1,0 +1,197 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../*.md under docs/ux/ -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — UX Preview</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Theme toggle — persisted to localStorage, defaults to system preference.
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.setAttribute("data-theme", stored);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is the markdown spec set at
+        <a href="../">docs/ux/</a>. Engineers: do not implement against these
+        files.
+      </div>
+      <div>
+        <button
+          type="button"
+          class="theme-toggle"
+          onclick="toggleTheme()"
+          aria-label="Toggle theme"
+        >
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="toc">
+      <section class="toc__hero">
+        <h1>Tasko — UX Preview</h1>
+        <p>
+          A static HTML preview of every key surface in Tasko v1. Each page is
+          self-contained, renders in light + dark mode, and reflows on small
+          screens. This preview is a visual companion to the markdown spec set
+          under <code class="code">docs/ux/</code> — not the source of truth.
+        </p>
+      </section>
+
+      <section class="toc__section">
+        <h2>Foundations</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="style-guide.html">
+            <p class="toc__card__title">Style guide</p>
+            <p class="toc__card__desc">
+              Color tokens, typography ramp, buttons, chips, priority dots,
+              status indicators, snackbar variants, spacing, radius.
+            </p>
+            <div class="toc__card__tags">
+              <span class="tag-chip">tokens</span>
+              <span class="tag-chip">components</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>Smart lists</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="today.html">
+            <p class="toc__card__title">Today (populated)</p>
+            <p class="toc__card__desc">
+              Default landing view. Overdue strip, then today's items with
+              priority dots, multi-day chip, tags, times.
+            </p>
+          </a>
+          <a class="toc__card" href="today-empty.html">
+            <p class="toc__card__title">Today (empty)</p>
+            <p class="toc__card__desc">
+              The "caught up" state — one of the two warm flourishes in the
+              microcopy library.
+            </p>
+          </a>
+          <a class="toc__card" href="today-first-run.html">
+            <p class="toc__card__title">Today (first run)</p>
+            <p class="toc__card__desc">
+              "Welcome to Tasko." Brand-new install with the pointer hint to
+              quick-add.
+            </p>
+          </a>
+          <a class="toc__card" href="inbox.html">
+            <p class="toc__card__title">Inbox</p>
+            <p class="toc__card__desc">
+              Weekly triage view. Items waiting to be filed.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>Per-project views</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="project-tree.html">
+            <p class="toc__card__title">Project (Tree)</p>
+            <p class="toc__card__desc">
+              Hierarchical project: Epic → Feature → Task with subtask
+              expanded. Indent guide lines, rollup progress bars.
+            </p>
+          </a>
+          <a class="toc__card" href="project-kanban.html">
+            <p class="toc__card__title">Project (Kanban)</p>
+            <p class="toc__card__desc">
+              Three-column board with priority-strip cards, tag chips, subtask
+              counts, today/overdue date treatment.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>Calendar</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="calendar-month.html">
+            <p class="toc__card__title">Calendar (Month)</p>
+            <p class="toc__card__desc">
+              Full month grid with today's accent circle, multi-day spanning
+              bar, time-prefixed timed events, priority left borders, +N more
+              overflow.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>Editing surfaces</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="task-modal.html">
+            <p class="toc__card__title">Task modal (new)</p>
+            <p class="toc__card__desc">
+              Title pre-filled, due-date focused on open, project empty +
+              required.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>Mobile</h2>
+        <div class="toc__grid">
+          <a class="toc__card" href="mobile-today.html">
+            <p class="toc__card__title">Mobile Today</p>
+            <p class="toc__card__desc">
+              Mobile layout with top bar, comfortable task rows, bottom nav,
+              and a preview of the sheet modal.
+            </p>
+          </a>
+        </div>
+      </section>
+
+      <section class="toc__section">
+        <h2>How to use this preview</h2>
+        <ul style="color: var(--text-subtle); font-size: 14px; line-height: 22px; padding-left: 18px;">
+          <li>Open any page directly in a browser — no build step.</li>
+          <li>
+            Use the <strong>Theme: ...</strong> toggle in the top banner to
+            switch between light, dark, and system preference.
+          </li>
+          <li>
+            Resize the window below <strong>900px</strong> to see the layout
+            reflow to mobile (sidebar collapses, bottom nav appears).
+          </li>
+          <li>
+            Hover task rows / kanban cards / sidebar items to see their hover
+            and selected states.
+          </li>
+          <li>
+            Interactivity is deliberately minimal — these are static snapshots
+            of the design, not a working prototype.
+          </li>
+        </ul>
+      </section>
+
+      <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-subtle); color: var(--text-subtle); font-size: 13px;">
+        Generated 2026-05-18 from
+        <a href="../design-language.md">design-language.md</a>,
+        <a href="../component-inventory.md">component-inventory.md</a>,
+        <a href="../screens.md">screens.md</a>,
+        <a href="../microcopy.md">microcopy.md</a>,
+        <a href="../interaction-patterns.md">interaction-patterns.md</a>,
+        <a href="../accessibility.md">accessibility.md</a>.
+      </footer>
+    </main>
+
+    <script src="theme.js"></script>
+  </body>
+</html>

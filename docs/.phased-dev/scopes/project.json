@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "id": "project",
+  "type": "project-design-heavy",
+  "name": null,
+  "pipeline": [
+    {
+      "phase": "brainstorm",
+      "agent": "brainstormer",
+      "outputCheck": "docs/brainstorm/*.md"
+    },
+    {
+      "phase": "ux",
+      "agent": "ux-designer",
+      "outputCheck": "docs/ux/*.md"
+    },
+    {
+      "phase": "engineering",
+      "agent": "architect",
+      "outputCheck": "docs/engineering/*.md"
+    },
+    {
+      "phase": "plan",
+      "agent": "planner",
+      "outputCheck": ["docs/plan/implementation-plan.md", "docs/tasks/task-*/brief.md"]
+    },
+    {
+      "phase": "implement",
+      "agent": null,
+      "outputCheck": ["docs/tasks/task-*/brief.md", "docs/tasks/task-*/completion.md"]
+    }
+  ],
+  "currentPhase": "implement",
+  "phaseStatus": "not_started",
+  "paths": {
+    "brainstormDir": "docs/brainstorm/",
+    "uxDir": "docs/ux/",
+    "engineeringDir": "docs/engineering/",
+    "plan": "docs/plan/implementation-plan.md",
+    "tasks": "docs/tasks/",
+    "decisions": "docs/decisions.md"
+  },
+  "history": [
+    {
+      "phase": "brainstorm",
+      "completedAt": "2026-05-18T03:36:18Z",
+      "approvedAt": "2026-05-18T03:36:18Z"
+    },
+    {
+      "phase": "ux",
+      "completedAt": "2026-05-18T07:13:39Z",
+      "approvedAt": "2026-05-18T07:13:39Z"
+    },
+    {
+      "phase": "engineering",
+      "completedAt": "2026-05-18T08:17:43Z",
+      "approvedAt": "2026-05-18T08:17:43Z"
+    },
+    {
+      "phase": "plan",
+      "completedAt": "2026-05-18T13:19:28Z",
+      "approvedAt": "2026-05-18T13:19:28Z"
+    }
+  ]
+}

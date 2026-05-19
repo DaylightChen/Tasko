@@ -1,0 +1,277 @@
+/* =======================================================================
+   Tasko — Design Tokens
+   Source of truth: docs/ux/design-language.md
+   Every token below is a verbatim mirror of the design-language spec.
+   ======================================================================= */
+
+:root {
+  /* Typography — family */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+
+  /* Typography — desktop ramp */
+  --text-display-size: 28px;
+  --text-display-lh: 36px;
+  --text-display-weight: 600;
+  --text-display-tracking: -0.01em;
+
+  --text-h1-size: 22px;
+  --text-h1-lh: 30px;
+  --text-h1-weight: 600;
+  --text-h1-tracking: -0.005em;
+
+  --text-h2-size: 18px;
+  --text-h2-lh: 26px;
+  --text-h2-weight: 600;
+
+  --text-h3-size: 15px;
+  --text-h3-lh: 22px;
+  --text-h3-weight: 600;
+
+  --text-body-size: 14px;
+  --text-body-lh: 20px;
+  --text-body-weight: 400;
+  --text-body-strong-weight: 500;
+
+  --text-small-size: 13px;
+  --text-small-lh: 18px;
+  --text-small-weight: 400;
+  --text-small-strong-weight: 500;
+
+  --text-caption-size: 12px;
+  --text-caption-lh: 16px;
+  --text-caption-tracking: 0.005em;
+
+  --text-mono-size: 12px;
+  --text-mono-lh: 16px;
+
+  /* Spacing scale — strict 4px grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius scale */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Motion durations */
+  --motion-instant: 80ms;
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-medium: 300ms;
+  --motion-slow: 480ms;
+
+  /* Easing curves */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring-soft: cubic-bezier(0.34, 1.32, 0.64, 1);
+}
+
+/* =======================================================================
+   Light theme (default)
+   ======================================================================= */
+:root,
+[data-theme="light"] {
+  /* Canvas & surface */
+  --canvas: #fcfcfc;
+  --canvas-subtle: #f6f6f6;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-sunken: #f2f2f2;
+
+  /* Text */
+  --text: #0f1115;
+  --text-strong: #000000;
+  --text-subtle: #5b6068;
+  --text-muted: #8b9098;
+  --text-disabled: #b4b8be;
+  --text-on-accent: #ffffff;
+  --text-overdue: #b91c1c;
+
+  /* Border / divider */
+  --border: #e5e7eb;
+  --border-strong: #cbd0d7;
+  --border-subtle: #f0f1f4;
+  --border-overlay: rgba(0, 0, 0, 0.08);
+
+  /* Accent — amber */
+  --accent: #d97706;
+  --accent-hover: #b45309;
+  --accent-pressed: #92400e;
+  --accent-subtle: #fef3c7;
+  --accent-on-subtle: #92400e;
+
+  /* Focus */
+  --focus-ring: #d97706;
+  --focus-ring-on-accent: #ffffff;
+
+  /* Overdue */
+  --overdue: #dc2626;
+  --overdue-subtle: #fee2e2;
+  --overdue-text: #991b1b;
+
+  /* Success */
+  --success: #16a34a;
+  --success-subtle: #dcfce7;
+  --success-text: #166534;
+
+  /* Status (kanban) */
+  --status-todo: #9ca3af;
+  --status-in-progress: #0ea5e9;
+  --status-done: #16a34a;
+
+  /* Priority */
+  --priority-none: #d1d5db;
+  --priority-low: #9ca3af;
+  --priority-medium: #f59e0b;
+  --priority-high: #dc2626;
+
+  /* Tags */
+  --tag-bg: #f3f4f6;
+  --tag-text: #374151;
+  --tag-border: transparent;
+
+  /* Overlay */
+  --scrim: rgba(0, 0, 0, 0.4);
+  --drag-shadow-overlay: rgba(0, 0, 0, 0.16);
+
+  /* Elevation (light shadows) */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevation-3: 0 12px 32px rgba(15, 17, 21, 0.1), 0 4px 12px rgba(15, 17, 21, 0.06);
+  --elevation-drag: 0 18px 36px rgba(0, 0, 0, 0.16), 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* =======================================================================
+   Dark theme
+   ======================================================================= */
+[data-theme="dark"] {
+  --canvas: #0e0f11;
+  --canvas-subtle: #16181b;
+  --surface: #1a1c1f;
+  --surface-elevated: #22252a;
+  --surface-sunken: #0a0b0d;
+
+  --text: #f1f2f4;
+  --text-strong: #ffffff;
+  --text-subtle: #a5abb3;
+  --text-muted: #6e747c;
+  --text-disabled: #54595f;
+  --text-on-accent: #0f1115;
+  --text-overdue: #fca5a5;
+
+  --border: #2a2d32;
+  --border-strong: #3a3e45;
+  --border-subtle: #202327;
+  --border-overlay: rgba(255, 255, 255, 0.1);
+
+  --accent: #f59e0b;
+  --accent-hover: #fbbf24;
+  --accent-pressed: #d97706;
+  --accent-subtle: #3a2a0a;
+  --accent-on-subtle: #fcd34d;
+
+  --focus-ring: #f59e0b;
+  --focus-ring-on-accent: #0f1115;
+
+  --overdue: #ef4444;
+  --overdue-subtle: #3a1414;
+  --overdue-text: #fca5a5;
+
+  --success: #22c55e;
+  --success-subtle: #0f2a18;
+  --success-text: #86efac;
+
+  --status-todo: #6b7280;
+  --status-in-progress: #38bdfa;
+  --status-done: #22c55e;
+
+  --priority-none: #3a3e45;
+  --priority-low: #6b7280;
+  --priority-medium: #fbbf24;
+  --priority-high: #ef4444;
+
+  --tag-bg: #262a30;
+  --tag-text: #d1d5db;
+  --tag-border: transparent;
+
+  --scrim: rgba(0, 0, 0, 0.6);
+  --drag-shadow-overlay: rgba(0, 0, 0, 0.32);
+
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --elevation-3: 0 16px 40px rgba(0, 0, 0, 0.48), 0 6px 16px rgba(0, 0, 0, 0.32);
+  --elevation-drag: 0 24px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* Respect prefers-color-scheme when no explicit setting is applied */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --canvas: #0e0f11;
+    --canvas-subtle: #16181b;
+    --surface: #1a1c1f;
+    --surface-elevated: #22252a;
+    --surface-sunken: #0a0b0d;
+    --text: #f1f2f4;
+    --text-strong: #ffffff;
+    --text-subtle: #a5abb3;
+    --text-muted: #6e747c;
+    --text-disabled: #54595f;
+    --text-on-accent: #0f1115;
+    --text-overdue: #fca5a5;
+    --border: #2a2d32;
+    --border-strong: #3a3e45;
+    --border-subtle: #202327;
+    --border-overlay: rgba(255, 255, 255, 0.1);
+    --accent: #f59e0b;
+    --accent-hover: #fbbf24;
+    --accent-pressed: #d97706;
+    --accent-subtle: #3a2a0a;
+    --accent-on-subtle: #fcd34d;
+    --focus-ring: #f59e0b;
+    --focus-ring-on-accent: #0f1115;
+    --overdue: #ef4444;
+    --overdue-subtle: #3a1414;
+    --overdue-text: #fca5a5;
+    --success: #22c55e;
+    --success-subtle: #0f2a18;
+    --success-text: #86efac;
+    --status-todo: #6b7280;
+    --status-in-progress: #38bdfa;
+    --status-done: #22c55e;
+    --priority-none: #3a3e45;
+    --priority-low: #6b7280;
+    --priority-medium: #fbbf24;
+    --priority-high: #ef4444;
+    --tag-bg: #262a30;
+    --tag-text: #d1d5db;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --drag-shadow-overlay: rgba(0, 0, 0, 0.32);
+    --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+    --elevation-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --elevation-3: 0 16px 40px rgba(0, 0, 0, 0.48), 0 6px 16px rgba(0, 0, 0, 0.32);
+    --elevation-drag: 0 24px 48px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: var(--motion-instant) !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--motion-instant) !important;
+  }
+}
