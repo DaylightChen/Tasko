@@ -25,9 +25,10 @@ project
 - `task-08-smart-list-views` — completed 2026-05-19 (commit `c8c96ba`). 2 iterations. 506 web tests pass (+66); Today / Tomorrow / Next 7 Days / Inbox / All views + `useOptimisticMutation` + `undoStore` + `useFocusedRow` + `ViewChrome` + 6 item mutation hooks shipped.
 - `task-09-hierarchy-and-tree-view` — completed 2026-05-19 (commit `f177582`). 2 iterations. Server 157 + Web 569 tests pass (+30 server, +67 web). Depth-cap end-to-end + `descendantsOf`/`topLevelOfProject`/shared `rollupProgress`, TreeRow + TreeView + FlatListView, per-project route + view toggle, Move-to picker w/ `⌘⇧M`, parent-completion blocking for Feature/Epic.
 - `task-10-drag-and-drop` — completed 2026-05-19 (commit `13f4d69`). 3 iterations. Server 157 + Web 621 tests pass (+57 web). dnd-kit wired across sidebar / lists / tree / next-7 / subtasks. Drag-visuals + reduced-motion + auto-scroll + SR announces. Undo wired on 3 spec'd drag mutations. Surfaced + fixed real `TaskListRow` keyboard-handler conflict.
+- `task-11-recurrence` — completed 2026-05-19 (commit `f675ca0`). 3 iterations. Server 312 + Web 649 tests pass (+159 server, +28 web). `domain/time.ts` + `domain/recurrence.ts` + atomic complete-recurring op in PATCH, union response handling in `usePatchItem`/`useToggleComplete`, recurring + un-check snackbars, `describeRecurrence` preview. 80+-case matrix is a release gate.
 
 ## What's Next
-- Run `/phased-dev:start-task 11` for `task-11-recurrence`.
+- Run `/phased-dev:start-task 12` for `task-12-bulk-trash-undo`.
 
 ## Task Progress
 
@@ -43,8 +44,8 @@ project
 | 08 | smart-list-views | done (`c8c96ba`) |
 | 09 | hierarchy-and-tree-view | done (`f177582`) |
 | 10 | drag-and-drop | done (`13f4d69`) |
-| 11 | recurrence | in progress |
-| 12 | bulk-trash-undo | pending |
+| 11 | recurrence | done (`f675ca0`) |
+| 12 | bulk-trash-undo | in progress |
 | 13 | markdown-notes | pending |
 | 14 | calendar-month | pending |
 | 15 | calendar-week-and-kanban | pending |
