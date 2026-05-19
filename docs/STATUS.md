@@ -23,9 +23,10 @@ project
 - `task-06-components-rows-and-pickers` — completed 2026-05-19 (commit `ba41613`). 1 iteration. 397 web tests pass (+201 new); 13 components + 2 lib helpers shipped (date-fmt, a11y).
 - `task-07-task-modal` — completed 2026-05-19 (commit `92e17e3`). 3 iterations. 440 web tests pass (+43); 8 field-popover components + Task modal + form hook + `taskModalStore` + Item/Tag mutation hooks + quick-add wiring shipped.
 - `task-08-smart-list-views` — completed 2026-05-19 (commit `c8c96ba`). 2 iterations. 506 web tests pass (+66); Today / Tomorrow / Next 7 Days / Inbox / All views + `useOptimisticMutation` + `undoStore` + `useFocusedRow` + `ViewChrome` + 6 item mutation hooks shipped.
+- `task-09-hierarchy-and-tree-view` — completed 2026-05-19 (commit `f177582`). 2 iterations. Server 157 + Web 569 tests pass (+30 server, +67 web). Depth-cap end-to-end + `descendantsOf`/`topLevelOfProject`/shared `rollupProgress`, TreeRow + TreeView + FlatListView, per-project route + view toggle, Move-to picker w/ `⌘⇧M`, parent-completion blocking for Feature/Epic.
 
 ## What's Next
-- Run `/phased-dev:start-task 09` for `task-09-hierarchy-and-tree-view`.
+- Run `/phased-dev:start-task 10` for `task-10-drag-and-drop`.
 
 ## Task Progress
 
@@ -39,8 +40,8 @@ project
 | 06 | components-rows-and-pickers | done (`ba41613`) |
 | 07 | task-modal | done (`92e17e3`) |
 | 08 | smart-list-views | done (`c8c96ba`) |
-| 09 | hierarchy-and-tree-view | in progress |
-| 10 | drag-and-drop | pending |
+| 09 | hierarchy-and-tree-view | done (`f177582`) |
+| 10 | drag-and-drop | in progress |
 | 11 | recurrence | pending |
 | 12 | bulk-trash-undo | pending |
 | 13 | markdown-notes | pending |
