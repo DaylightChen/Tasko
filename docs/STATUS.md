@@ -31,9 +31,10 @@ project
 - `task-14-calendar-month` — completed 2026-05-19 (commit `775e0d2`). 3 iterations. Web 833 tests pass (+84 net new — 91 calendar cases, 7 absorbed via fold-in deletion). `views/calendar-view/` + `components/calendar-day-cell/` + `components/calendar-event-chip/` + `routes/calendar.{index,month,week}.tsx`. Iter-1 shipped all 11 steps; iter-2 added the `+ Filter` sub-pickers + microcopy + repaired 6 test files; iter-3 closed 6 reviewer ARIA/microcopy/export gaps + a follow-on keyboard-nav regression. Drag CUT (no dnd-kit import in any calendar file); `CalendarFiltersBar` exported for task-15 reuse.
 - `task-15-calendar-week-and-kanban` — completed 2026-05-19 (commit `4066b40`). 3 iterations. Web 922 tests pass (+89 new). `views/calendar-view/week.tsx` + `components/calendar-week-block/` (no drag) + `views/project-view/kanban-view.tsx` + `components/kanban-{column,card}/` (dnd-kit cross-column → status PATCH; drop-on-Done → completion via `useToggleComplete`; per-column `+` opens modal w/ project + `initialStatus` pre-filled). Reused `CalendarFiltersBar` from task-14. Column-scoped multi-select via `useMultiSelect('kanban-column')` (cross-column DISABLED). Iter-1 shipped both views; iter-2 fixed 5 require()-in-ESM test bugs + folded the tester's parallel files; iter-3 closed reviewer's `formatWeekRange` same-month bug + permissive regex + the missing column multi-select wiring.
 - `task-16-tag-completed-views` — completed 2026-05-19 (commit `0cda638`). 3 iterations. Web 976 tests pass (+54 new). `views/tag-view/index.tsx` + `views/completed-view/{index.tsx, grouping.ts}` + `hooks/useTagNavigation.ts` (tag chips navigate from every TaskListRow context). `useToggleComplete` snackbar branch added for recurring un-check (`Task reopened. Next instance kept.`). Completed view groups items by `completed_at` into 6 buckets respecting `useConfig().week_start`. Iter-1 shipped views; iter-2 fixed `<li>`-in-`<li>` bug + 4 test gaps; iter-3 closed hardcoded weekStart + missing onTagClick in flat-list-view + 404 anchor→Link.
+- `task-17-sse-multitab` — completed 2026-05-19 (commit `21b8b4f`). 1 iteration. Server 374 + Web 997 tests pass (+22 web + 6 server). `routes/events.ts` SSE route w/ source discriminator + 25s heartbeat; `api/events.ts` `createSSEClient` w/ 16 event handlers (all self-skip + Zod-parse); `store/sse.ts` Zustand connection-state store; `sse-connector.tsx` real impl. `routes/trash.ts` SSE payload `count` (fixes schema mismatch); `routes/bulk.ts` adds missing `bulk.completed` publish. Tester surfaced 2 fixture bugs (invalid ULID + `week_start: 'monday'`); orchestrator fixed inline. E2E Playwright deferred to task-20.
 
 ## What's Next
-- Continuing autonomous execution at user's direction. Next: `task-17-sse-multitab`.
+- Continuing autonomous execution at user's direction. Next: `task-18-hotkeys-palette-a11y-shell`.
 
 ## Task Progress
 
@@ -55,8 +56,8 @@ project
 | 14 | calendar-month | done (`775e0d2`) |
 | 15 | calendar-week-and-kanban | done (`4066b40`) |
 | 16 | tag-completed-views | done (`0cda638`) |
-| 17 | sse-multitab | in progress |
-| 18 | hotkeys-palette-a11y-shell | pending |
+| 17 | sse-multitab | done (`21b8b4f`) |
+| 18 | hotkeys-palette-a11y-shell | in progress |
 | 19 | a11y-perf-audit | pending |
 | 20 | e2e-and-release-readiness | pending |
 
