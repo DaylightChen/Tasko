@@ -32,9 +32,10 @@ project
 - `task-15-calendar-week-and-kanban` — completed 2026-05-19 (commit `4066b40`). 3 iterations. Web 922 tests pass (+89 new). `views/calendar-view/week.tsx` + `components/calendar-week-block/` (no drag) + `views/project-view/kanban-view.tsx` + `components/kanban-{column,card}/` (dnd-kit cross-column → status PATCH; drop-on-Done → completion via `useToggleComplete`; per-column `+` opens modal w/ project + `initialStatus` pre-filled). Reused `CalendarFiltersBar` from task-14. Column-scoped multi-select via `useMultiSelect('kanban-column')` (cross-column DISABLED). Iter-1 shipped both views; iter-2 fixed 5 require()-in-ESM test bugs + folded the tester's parallel files; iter-3 closed reviewer's `formatWeekRange` same-month bug + permissive regex + the missing column multi-select wiring.
 - `task-16-tag-completed-views` — completed 2026-05-19 (commit `0cda638`). 3 iterations. Web 976 tests pass (+54 new). `views/tag-view/index.tsx` + `views/completed-view/{index.tsx, grouping.ts}` + `hooks/useTagNavigation.ts` (tag chips navigate from every TaskListRow context). `useToggleComplete` snackbar branch added for recurring un-check (`Task reopened. Next instance kept.`). Completed view groups items by `completed_at` into 6 buckets respecting `useConfig().week_start`. Iter-1 shipped views; iter-2 fixed `<li>`-in-`<li>` bug + 4 test gaps; iter-3 closed hardcoded weekStart + missing onTagClick in flat-list-view + 404 anchor→Link.
 - `task-17-sse-multitab` — completed 2026-05-19 (commit `21b8b4f`). 1 iteration. Server 374 + Web 997 tests pass (+22 web + 6 server). `routes/events.ts` SSE route w/ source discriminator + 25s heartbeat; `api/events.ts` `createSSEClient` w/ 16 event handlers (all self-skip + Zod-parse); `store/sse.ts` Zustand connection-state store; `sse-connector.tsx` real impl. `routes/trash.ts` SSE payload `count` (fixes schema mismatch); `routes/bulk.ts` adds missing `bulk.completed` publish. Tester surfaced 2 fixture bugs (invalid ULID + `week_start: 'monday'`); orchestrator fixed inline. E2E Playwright deferred to task-20.
+- `task-18-hotkeys-palette-a11y-shell` — completed 2026-05-20 (commit `367e4f8`). 3 iterations. Web 1110 tests pass (+111 new). Hotkey registry (mode stack + 10 modes + `useHotkey` + capture-phase HotkeyProvider) + `GlobalShortcuts` (t/i/n// no-input nav + focused-row reschedule) + cmdk command palette (static + dynamic + tree-context catalog, `aria-modal`, document Escape) + shortcut help overlay (?-toggle, verbatim §13) + ⌘F debounced toast + a11y shell audit. Iter-1 used WRAP approach for views; iter-2 fixed cmdk ResizeObserver/scrollIntoView stubs + matchHotkey('?') shift state + Escape document listener; iter-3 wired the missing single-key shortcuts + tree-context commands + aria-modal + View group + ⌘⇧M migration.
 
 ## What's Next
-- Continuing autonomous execution at user's direction. Next: `task-18-hotkeys-palette-a11y-shell`.
+- Continuing autonomous execution at user's direction. Next: `task-19-a11y-perf-audit`.
 
 ## Task Progress
 
@@ -57,8 +58,8 @@ project
 | 15 | calendar-week-and-kanban | done (`4066b40`) |
 | 16 | tag-completed-views | done (`0cda638`) |
 | 17 | sse-multitab | done (`21b8b4f`) |
-| 18 | hotkeys-palette-a11y-shell | in progress |
-| 19 | a11y-perf-audit | pending |
+| 18 | hotkeys-palette-a11y-shell | done (`367e4f8`) |
+| 19 | a11y-perf-audit | in progress |
 | 20 | e2e-and-release-readiness | pending |
 
 ## Blockers
