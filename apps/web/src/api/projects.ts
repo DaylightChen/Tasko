@@ -17,6 +17,17 @@ export function useProjects() {
   });
 }
 
+/**
+ * useProject — fetch a single project by id. Derives the result from the
+ * projects list cache to avoid a separate endpoint (GET /api/projects/:id
+ * is not implemented in v1; task-04 routes use the list).
+ */
+export function useProject(id: string | undefined) {
+  const query = useProjects();
+  const project = query.data?.projects.find((p) => p.id === id) ?? null;
+  return { ...query, project };
+}
+
 export function useCreateProject() {
   const queryClient = useQueryClient();
   const snackbar = useSnackbarStore();

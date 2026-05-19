@@ -1,5 +1,6 @@
 export * from './domain/ids.js';
 export * from './domain/status.js';
+export * from './domain/rollup.js';
 export * from './schemas/item.js';
 export * from './schemas/subtask.js';
 export * from './schemas/project.js';

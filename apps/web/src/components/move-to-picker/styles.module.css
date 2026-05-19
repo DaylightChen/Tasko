@@ -1,0 +1,88 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+}
+
+.searchIcon {
+  color: var(--text-subtle);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font: inherit;
+  color: var(--text);
+}
+
+.searchInput::placeholder {
+  color: var(--text-disabled);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.candidate {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.candidate:not([data-disabled]):hover,
+.candidate:not([data-disabled]):focus-visible {
+  background: var(--canvas-subtle);
+  outline: none;
+}
+
+.candidate[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.candidateLabel {
+  font-size: var(--text-body);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.candidateSubtitle {
+  font-size: var(--text-small);
+  color: var(--text-subtle);
+}
+
+.candidateReason {
+  font-size: var(--text-small);
+  color: var(--overdue, #dc2626);
+  font-style: italic;
+}
+
+.emptyState {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-subtle);
+  font-size: var(--text-body);
+}

@@ -21,6 +21,8 @@ import {
 import type { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 import { z } from 'zod';
+import { canMove } from '../domain/depth-cap.js';
+import { descendantsOf } from '../domain/hierarchy.js';
 import { HttpError } from '../middleware/error-envelope.js';
 
 // Route-level schemas with relaxed project_id and parent_id to accept the Inbox sentinel
@@ -280,7 +282,35 @@ export function registerItemRoutes(app: FastifyInstance): void {
         if (parent.project_id !== body.project_id) {
           throw new HttpError(400, 'VALIDATION', 'Parent item is in a different project.');
         }
-        // TODO(task-09): depth-cap check via canMove(...)
+        // Build a hypothetical item representing the new item at the proposed position.
+        // Use a temporary id that doesn't conflict with any real item.
+        const hypothetical: Item = {
+          id: ItemIdSchema.parse(ulid()),
+          schema_version: 1,
+          type: body.type,
+          project_id: body.project_id,
+          parent_id: body.parent_id,
+          title: body.title,
+          notes: body.notes ?? '',
+          due_date: body.due_date,
+          start_date: body.start_date ?? null,
+          due_time: body.due_time ?? null,
+          priority: body.priority ?? 'none',
+          status: body.status ?? 'todo',
+          tags: body.tags ?? [],
+          subtasks: [],
+          recurrence: body.recurrence ?? null,
+          completed_at: null,
+          trashed_at: null,
+          trashed_with: null,
+          sort_order: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        const depthResult = canMove({ source: hypothetical, newParent: parent, items: index.items });
+        if (!depthResult.ok) {
+          throw new HttpError(409, 'DEPTH_CAP', depthResult.reason);
+        }
       }
 
       // Validate tags exist
@@ -388,7 +418,10 @@ export function registerItemRoutes(app: FastifyInstance): void {
           if (parent.project_id !== effectiveProjectId) {
             throw new HttpError(400, 'VALIDATION', 'Parent item is in a different project.');
           }
-          // TODO(task-09): depth-cap check via canMove(...)
+          const depthResult = canMove({ source, newParent: parent, items: index.items });
+          if (!depthResult.ok) {
+            throw new HttpError(409, 'DEPTH_CAP', depthResult.reason);
+          }
         }
       }
 
@@ -447,24 +480,12 @@ export function registerItemRoutes(app: FastifyInstance): void {
           throw new HttpError(404, 'PROJECT_NOT_FOUND', 'Project not found.');
         }
 
-        // Recursively cascade project_id to descendants
-        const toUpdate: Item[] = [item];
-        const queue: ItemId[] = [source.id];
-        while (queue.length > 0) {
-          const parentId = queue.shift();
-          if (parentId === undefined) break;
-          const children = index.childrenOfItem.get(parentId);
-          if (children) {
-            for (const childId of children) {
-              const child = index.items.get(childId);
-              if (child) {
-                const updatedChild: Item = { ...child, project_id: newProjectId, updated_at: now };
-                toUpdate.push(updatedChild);
-                queue.push(childId);
-              }
-            }
-          }
-        }
+        // Cascade project_id to the item and all its non-trashed descendants
+        const descendants = descendantsOf(source.id, index.items);
+        const toUpdate: Item[] = [
+          item,
+          ...descendants.map((d) => ({ ...d, project_id: newProjectId, updated_at: now })),
+        ];
 
         for (const updatedItem of toUpdate) {
           await ops.writeItem(updatedItem);
@@ -542,8 +563,15 @@ export function registerItemRoutes(app: FastifyInstance): void {
         if (parent.project_id !== effectiveProjectId) {
           throw new HttpError(400, 'VALIDATION', 'Parent item is in a different project.');
         }
-        // TODO(task-09): depth-cap check via canMove(...)
+        // Depth-cap check for re-parent. Cross-project moves don't change the item's
+        // internal depth levels, so depth cap is only relevant when parent_id changes.
+        const depthResult = canMove({ source, newParent: parent, items: index.items });
+        if (!depthResult.ok) {
+          throw new HttpError(409, 'DEPTH_CAP', depthResult.reason);
+        }
       }
+      // Note: cross-project moves (new_project_id only) preserve the subtree structure
+      // wholesale. The cap is unaffected because internal levels stay the same.
 
       const now = new Date().toISOString();
 
@@ -578,23 +606,12 @@ export function registerItemRoutes(app: FastifyInstance): void {
           throw new HttpError(404, 'PROJECT_NOT_FOUND', 'Project not found.');
         }
 
-        const toUpdate: Item[] = [item];
-        const queue: ItemId[] = [source.id];
-        while (queue.length > 0) {
-          const parentId = queue.shift();
-          if (parentId === undefined) break;
-          const children = index.childrenOfItem.get(parentId);
-          if (children) {
-            for (const childId of children) {
-              const child = index.items.get(childId);
-              if (child) {
-                const updatedChild: Item = { ...child, project_id: newProjectId, updated_at: now };
-                toUpdate.push(updatedChild);
-                queue.push(childId);
-              }
-            }
-          }
-        }
+        // Cascade project_id to the item and all its non-trashed descendants
+        const descendants = descendantsOf(source.id, index.items);
+        const toUpdate: Item[] = [
+          item,
+          ...descendants.map((d) => ({ ...d, project_id: newProjectId, updated_at: now })),
+        ];
 
         for (const updatedItem of toUpdate) {
           await ops.writeItem(updatedItem);

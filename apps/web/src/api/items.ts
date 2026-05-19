@@ -291,6 +291,33 @@ export function useEditTitleInline() {
 }
 
 /**
+ * useMoveItem — re-parent or cross-project move via POST /api/items/:id/move.
+ */
+export function useMoveItem() {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbarStore();
+
+  return useMutation<Item, Error, { id: ItemId; new_parent_id?: ItemId | null; new_project_id?: string }>({
+    mutationFn: ({ id, new_parent_id, new_project_id }) =>
+      apiCall(
+        'POST',
+        `/api/items/${id}/move`,
+        { new_parent_id, new_project_id },
+        ItemSchema,
+      ) as Promise<Item>,
+
+    onSuccess: (item) => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      queryClient.setQueryData(itemKeys.detail(item.id as ItemId), item);
+    },
+
+    onError: (_err) => {
+      snackbar.show({ variant: 'error', text: "Couldn't move item. Try again.", durationMs: 5000 });
+    },
+  });
+}
+
+/**
  * useDeleteItem — stub for task-08. Real soft-delete endpoint lands in task-12.
  * For now, shows a "Coming in task-12" snackbar.
  */
