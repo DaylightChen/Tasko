@@ -18,10 +18,11 @@ project
 - `task-01-foundation-vertical-slice` — completed 2026-05-19 (commit `fa86afb`). 1 iteration.
 - `task-02-types-and-fs-store` — completed 2026-05-19 (commit `47d7482`). 2 iterations.
 - `task-03-server-crud-routes` — completed 2026-05-19 (commit `0736f3d`). 2 iterations.
-- `task-04-frontend-shell-router-sidebar` — completed 2026-05-19 (commit `81e7c8e`). 2 iterations. 62 web tests pass; full provider tree + TanStack Router + Sidebar + Settings shipped.
+- `task-04-frontend-shell-router-sidebar` — completed 2026-05-19 (commit `81e7c8e`). 2 iterations.
+- `task-05-components-chrome-and-dialogs` — completed 2026-05-19 (commit `f389357`). 2 iterations. 196 web tests pass; 11 components shipped (Button, IconButton, TextInput, Dropdown, Modal, Sheet, Snackbar, Tooltip, EmptyState, Skeleton, ConfirmationPrompt).
 
 ## What's Next
-- Run `/phased-dev:start-task 05` for `task-05-components-chrome-and-dialogs` (Button / IconButton / TextInput / Modal / Sheet / Snackbar / Tooltip / Dropdown / EmptyState / Skeleton / ConfirmationPrompt).
+- Run `/phased-dev:start-task 06` for `task-06-components-rows-and-pickers` (Checkbox / SubtaskCheckbox / Card / Filter chip / Sort dropdown / View toggle / Multi-day chip / Sidebar primitives / Quick-add input / TaskListRow).
 
 ## Task Progress
 
@@ -31,8 +32,8 @@ project
 | 02 | types-and-fs-store | done (`47d7482`) |
 | 03 | server-crud-routes | done (`0736f3d`) |
 | 04 | frontend-shell-router-sidebar | done (`81e7c8e`) |
-| 05 | components-chrome-and-dialogs | in progress |
-| 06 | components-rows-and-pickers | pending |
+| 05 | components-chrome-and-dialogs | done (`f389357`) |
+| 06 | components-rows-and-pickers | in progress |
 | 07 | task-modal | pending |
 | 08 | smart-list-views | pending |
 | 09 | hierarchy-and-tree-view | pending |
