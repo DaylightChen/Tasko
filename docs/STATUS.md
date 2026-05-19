@@ -26,9 +26,10 @@ project
 - `task-09-hierarchy-and-tree-view` — completed 2026-05-19 (commit `f177582`). 2 iterations. Server 157 + Web 569 tests pass (+30 server, +67 web). Depth-cap end-to-end + `descendantsOf`/`topLevelOfProject`/shared `rollupProgress`, TreeRow + TreeView + FlatListView, per-project route + view toggle, Move-to picker w/ `⌘⇧M`, parent-completion blocking for Feature/Epic.
 - `task-10-drag-and-drop` — completed 2026-05-19 (commit `13f4d69`). 3 iterations. Server 157 + Web 621 tests pass (+57 web). dnd-kit wired across sidebar / lists / tree / next-7 / subtasks. Drag-visuals + reduced-motion + auto-scroll + SR announces. Undo wired on 3 spec'd drag mutations. Surfaced + fixed real `TaskListRow` keyboard-handler conflict.
 - `task-11-recurrence` — completed 2026-05-19 (commit `f675ca0`). 3 iterations. Server 312 + Web 649 tests pass (+159 server, +28 web). `domain/time.ts` + `domain/recurrence.ts` + atomic complete-recurring op in PATCH, union response handling in `usePatchItem`/`useToggleComplete`, recurring + un-check snackbars, `describeRecurrence` preview. 80+-case matrix is a release gate.
+- `task-12-bulk-trash-undo` — completed 2026-05-19 (commit `26f5613`). 2 iterations. Server 368 + Web 683 tests pass (+56 server, +34 web). Real cascade soft-delete/restore/permanent/empty + project-delete cascade + 4 bulk endpoints; Trash view + multi-select store + BulkActionsToolbar + GlobalUndo (⌘Z) + 7 real hooks replacing task-03's 501 stubs and task-08's task-12-pending stubs.
 
 ## What's Next
-- Run `/phased-dev:start-task 12` for `task-12-bulk-trash-undo`.
+- Run `/phased-dev:start-task 13` for `task-13-markdown-notes`.
 
 ## Task Progress
 
@@ -45,8 +46,8 @@ project
 | 09 | hierarchy-and-tree-view | done (`f177582`) |
 | 10 | drag-and-drop | done (`13f4d69`) |
 | 11 | recurrence | done (`f675ca0`) |
-| 12 | bulk-trash-undo | in progress |
-| 13 | markdown-notes | pending |
+| 12 | bulk-trash-undo | done (`26f5613`) |
+| 13 | markdown-notes | in progress |
 | 14 | calendar-month | pending |
 | 15 | calendar-week-and-kanban | pending |
 | 16 | tag-completed-views | pending |
