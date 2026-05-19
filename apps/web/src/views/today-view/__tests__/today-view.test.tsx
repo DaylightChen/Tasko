@@ -21,6 +21,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
@@ -187,8 +188,8 @@ describe('TodayView — populated with overdue + today items', () => {
 
     renderToday([...overdue, ...todays]);
 
-    // Each task row has an aria-label starting with 'Task: "'
-    const rows = screen.getAllByRole('listitem');
+    // Each task row is a sortable button with aria-label starting with 'Task:'
+    const rows = screen.getAllByRole('button', { name: /^task:/i });
     // 3 overdue + 5 today = 8 rows
     expect(rows).toHaveLength(8);
   });
@@ -209,7 +210,7 @@ describe('TodayView — populated with overdue + today items', () => {
     expect(screen.queryByText('Future In Progress Task')).toBeNull();
 
     // Only 2 rows total (1 overdue + 1 today)
-    const rows = screen.getAllByRole('listitem');
+    const rows = screen.getAllByRole('button', { name: /^task:/i });
     expect(rows).toHaveLength(2);
   });
 

@@ -8,6 +8,7 @@ import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import styles from './styles.module.css';
 
@@ -72,33 +73,39 @@ export function TomorrowView() {
       <ViewChrome title="Tomorrow" sortValue={sort} onSortChange={setSort}>
         <section className={styles.section} aria-label={`Tomorrow, ${items.length} items`}>
           <h2 className={styles.sectionTitle}>{formatDayMonthDD(tomorrowStr)}</h2>
-          <ul className={styles.list}>
-            {items.map((item) => (
-              <TaskListRow
-                key={item.id}
-                item={item}
-                todayLocalDate={today}
-                isFocused={false}
-                inlineEditMode={inlineEditId === (item.id as ItemId)}
-                onClick={() => taskModal.openEdit(item.id as ItemId)}
-                onToggleCheckbox={() =>
-                  toggleComplete.mutate({
-                    id: item.id as ItemId,
-                    nextStatus: item.status === 'done' ? 'todo' : 'done',
-                  })
-                }
-                onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                onTitleCommitInlineEdit={(newTitle) => {
-                  setInlineEditId(null);
-                  if (newTitle !== item.title) {
-                    editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
-                  }
-                }}
-                onDeleteRequest={() => setDeleteConfirmItem(item)}
-                onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-              />
-            ))}
-          </ul>
+          <ListDndContext items={items}>
+            <ul className={styles.list}>
+              {items.map((item) => (
+                <SortableTaskRow key={item.id} item={item}>
+                  {(sortableProps) => (
+                    <TaskListRow
+                      item={item}
+                      todayLocalDate={today}
+                      isFocused={false}
+                      inlineEditMode={inlineEditId === (item.id as ItemId)}
+                      onClick={() => taskModal.openEdit(item.id as ItemId)}
+                      onToggleCheckbox={() =>
+                        toggleComplete.mutate({
+                          id: item.id as ItemId,
+                          nextStatus: item.status === 'done' ? 'todo' : 'done',
+                        })
+                      }
+                      onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                      onTitleCommitInlineEdit={(newTitle) => {
+                        setInlineEditId(null);
+                        if (newTitle !== item.title) {
+                          editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                        }
+                      }}
+                      onDeleteRequest={() => setDeleteConfirmItem(item)}
+                      onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                      {...sortableProps}
+                    />
+                  )}
+                </SortableTaskRow>
+              ))}
+            </ul>
+          </ListDndContext>
         </section>
       </ViewChrome>
 

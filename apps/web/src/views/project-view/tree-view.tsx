@@ -13,6 +13,7 @@ import { rollupProgress } from '../../lib/rollup';
 import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
 import { useTreeExpansionStore } from '../../store/tree-expansion';
+import { ProjectRootDropZone, TreeDndContext, TreeRowDraggable, useTreeDndState } from './TreeDndContext';
 import styles from './tree-view.module.css';
 
 // ─── Inline add row ───────────────────────────────────────────────────────────
@@ -213,6 +214,12 @@ function TreeNode({
   const expanded = expansion.isExpanded(projectId, item.id as ItemId);
   const children = getChildren(item.id as ItemId, allItems);
   const hasChildren = children.length > 0;
+  const { dropTargetId, depthCapRejectId, activeDragId } = useTreeDndState();
+
+  const dragId = `tree:${item.id}`;
+  const dropId = `tree-drop:${item.id}`;
+  const isDropTarget = dropTargetId === dropId;
+  const isDepthCapReject = depthCapRejectId === dragId;
 
   const posInSet = siblings.indexOf(item) + 1;
   const setSize = siblings.length;
@@ -251,33 +258,40 @@ function TreeNode({
   return (
     <>
       <div onContextMenu={handleContextMenu} className={styles.treeNodeWrapper}>
-        <TreeRow
+        <TreeRowDraggable
           item={item}
-          level={level}
-          expanded={expanded}
-          posInSet={posInSet}
-          setSize={setSize}
-          hasChildren={hasChildren}
-          {...(rollup !== undefined ? { rollup } : {})}
-          todayLocalDate={today as ReturnType<typeof todayLocal>}
-          onToggleExpand={() => expansion.toggle(projectId, item.id as ItemId)}
-          onToggleCheckbox={() => onToggleCheckbox(item)}
-          {...(item.type !== 'task' ? { onAddChild: handleAddChild } : {})}
-          onClick={() => {
-            onRowFocus(item);
-            onItemClick(item);
-          }}
-          onMenuOpen={() => onContextMenu(item, 0, 0)}
-          onMoveToOpen={() => onMoveToOpen(item)}
-          onTitleClickInlineEdit={() => {
-            /* inline title edit handled by TreeRow internally */
-          }}
-          onTitleCommitInlineEdit={(newTitle) => {
-            if (newTitle && newTitle !== item.title) {
-              patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
-            }
-          }}
-        />
+          projectId={projectId}
+          isDropTarget={isDropTarget}
+          isDepthCapReject={isDepthCapReject}
+        >
+          <TreeRow
+            item={item}
+            level={level}
+            expanded={expanded}
+            posInSet={posInSet}
+            setSize={setSize}
+            hasChildren={hasChildren}
+            {...(rollup !== undefined ? { rollup } : {})}
+            todayLocalDate={today as ReturnType<typeof todayLocal>}
+            onToggleExpand={() => expansion.toggle(projectId, item.id as ItemId)}
+            onToggleCheckbox={() => onToggleCheckbox(item)}
+            {...(item.type !== 'task' ? { onAddChild: handleAddChild } : {})}
+            onClick={() => {
+              onRowFocus(item);
+              onItemClick(item);
+            }}
+            onMenuOpen={() => onContextMenu(item, 0, 0)}
+            onMoveToOpen={() => onMoveToOpen(item)}
+            onTitleClickInlineEdit={() => {
+              /* inline title edit handled by TreeRow internally */
+            }}
+            onTitleCommitInlineEdit={(newTitle) => {
+              if (newTitle && newTitle !== item.title) {
+                patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
+              }
+            }}
+          />
+        </TreeRowDraggable>
       </div>
 
       {/* Inline add row inside feature (after clicking + Add Feature on epic) */}
@@ -368,6 +382,14 @@ function InlineAddCommitter({
       onCancel={onDone}
     />
   );
+}
+
+// ─── Project root drop zone (derives isDropTarget from context) ───────────────
+
+function ProjectRootDropZoneWrapper({ projectId }: { projectId: ProjectId }) {
+  const { dropTargetId } = useTreeDndState();
+  const isRootDropTarget = dropTargetId === `tree-root:${projectId}`;
+  return <ProjectRootDropZone projectId={projectId} isDropTarget={isRootDropTarget} />;
 }
 
 // ─── TreeView ─────────────────────────────────────────────────────────────────
@@ -607,58 +629,63 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
       )}
 
       {/* Tree */}
-      <div role="tree" aria-label={`${projectName} tasks`} className={styles.tree}>
-        {/* Epics and Features at top level */}
-        {topLevelEpicsAndFeatures.map((item) => (
-          <TreeNode
-            key={item.id}
-            item={item}
-            level={1}
-            siblings={topLevelEpicsAndFeatures}
-            allItems={allItems}
-            itemsMap={itemsMap}
-            projectId={projectId}
-            today={today}
-            inlineAddState={inlineAddState}
-            setInlineAddState={setInlineAddState}
-            onItemClick={handleItemClick}
-            onContextMenu={handleContextMenu}
-            onMoveToOpen={setMoveToPickerItem}
-            onToggleCheckbox={handleToggleCheckbox}
-            onRowFocus={setFocusedItem}
-            createItem={createItem}
-            patchItem={patchItem}
-          />
-        ))}
+      <TreeDndContext items={allItems} itemsMap={itemsMap} projectId={projectId}>
+        <div role="tree" aria-label={`${projectName} tasks`} className={styles.tree}>
+          {/* Epics and Features at top level */}
+          {topLevelEpicsAndFeatures.map((item) => (
+            <TreeNode
+              key={item.id}
+              item={item}
+              level={1}
+              siblings={topLevelEpicsAndFeatures}
+              allItems={allItems}
+              itemsMap={itemsMap}
+              projectId={projectId}
+              today={today}
+              inlineAddState={inlineAddState}
+              setInlineAddState={setInlineAddState}
+              onItemClick={handleItemClick}
+              onContextMenu={handleContextMenu}
+              onMoveToOpen={setMoveToPickerItem}
+              onToggleCheckbox={handleToggleCheckbox}
+              onRowFocus={setFocusedItem}
+              createItem={createItem}
+              patchItem={patchItem}
+            />
+          ))}
 
-        {/* Loose tasks divider */}
-        {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
-          <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
-        )}
+          {/* Loose tasks divider */}
+          {topLevelEpicsAndFeatures.length > 0 && looseTopLevelTasks.length > 0 && (
+            <h3 className={styles.looseDivider}>Loose tasks in project (no Epic parent)</h3>
+          )}
 
-        {/* Loose top-level tasks */}
-        {looseTopLevelTasks.map((item) => (
-          <TreeNode
-            key={item.id}
-            item={item}
-            level={1}
-            siblings={looseTopLevelTasks}
-            allItems={allItems}
-            itemsMap={itemsMap}
-            projectId={projectId}
-            today={today}
-            inlineAddState={inlineAddState}
-            setInlineAddState={setInlineAddState}
-            onItemClick={handleItemClick}
-            onContextMenu={handleContextMenu}
-            onMoveToOpen={setMoveToPickerItem}
-            onToggleCheckbox={handleToggleCheckbox}
-            onRowFocus={setFocusedItem}
-            createItem={createItem}
-            patchItem={patchItem}
-          />
-        ))}
-      </div>
+          {/* Loose top-level tasks */}
+          {looseTopLevelTasks.map((item) => (
+            <TreeNode
+              key={item.id}
+              item={item}
+              level={1}
+              siblings={looseTopLevelTasks}
+              allItems={allItems}
+              itemsMap={itemsMap}
+              projectId={projectId}
+              today={today}
+              inlineAddState={inlineAddState}
+              setInlineAddState={setInlineAddState}
+              onItemClick={handleItemClick}
+              onContextMenu={handleContextMenu}
+              onMoveToOpen={setMoveToPickerItem}
+              onToggleCheckbox={handleToggleCheckbox}
+              onRowFocus={setFocusedItem}
+              createItem={createItem}
+              patchItem={patchItem}
+            />
+          ))}
+
+          {/* Project root drop zone */}
+          <ProjectRootDropZoneWrapper projectId={projectId} />
+        </div>
+      </TreeDndContext>
 
       {/* Show N completed toggle */}
       {completedCount > 0 && (

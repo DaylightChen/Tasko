@@ -230,6 +230,10 @@ function TaskModalContent() {
     setField('subtasks', (values.subtasks as Subtask[]).filter((s) => s.id !== id) as Subtask[]);
   };
 
+  const handleSubtaskReorder = (reordered: Subtask[]) => {
+    setField('subtasks', reordered as Subtask[]);
+  };
+
   const handleSubtaskAdd = (subtask: SubtaskCreate) => {
     const tempId = crypto.randomUUID() as unknown as SubtaskId; // brand cast — temp id only, dropped in POST body strip
     setField('subtasks', [...(values.subtasks as Subtask[]), { ...subtask, id: tempId } as Subtask]);
@@ -429,6 +433,7 @@ function TaskModalContent() {
                 onRename={handleSubtaskRename}
                 onDelete={handleSubtaskDelete}
                 onAdd={handleSubtaskAdd}
+                onReorder={handleSubtaskReorder}
               />
             </div>
 

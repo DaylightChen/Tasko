@@ -82,9 +82,35 @@
   color: var(--color-text-subtle);
 }
 
-/* Dragging */
-.row[data-state~="dragging"] {
+/* Drag source placeholder (the original row left behind during drag) */
+.row[data-state~="drag-source-placeholder"] {
   opacity: 0.4;
+  background: var(--color-accent-subtle);
+  animation: placeholderPulse var(--motion-medium, 1.2s) ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Drop target */
+.row[data-state~="drop-target"] {
+  background: var(--color-accent-subtle) !important;
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* Depth-cap reject on source ghost */
+.row[data-state~="depth-cap-reject"] {
+  outline: 2px solid var(--color-overdue);
+  outline-offset: -2px;
+  cursor: no-drop;
 }
 
 /* Error tint */
@@ -350,6 +376,15 @@
 
   .row[data-state~="completed"] .title {
     /* No animation — just static strike-through */
+  }
+
+  /* Suppress drag animations under reduced motion */
+  .row[data-state~="drag-source-placeholder"] {
+    animation: none;
+  }
+
+  .row[data-state~="drop-target"] {
+    transition: none;
   }
 }
 

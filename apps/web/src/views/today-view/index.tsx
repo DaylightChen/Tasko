@@ -17,6 +17,7 @@ import { TaskListRow } from '../../components/task-list-row';
 import { useFocusedRow } from '../../hooks/useFocusedRow';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import { partitionOverdue } from './partition';
 import styles from './styles.module.css';
@@ -197,31 +198,37 @@ export function TodayView() {
                   Move all overdue to today
                 </button>
               </div>
-              <ul className={styles.list}>
-                {overdue.map((item) => (
-                  <TaskListRow
-                    key={item.id}
-                    item={item}
-                    todayLocalDate={today}
-                    isFocused={focusedId === item.id}
-                    inlineEditMode={inlineEditId === (item.id as ItemId)}
-                    onClick={() => taskModal.openEdit(item.id as ItemId)}
-                    onToggleCheckbox={() => handleToggleCheckbox(item)}
-                    onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                    onTitleCommitInlineEdit={(newTitle) => {
-                      setInlineEditId(null);
-                      if (newTitle !== item.title) {
-                        editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
-                      }
-                    }}
-                    onDeleteRequest={() => setDeleteConfirmItem(item)}
-                    onScheduleTodayKeyboard={() =>
-                      reschedule.mutate({ id: item.id as ItemId, newDate: today })
-                    }
-                    onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                  />
-                ))}
-              </ul>
+              <ListDndContext items={overdue}>
+                <ul className={styles.list}>
+                  {overdue.map((item) => (
+                    <SortableTaskRow key={item.id} item={item}>
+                      {(sortableProps) => (
+                        <TaskListRow
+                          item={item}
+                          todayLocalDate={today}
+                          isFocused={focusedId === item.id}
+                          inlineEditMode={inlineEditId === (item.id as ItemId)}
+                          onClick={() => taskModal.openEdit(item.id as ItemId)}
+                          onToggleCheckbox={() => handleToggleCheckbox(item)}
+                          onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                          onTitleCommitInlineEdit={(newTitle) => {
+                            setInlineEditId(null);
+                            if (newTitle !== item.title) {
+                              editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                            }
+                          }}
+                          onDeleteRequest={() => setDeleteConfirmItem(item)}
+                          onScheduleTodayKeyboard={() =>
+                            reschedule.mutate({ id: item.id as ItemId, newDate: today })
+                          }
+                          onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                          {...sortableProps}
+                        />
+                      )}
+                    </SortableTaskRow>
+                  ))}
+                </ul>
+              </ListDndContext>
             </section>
           )}
 
@@ -230,29 +237,37 @@ export function TodayView() {
             <h2 className={styles.sectionTitle}>
               Today <span className={styles.sectionDate}>{formatDayMonthDD(today)}</span>
             </h2>
-            <ul className={styles.list}>
-              {todays.map((item) => (
-                <TaskListRow
-                  key={item.id}
-                  item={item}
-                  todayLocalDate={today}
-                  isFocused={focusedId === item.id}
-                  inlineEditMode={inlineEditId === (item.id as ItemId)}
-                  onClick={() => taskModal.openEdit(item.id as ItemId)}
-                  onToggleCheckbox={() => handleToggleCheckbox(item)}
-                  onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                  onTitleCommitInlineEdit={(newTitle) => {
-                    setInlineEditId(null);
-                    if (newTitle !== item.title) {
-                      editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
-                    }
-                  }}
-                  onDeleteRequest={() => setDeleteConfirmItem(item)}
-                  onScheduleTodayKeyboard={() => reschedule.mutate({ id: item.id as ItemId, newDate: today })}
-                  onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                />
-              ))}
-            </ul>
+            <ListDndContext items={todays}>
+              <ul className={styles.list}>
+                {todays.map((item) => (
+                  <SortableTaskRow key={item.id} item={item}>
+                    {(sortableProps) => (
+                      <TaskListRow
+                        item={item}
+                        todayLocalDate={today}
+                        isFocused={focusedId === item.id}
+                        inlineEditMode={inlineEditId === (item.id as ItemId)}
+                        onClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onToggleCheckbox={() => handleToggleCheckbox(item)}
+                        onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                        onTitleCommitInlineEdit={(newTitle) => {
+                          setInlineEditId(null);
+                          if (newTitle !== item.title) {
+                            editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                          }
+                        }}
+                        onDeleteRequest={() => setDeleteConfirmItem(item)}
+                        onScheduleTodayKeyboard={() =>
+                          reschedule.mutate({ id: item.id as ItemId, newDate: today })
+                        }
+                        onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                        {...sortableProps}
+                      />
+                    )}
+                  </SortableTaskRow>
+                ))}
+              </ul>
+            </ListDndContext>
           </section>
         </div>
       </ViewChrome>

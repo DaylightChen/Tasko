@@ -20,6 +20,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
@@ -191,7 +192,7 @@ describe('AllView', () => {
       ];
       renderAll(items);
 
-      const rows = screen.getAllByRole('listitem');
+      const rows = screen.getAllByRole('button', { name: /^task:/i });
       expect(rows).toHaveLength(2);
     });
 
@@ -227,7 +228,7 @@ describe('AllView', () => {
       renderAll([item]);
 
       // TaskListRow builds aria-label including project name via the `project` prop
-      const row = screen.getByRole('listitem');
+      const row = screen.getByRole('button', { name: /^task:/i });
       // The aria-label should include "in Work" (project name)
       expect(row.getAttribute('aria-label')).toContain('in Work');
     });
@@ -240,7 +241,7 @@ describe('AllView', () => {
       });
       renderAll([item]);
 
-      const row = screen.getByRole('listitem');
+      const row = screen.getByRole('button', { name: /^task:/i });
       expect(row.getAttribute('aria-label')).toContain('in Personal');
     });
   });

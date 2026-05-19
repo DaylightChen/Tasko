@@ -1,0 +1,65 @@
+/* ── Drag overlay ghost ───────────────────────────────────────── */
+
+/* Applied to the clone rendered inside DragOverlay */
+.dragging {
+  transform: scale(1.02);
+  opacity: 0.95;
+  box-shadow: var(--shadow-drag, 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12));
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+}
+
+/* ── Source placeholder (the row left behind during drag) ─────── */
+
+/* data-state="drag-source-placeholder" on the original list item */
+[data-state~="drag-source-placeholder"] {
+  opacity: 0.4;
+  background: var(--color-accent-subtle);
+  animation: placeholderPulse var(--motion-medium, 1.2s) ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ── Drop target highlight ────────────────────────────────────── */
+
+/* data-state="drop-target" on the target row or container */
+[data-state~="drop-target"] {
+  background: var(--color-accent-subtle) !important;
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* ── Depth-cap reject ─────────────────────────────────────────── */
+
+/* data-state="depth-cap-reject" on the source ghost */
+[data-state~="depth-cap-reject"] {
+  outline: 2px solid var(--color-overdue);
+  outline-offset: -2px;
+  cursor: no-drop;
+}
+
+/* ── Reduced motion overrides ─────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .dragging {
+    transform: none;
+  }
+
+  [data-state~="drag-source-placeholder"] {
+    animation: none;
+  }
+
+  [data-state~="drop-target"] {
+    /* Instant highlight, no transition */
+    transition: none;
+  }
+}

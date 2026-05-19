@@ -25,6 +25,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
@@ -158,7 +159,7 @@ describe('TodayView — rollback on mutation error', () => {
     );
 
     // Task row visible before toggle
-    const rows = screen.getAllByRole('listitem');
+    const rows = screen.getAllByRole('button', { name: /^task:/i });
     expect(rows).toHaveLength(1);
 
     // Click checkbox
@@ -172,7 +173,7 @@ describe('TodayView — rollback on mutation error', () => {
 
     // The row is still visible (mock doesn't remove it since items list is static)
     await waitFor(() => {
-      expect(screen.getAllByRole('listitem')).toHaveLength(1);
+      expect(screen.getAllByRole('button', { name: /^task:/i })).toHaveLength(1);
     });
   });
 });

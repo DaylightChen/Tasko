@@ -200,6 +200,48 @@
   transition: width 0.2s;
 }
 
+/* Drag source placeholder */
+.row[data-state~="drag-source-placeholder"] {
+  opacity: 0.4;
+  background: var(--accent-subtle);
+  animation: placeholderPulse var(--motion-medium, 1.2s) ease-in-out infinite;
+}
+
+@keyframes placeholderPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Drop target */
+.row[data-state~="drop-target"] {
+  background: var(--accent-subtle) !important;
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+
+/* Depth-cap reject */
+.row[data-state~="depth-cap-reject"] {
+  outline: 2px solid var(--overdue);
+  outline-offset: -2px;
+  cursor: no-drop;
+}
+
+/* Reduced motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  .row[data-state~="drag-source-placeholder"] {
+    animation: none;
+  }
+
+  .row[data-state~="drop-target"] {
+    transition: none;
+  }
+}
+
 /* Hover affordances */
 .hoverActions {
   display: flex;

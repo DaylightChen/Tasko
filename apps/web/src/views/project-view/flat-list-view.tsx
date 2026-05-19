@@ -8,6 +8,7 @@ import { ViewToggle } from '../../components/view-toggle';
 import type { ViewOption } from '../../components/view-toggle';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
+import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import styles from './flat-list-view.module.css';
 
 interface FlatListViewProps {
@@ -103,31 +104,37 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
           tone="neutral"
         />
       ) : (
-        <ul className={styles.list}>
-          {activeItems.map((item) => (
-            <TaskListRow
-              key={item.id}
-              item={item}
-              todayLocalDate={today}
-              inlineEditMode={inlineEditId === (item.id as ItemId)}
-              onClick={() => taskModal.openEdit(item.id as ItemId)}
-              onToggleCheckbox={() =>
-                patchItem.mutate({
-                  id: item.id as ItemId,
-                  patch: { status: item.status === 'done' ? 'todo' : 'done' },
-                })
-              }
-              onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-              onTitleCommitInlineEdit={(newTitle) => {
-                setInlineEditId(null);
-                if (newTitle !== item.title) {
-                  patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
-                }
-              }}
-              onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-            />
-          ))}
-        </ul>
+        <ListDndContext items={activeItems}>
+          <ul className={styles.list}>
+            {activeItems.map((item) => (
+              <SortableTaskRow key={item.id} item={item}>
+                {(sortableProps) => (
+                  <TaskListRow
+                    item={item}
+                    todayLocalDate={today}
+                    inlineEditMode={inlineEditId === (item.id as ItemId)}
+                    onClick={() => taskModal.openEdit(item.id as ItemId)}
+                    onToggleCheckbox={() =>
+                      patchItem.mutate({
+                        id: item.id as ItemId,
+                        patch: { status: item.status === 'done' ? 'todo' : 'done' },
+                      })
+                    }
+                    onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                    onTitleCommitInlineEdit={(newTitle) => {
+                      setInlineEditId(null);
+                      if (newTitle !== item.title) {
+                        patchItem.mutate({ id: item.id as ItemId, patch: { title: newTitle } });
+                      }
+                    }}
+                    onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                    {...sortableProps}
+                  />
+                )}
+              </SortableTaskRow>
+            ))}
+          </ul>
+        </ListDndContext>
       )}
 
       {/* Show / hide completed */}

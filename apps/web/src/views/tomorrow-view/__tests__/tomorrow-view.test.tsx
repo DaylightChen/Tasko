@@ -19,6 +19,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
@@ -122,7 +123,7 @@ describe('TomorrowView', () => {
       ];
       renderTomorrow(items);
 
-      const rows = screen.getAllByRole('listitem');
+      const rows = screen.getAllByRole('button', { name: /^task:/i });
       expect(rows).toHaveLength(2);
     });
 
@@ -138,7 +139,7 @@ describe('TomorrowView', () => {
       ];
       renderTomorrow(items);
 
-      const rows = screen.getAllByRole('listitem');
+      const rows = screen.getAllByRole('button', { name: /^task:/i });
       expect(rows).toHaveLength(1);
       expect(screen.queryByText('Done Task')).toBeNull();
     });

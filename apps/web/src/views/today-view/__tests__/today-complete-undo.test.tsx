@@ -22,6 +22,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));

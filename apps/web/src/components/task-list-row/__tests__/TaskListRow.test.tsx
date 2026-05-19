@@ -741,4 +741,78 @@ describe('TaskListRow', () => {
       expect(li.getAttribute('data-state')).toContain('completed');
     });
   });
+
+  describe('keyboard handler merge with dragListeners', () => {
+    /**
+     * Regression guard for the dnd-kit listener-override bug fixed in Task 10 Iteration 2.
+     *
+     * dnd-kit's useSortable().listeners includes an onKeyDown activator. When spread
+     * last via {...dragListeners}, it overrides the row's own handleKeyDown, silently
+     * breaking Space / Enter / T / Delete / 1-4 keyboard shortcuts on every draggable row.
+     *
+     * The fix: mergedKeyDown calls handleKeyDown first, then dragListeners.onKeyDown?.()
+     * Both handlers MUST run when a keyDown event fires on the row.
+     */
+    it('fires both the row onToggleCheckbox AND dragListeners.onKeyDown when Space is pressed on a draggable row', () => {
+      const onToggleCheckbox = vi.fn();
+      const dndOnKeyDown = vi.fn();
+
+      const { container } = render(
+        <TaskListRow
+          item={makeItem()}
+          todayLocalDate={TODAY}
+          isFocused={true}
+          onToggleCheckbox={onToggleCheckbox}
+          dragListeners={{ onKeyDown: dndOnKeyDown } as React.HTMLAttributes<HTMLLIElement>}
+        />,
+      );
+
+      const li = container.querySelector('li') as HTMLElement;
+      fireEvent.keyDown(li, { key: ' ' });
+
+      // The row's own handler must fire (Space → toggle)
+      expect(onToggleCheckbox).toHaveBeenCalledOnce();
+      // The dnd-kit listener must ALSO fire (not silenced by the row's handler)
+      expect(dndOnKeyDown).toHaveBeenCalledOnce();
+    });
+
+    it('fires dnd onKeyDown even when row shortcut key has no callback (no silent drop)', () => {
+      // Verifies the merge path runs even when the row prop is absent.
+      const dndOnKeyDown = vi.fn();
+
+      const { container } = render(
+        <TaskListRow
+          item={makeItem()}
+          todayLocalDate={TODAY}
+          isFocused={true}
+          // onToggleCheckbox deliberately omitted
+          dragListeners={{ onKeyDown: dndOnKeyDown } as React.HTMLAttributes<HTMLLIElement>}
+        />,
+      );
+
+      const li = container.querySelector('li') as HTMLElement;
+      fireEvent.keyDown(li, { key: ' ' });
+
+      expect(dndOnKeyDown).toHaveBeenCalledOnce();
+    });
+
+    it('row keyboard shortcuts still work when dragListeners is undefined (no dnd context)', () => {
+      const onToggleCheckbox = vi.fn();
+
+      const { container } = render(
+        <TaskListRow
+          item={makeItem()}
+          todayLocalDate={TODAY}
+          isFocused={true}
+          onToggleCheckbox={onToggleCheckbox}
+          // dragListeners deliberately omitted
+        />,
+      );
+
+      const li = container.querySelector('li') as HTMLElement;
+      fireEvent.keyDown(li, { key: ' ' });
+
+      expect(onToggleCheckbox).toHaveBeenCalledOnce();
+    });
+  });
 });

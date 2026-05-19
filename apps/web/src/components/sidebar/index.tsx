@@ -17,6 +17,13 @@ import { ProjectRow } from '../project-row';
 import { SidebarNavItem } from '../sidebar-nav-item';
 import { SyncFooter } from '../sync-footer';
 import { TextInput } from '../text-input';
+import {
+  SidebarDndContext,
+  SortableFolder,
+  SortableProject,
+  TopLevelDropZone,
+  useFolderDroppable,
+} from './dnd';
 import styles from './styles.module.css';
 
 function useTodayBadge() {
@@ -163,6 +170,8 @@ export function Sidebar() {
   const userProjects = projects.filter((p) => !p.is_inbox);
   const inboxProject = projects.find((p) => p.is_inbox);
 
+  const sidebarRef = useRef<HTMLElement>(null);
+
   const isActive = (path: string) => currentPath === path;
 
   // Build folder options for Dropdown
@@ -173,7 +182,7 @@ export function Sidebar() {
   ];
 
   return (
-    <nav className={styles.sidebar} aria-label="Primary navigation">
+    <nav ref={sidebarRef} className={styles.sidebar} aria-label="Primary navigation">
       {/* Smart lists */}
       <ul className={styles.smartList}>
         <li>
@@ -256,128 +265,153 @@ export function Sidebar() {
           <InlineFolderInput value={folderName} onChange={setFolderName} onKeyDown={handleFolderCreate} />
         )}
 
-        <ul aria-labelledby="projects-heading" className={styles.projectList}>
-          {/* Inbox row */}
-          {inboxProject && (
-            <li>
-              {renamingId === inboxProject.id ? (
-                <div className={styles.navItem}>
-                  <RenameInput
-                    value={renameValue}
-                    onChange={setRenameValue}
-                    onKeyDown={(e) => handleRename(e, 'project', inboxProject.id)}
-                  />
-                </div>
-              ) : (
-                <ProjectRow
-                  id={inboxProject.id}
-                  name={inboxProject.name}
-                  selected={isActive('/inbox')}
-                  color={inboxProject.color}
-                  isInbox
-                />
-              )}
-            </li>
-          )}
-
-          {/* Folders with their projects */}
-          {folders.map((folder) => {
-            const folderProjects = userProjects.filter((p) => p.folder_id === folder.id);
-            const isCollapsed = collapsedFolders.has(folder.id);
-
-            return (
-              <li
-                key={folder.id}
-                onContextMenu={(e) => handleContextMenu(e, 'folder', folder.id, folder.name)}
-              >
-                <h2 className={styles.folderHeaderWrapper}>
-                  <FolderHeader
-                    name={renamingId === folder.id ? renameValue : folder.name}
-                    expanded={!isCollapsed}
-                    onToggle={() =>
-                      setCollapsedFolders((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(folder.id)) {
-                          next.delete(folder.id);
-                        } else {
-                          next.add(folder.id);
-                        }
-                        return next;
-                      })
-                    }
-                    onRename={() => {
-                      setRenamingId(folder.id);
-                      setRenameValue(folder.name);
-                      setContextMenu(null);
-                    }}
-                    onDelete={() => {
-                      deleteFolder.mutate(folder.id as unknown as FolderId);
-                    }}
-                    onNewProject={() => {
-                      setNewProjectModal({ open: true, folderId: folder.id as unknown as FolderId });
-                    }}
-                    id={folder.id}
-                  />
-                </h2>
-
-                {!isCollapsed && (
-                  <ul id={`folder-${folder.id}-list`} className={styles.folderProjects}>
-                    {folderProjects.map((project) => (
-                      <li
-                        key={project.id}
-                        onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
-                      >
-                        {renamingId === project.id ? (
-                          <div className={styles.navItem}>
-                            <RenameInput
-                              value={renameValue}
-                              onChange={setRenameValue}
-                              onKeyDown={(e) => handleRename(e, 'project', project.id)}
-                            />
-                          </div>
-                        ) : (
-                          <ProjectRow
-                            id={project.id}
-                            name={project.name}
-                            selected={isActive(`/project/${project.id}`)}
-                            color={project.color}
-                          />
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
-
-          {/* Projects without a folder */}
-          {userProjects
-            .filter((p) => p.folder_id === null)
-            .map((project) => (
-              <li
-                key={project.id}
-                onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
-              >
-                {renamingId === project.id ? (
+        <SidebarDndContext
+          projects={userProjects}
+          folders={folders}
+          scrollContainerRef={sidebarRef as React.RefObject<HTMLElement>}
+          onAutoExpandFolder={(folderId) =>
+            setCollapsedFolders((prev) => {
+              const next = new Set(prev);
+              next.delete(folderId);
+              return next;
+            })
+          }
+        >
+          <ul aria-labelledby="projects-heading" className={styles.projectList}>
+            {/* Inbox row — not draggable */}
+            {inboxProject && (
+              <li>
+                {renamingId === inboxProject.id ? (
                   <div className={styles.navItem}>
                     <RenameInput
                       value={renameValue}
                       onChange={setRenameValue}
-                      onKeyDown={(e) => handleRename(e, 'project', project.id)}
+                      onKeyDown={(e) => handleRename(e, 'project', inboxProject.id)}
                     />
                   </div>
                 ) : (
                   <ProjectRow
-                    id={project.id}
-                    name={project.name}
-                    selected={isActive(`/project/${project.id}`)}
-                    color={project.color}
+                    id={inboxProject.id}
+                    name={inboxProject.name}
+                    selected={isActive('/inbox')}
+                    color={inboxProject.color}
+                    isInbox
                   />
                 )}
               </li>
-            ))}
-        </ul>
+            )}
+
+            {/* Folders with their projects */}
+            {folders.map((folder) => {
+              const folderProjects = userProjects
+                .filter((p) => p.folder_id === folder.id)
+                .sort((a, b) => a.sort_order - b.sort_order);
+              const isCollapsed = collapsedFolders.has(folder.id);
+
+              return (
+                <li
+                  key={folder.id}
+                  onContextMenu={(e) => handleContextMenu(e, 'folder', folder.id, folder.name)}
+                >
+                  <SortableFolder folderId={folder.id}>
+                    <FolderDroppableHeader
+                      folder={folder}
+                      renamingId={renamingId}
+                      renameValue={renameValue}
+                      isCollapsed={isCollapsed}
+                      onToggle={() =>
+                        setCollapsedFolders((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(folder.id)) {
+                            next.delete(folder.id);
+                          } else {
+                            next.add(folder.id);
+                          }
+                          return next;
+                        })
+                      }
+                      onRename={() => {
+                        setRenamingId(folder.id);
+                        setRenameValue(folder.name);
+                        setContextMenu(null);
+                      }}
+                      onDelete={() => {
+                        deleteFolder.mutate(folder.id as unknown as FolderId);
+                      }}
+                      onNewProject={() => {
+                        setNewProjectModal({ open: true, folderId: folder.id as unknown as FolderId });
+                      }}
+                    />
+                  </SortableFolder>
+
+                  {!isCollapsed && (
+                    <ul id={`folder-${folder.id}-list`} className={styles.folderProjects}>
+                      {folderProjects.map((project) => (
+                        <li
+                          key={project.id}
+                          onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
+                        >
+                          <SortableProject projectId={project.id}>
+                            {renamingId === project.id ? (
+                              <div className={styles.navItem}>
+                                <RenameInput
+                                  value={renameValue}
+                                  onChange={setRenameValue}
+                                  onKeyDown={(e) => handleRename(e, 'project', project.id)}
+                                />
+                              </div>
+                            ) : (
+                              <ProjectRow
+                                id={project.id}
+                                name={project.name}
+                                selected={isActive(`/project/${project.id}`)}
+                                color={project.color}
+                              />
+                            )}
+                          </SortableProject>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+
+            {/* Top-level drop zone (for dragging a project out of a folder) */}
+            <li>
+              <TopLevelDropZone />
+            </li>
+
+            {/* Projects without a folder */}
+            {userProjects
+              .filter((p) => p.folder_id === null)
+              .map((project) => (
+                <li
+                  key={project.id}
+                  onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
+                >
+                  <SortableProject projectId={project.id}>
+                    {renamingId === project.id ? (
+                      <div className={styles.navItem}>
+                        <RenameInput
+                          value={renameValue}
+                          onChange={setRenameValue}
+                          onKeyDown={(e) => handleRename(e, 'project', project.id)}
+                        />
+                      </div>
+                    ) : (
+                      <ProjectRow
+                        id={project.id}
+                        name={project.name}
+                        selected={isActive(`/project/${project.id}`)}
+                        color={project.color}
+                      />
+                    )}
+                  </SortableProject>
+                </li>
+              ))}
+          </ul>
+        </SidebarDndContext>
       </div>
 
       {/* Tags section */}
@@ -608,6 +642,50 @@ function InlineFolderInput({ value, onChange, onKeyDown }: InlineFolderInputProp
         onKeyDown={onKeyDown}
       />
     </div>
+  );
+}
+
+// ─── FolderDroppableHeader ────────────────────────────────────────────────────
+
+interface FolderDroppableHeaderProps {
+  folder: { id: string; name: string };
+  renamingId: string | null;
+  renameValue: string;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  onRename: () => void;
+  onDelete: () => void;
+  onNewProject: () => void;
+}
+
+function FolderDroppableHeader({
+  folder,
+  renamingId,
+  renameValue,
+  isCollapsed,
+  onToggle,
+  onRename,
+  onDelete,
+  onNewProject,
+}: FolderDroppableHeaderProps) {
+  const { setNodeRef, isOver } = useFolderDroppable(folder.id);
+
+  return (
+    <h2
+      ref={setNodeRef}
+      className={styles.folderHeaderWrapper}
+      data-state={isOver ? 'drop-target' : undefined}
+    >
+      <FolderHeader
+        name={renamingId === folder.id ? renameValue : folder.name}
+        expanded={!isCollapsed}
+        onToggle={onToggle}
+        onRename={onRename}
+        onDelete={onDelete}
+        onNewProject={onNewProject}
+        id={folder.id}
+      />
+    </h2>
   );
 }
 

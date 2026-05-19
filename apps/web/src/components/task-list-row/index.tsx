@@ -178,6 +178,16 @@ export interface TaskListRowProps {
   onDeleteRequest?: () => void;
   onScheduleSwipe?: () => void;
   onDeleteSwipe?: () => void;
+  /** DnD sortable node ref (from useSortable) */
+  dragNodeRef?: (node: HTMLLIElement | null) => void;
+  /** DnD attributes for accessibility (from useSortable) */
+  dragAttributes?: React.HTMLAttributes<HTMLLIElement>;
+  /** DnD pointer/keyboard event listeners (from useSortable) */
+  dragListeners?: React.HTMLAttributes<HTMLLIElement>;
+  /** When true, dims the row to indicate it's the drag source placeholder */
+  isDragSource?: boolean;
+  /** Transform/transition style for sortable animation (from CSS.Transform.toString) */
+  dragStyle?: React.CSSProperties;
 }
 
 // ─── Should we show the date chip? ────────────────────────────────────────────
@@ -257,6 +267,11 @@ export function TaskListRow({
   onDeleteRequest,
   onScheduleSwipe,
   onDeleteSwipe,
+  dragNodeRef,
+  dragAttributes,
+  dragListeners,
+  isDragSource = false,
+  dragStyle,
 }: TaskListRowProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [editValue, setEditValue] = useState(item.title);
@@ -378,12 +393,32 @@ export function TaskListRow({
   if (hasMultiDay) dataStates.push('multi-day');
   if (isCompleted) dataStates.push('completed');
   if (isLoading) dataStates.push('loading');
+  if (isDragSource) dataStates.push('drag-source-placeholder');
 
   const ariaLabel = buildAriaLabel(item, todayLocalDate, project);
 
+  const mergedRef = (node: HTMLLIElement | null) => {
+    (rowRef as React.MutableRefObject<HTMLLIElement | null>).current = node;
+    dragNodeRef?.(node);
+  };
+
+  // Merge component's keydown handler with dnd-kit's listener so both fire.
+  const dndKeyDown = dragListeners?.onKeyDown as React.KeyboardEventHandler<HTMLLIElement> | undefined;
+  const mergedKeyDown = (e: React.KeyboardEvent<HTMLLIElement>) => {
+    handleKeyDown(e);
+    dndKeyDown?.(e);
+  };
+
+  // Build merged listeners: keep all dnd listeners but replace onKeyDown with the merged handler.
+  // When there are no dnd listeners, mergedListeners still provides the component's own keydown.
+  const mergedListeners = {
+    ...(dragListeners ?? {}),
+    onKeyDown: mergedKeyDown,
+  };
+
   return (
     <li
-      ref={rowRef}
+      ref={mergedRef}
       className={styles.row}
       aria-label={ariaLabel}
       aria-busy={isLoading ? 'true' : undefined}
@@ -392,11 +427,12 @@ export function TaskListRow({
       data-item-id={item.id}
       tabIndex={isFocused ? 0 : -1}
       style={
-        swipeOffset !== 0 ? { transform: `translateX(${swipeOffset}px)`, transition: 'none' } : undefined
+        swipeOffset !== 0
+          ? { ...dragStyle, transform: `translateX(${swipeOffset}px)`, transition: 'none' }
+          : dragStyle
       }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onKeyDown={handleKeyDown}
       onClick={(e) => {
         // Only trigger modal if the click was directly on the row (not a child interactive element)
         if (e.target === e.currentTarget) {
@@ -406,6 +442,8 @@ export function TaskListRow({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      {...dragAttributes}
+      {...mergedListeners}
     >
       {/* Priority dot */}
       <PriorityDot priority={item.priority} onClick={onPriorityClick} />

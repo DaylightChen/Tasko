@@ -8,6 +8,7 @@ import { TaskListRow } from '../../components/task-list-row';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import { ViewChrome } from '../_shared/ViewChrome';
+import { DroppableDayGroup, Next7DndContext, SortableNext7Row } from './Next7DndContext';
 import styles from './styles.module.css';
 
 /**
@@ -107,50 +108,58 @@ export function Next7DaysView() {
   return (
     <>
       <ViewChrome title="Next 7 Days" sortValue={sort} onSortChange={setSort}>
-        <div className={styles.groups}>
-          {dayGroups.map(({ date, label, items }) => (
-            <section key={date} className={styles.dayGroup} aria-label={`${label}, ${items.length} items`}>
-              {items.length === 0 ? (
-                <h2 className={styles.dayHeaderEmpty}>
-                  {formatDayMonthDD(date)} <span className={styles.emptyDash}>— empty</span>
-                </h2>
-              ) : (
-                <>
-                  <h2 className={styles.dayHeader}>
-                    {label} <span className={styles.countBadge}>({items.length})</span>
+        <Next7DndContext allItems={rawItems}>
+          <div className={styles.groups}>
+            {dayGroups.map(({ date, label, items }) => (
+              <section key={date} className={styles.dayGroup} aria-label={`${label}, ${items.length} items`}>
+                {items.length === 0 ? (
+                  <h2 className={styles.dayHeaderEmpty}>
+                    {formatDayMonthDD(date)} <span className={styles.emptyDash}>— empty</span>
                   </h2>
-                  <ul className={styles.list}>
-                    {items.map((item) => (
-                      <TaskListRow
-                        key={`${item.id}-${date}`}
-                        item={item}
-                        todayLocalDate={today}
-                        isFocused={false}
-                        inlineEditMode={inlineEditId === (item.id as ItemId)}
-                        onClick={() => taskModal.openEdit(item.id as ItemId)}
-                        onToggleCheckbox={() =>
-                          toggleComplete.mutate({
-                            id: item.id as ItemId,
-                            nextStatus: item.status === 'done' ? 'todo' : 'done',
-                          })
-                        }
-                        onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
-                        onTitleCommitInlineEdit={(newTitle) => {
-                          setInlineEditId(null);
-                          if (newTitle !== item.title) {
-                            editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
-                          }
-                        }}
-                        onDeleteRequest={() => setDeleteConfirmItem(item)}
-                        onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
-                      />
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-          ))}
-        </div>
+                ) : (
+                  <>
+                    <h2 className={styles.dayHeader}>
+                      {label} <span className={styles.countBadge}>({items.length})</span>
+                    </h2>
+                    <DroppableDayGroup date={date} itemIds={items.map((i) => `${i.id}:${date}`)}>
+                      <ul className={styles.list}>
+                        {items.map((item) => (
+                          <SortableNext7Row key={`${item.id}-${date}`} item={item} groupDate={date}>
+                            {(sortableProps) => (
+                              <TaskListRow
+                                item={item}
+                                todayLocalDate={today}
+                                isFocused={false}
+                                inlineEditMode={inlineEditId === (item.id as ItemId)}
+                                onClick={() => taskModal.openEdit(item.id as ItemId)}
+                                onToggleCheckbox={() =>
+                                  toggleComplete.mutate({
+                                    id: item.id as ItemId,
+                                    nextStatus: item.status === 'done' ? 'todo' : 'done',
+                                  })
+                                }
+                                onTitleClickInlineEdit={() => setInlineEditId(item.id as ItemId)}
+                                onTitleCommitInlineEdit={(newTitle) => {
+                                  setInlineEditId(null);
+                                  if (newTitle !== item.title) {
+                                    editTitleInline.mutate({ id: item.id as ItemId, title: newTitle });
+                                  }
+                                }}
+                                onDeleteRequest={() => setDeleteConfirmItem(item)}
+                                onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                                {...sortableProps}
+                              />
+                            )}
+                          </SortableNext7Row>
+                        ))}
+                      </ul>
+                    </DroppableDayGroup>
+                  </>
+                )}
+              </section>
+            ))}
+          </div>
+        </Next7DndContext>
       </ViewChrome>
 
       <ConfirmationPrompt

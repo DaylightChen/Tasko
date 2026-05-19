@@ -24,6 +24,7 @@ vi.mock('../../../api/items', () => ({
   useEditTitleInline: vi.fn(),
   useDeleteItem: vi.fn(),
   useBulkMoveOverdue: vi.fn(),
+  usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn() })),
 }));
 
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
@@ -167,7 +168,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     // Focus the row (simulate Tab focus)
     act(() => {
       row.focus();
@@ -182,7 +183,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
@@ -199,7 +200,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
@@ -213,7 +214,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
@@ -228,7 +229,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
@@ -243,7 +244,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
@@ -258,7 +259,7 @@ describe('TodayView — keyboard shortcuts on focused row', () => {
     const item = makeItem();
     renderToday([item]);
 
-    const row = screen.getByRole('listitem');
+    const row = screen.getByRole('button', { name: /^task:/i });
     act(() => {
       row.focus();
     });
