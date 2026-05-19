@@ -1,0 +1,97 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  text-align: left;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.toggle:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.folderIcon {
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+}
+
+.name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover: show ⋯ button */
+.moreBtn {
+  position: absolute;
+  right: var(--space-1);
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.wrapper:hover .moreBtn {
+  display: flex;
+}
+
+.moreBtn:hover {
+  background: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
+
+.moreBtn:focus-visible {
+  display: flex;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* Drop target */
+.wrapper[data-drop-target] .toggle {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+  background: var(--color-accent-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle,
+  .chevron {
+    transition: none;
+  }
+}

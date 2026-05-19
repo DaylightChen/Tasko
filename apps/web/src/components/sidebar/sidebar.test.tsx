@@ -264,24 +264,23 @@ describe('Sidebar', () => {
   });
 
   describe('Today badge', () => {
-    it('shows aria-label with count and overdue info when total > 0 and overdue > 0', () => {
+    it('shows aria-label with label, count and overdue info when total > 0 and overdue > 0', () => {
       setupDefaultMocks();
       renderSidebar();
-      // The badge has aria-label="5 items, 3 overdue"
-      const badges = screen.getAllByLabelText('5 items, 3 overdue');
-      expect(badges.length).toBeGreaterThanOrEqual(1);
+      // SidebarNavItem builds aria-label as "Today, 5 items, 3 overdue"
+      const link = screen.getByLabelText('Today, 5 items, 3 overdue');
+      expect(link).toBeTruthy();
     });
 
-    it('badge text content includes total count', () => {
+    it('badge text content includes total count and overdue count', () => {
       setupDefaultMocks();
       renderSidebar();
-      const badges = screen.getAllByLabelText('5 items, 3 overdue');
-      expect(badges.length).toBeGreaterThanOrEqual(1);
-      // Text content includes (5) and ·3
-      const firstBadge = badges[0];
-      expect(firstBadge).toBeDefined();
-      expect(firstBadge?.textContent).toContain('5');
-      expect(firstBadge?.textContent).toContain('3');
+      const link = screen.getByLabelText('Today, 5 items, 3 overdue');
+      expect(link).toBeTruthy();
+      // The badge span (aria-hidden) holds "(5)" and the overdue sub-badge "3"
+      // We check the visible badge text within the link
+      expect(link.textContent).toContain('5');
+      expect(link.textContent).toContain('3');
     });
 
     it('does not render badge when today count is 0', () => {
@@ -301,8 +300,9 @@ describe('Sidebar', () => {
         },
       });
       renderSidebar();
-      const badges = screen.getAllByLabelText('1 items');
-      expect(badges.length).toBeGreaterThanOrEqual(1);
+      // SidebarNavItem builds aria-label as "Today, 1 items"
+      const link = screen.getByLabelText('Today, 1 items');
+      expect(link).toBeTruthy();
     });
   });
 

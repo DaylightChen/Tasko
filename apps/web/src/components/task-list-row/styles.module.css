@@ -1,0 +1,361 @@
+/* ── Base row ─────────────────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  position: relative;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.row[data-density="comfortable"] {
+  min-height: 44px;
+}
+
+/* ── States ───────────────────────────────────────────────────── */
+.row[data-state~="hover"] {
+  background: var(--color-canvas-subtle);
+}
+
+.row:focus-visible,
+.row[data-state~="focus"] {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.row[data-state~="selected"] {
+  background: var(--color-accent-subtle);
+}
+
+.row[data-state~="multi-selected"] {
+  background: var(--color-accent-subtle);
+}
+
+.row[data-state~="multi-selected"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+}
+
+/* Overdue: 3px left-edge bar + date chip color handled inline */
+.row[data-state~="overdue"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-overdue);
+}
+
+.row[data-state~="multi-day"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-accent-subtle);
+}
+
+/* Overdue takes precedence over multi-day */
+.row[data-state~="overdue"][data-state~="multi-day"]::before {
+  background: var(--color-overdue);
+}
+
+.row[data-state~="completed"] {
+  opacity: 0.6;
+}
+
+.row[data-state~="completed"] .title {
+  text-decoration: line-through;
+  color: var(--color-text-subtle);
+}
+
+/* Dragging */
+.row[data-state~="dragging"] {
+  opacity: 0.4;
+}
+
+/* Error tint */
+.row[data-state~="error"] {
+  background: var(--color-overdue-subtle);
+}
+
+/* ── Priority dot ─────────────────────────────────────────────── */
+.priorityDot {
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.priorityDot[data-priority="none"] {
+  background: transparent;
+  box-shadow: 0 0 0 1.5px var(--color-priority-none);
+}
+
+.priorityDot[data-priority="low"] {
+  background: var(--color-priority-low);
+}
+
+.priorityDot[data-priority="medium"] {
+  background: var(--color-priority-medium);
+}
+
+.priorityDot[data-priority="high"] {
+  background: var(--color-priority-high);
+}
+
+.priorityDot:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.priorityDot:hover {
+  transform: scale(1.25);
+}
+
+/* ── Type icon ────────────────────────────────────────────────── */
+.typeIcon {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+/* ── Title area ───────────────────────────────────────────────── */
+.titleArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.title {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  cursor: text;
+}
+
+.title[data-state="inline-editable"]:hover {
+  text-decoration: underline dotted var(--color-text-subtle);
+  text-underline-offset: 2px;
+}
+
+.inlineEditInput {
+  flex: 1;
+  border: none;
+  border-bottom: 1.5px solid var(--color-accent);
+  background: transparent;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  outline: none;
+  font-family: var(--font-sans);
+  padding: 0;
+  min-width: 80px;
+}
+
+.recurringIcon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+/* ── Meta area ────────────────────────────────────────────────── */
+.metaArea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+/* ── Date chip ────────────────────────────────────────────────── */
+.dateChip {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-tag-bg);
+  color: var(--color-text-subtle);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line-height);
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.dateChip:hover {
+  background: var(--color-border);
+}
+
+.dateChip:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.dateChip[data-overdue] {
+  color: var(--color-text-overdue);
+  background: var(--color-overdue-subtle);
+}
+
+/* ── Tag chips ────────────────────────────────────────────────── */
+.tagChips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tagChip:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.tagOverflow {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-canvas-subtle);
+  color: var(--color-text-subtle);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+}
+
+.tagOverflow:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* ── Subtask progress chip ────────────────────────────────────── */
+.subtaskChip {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-subtle);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.subtaskChip:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* ── Hover affordances ────────────────────────────────────────── */
+.hoverActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  margin-left: var(--space-1);
+}
+
+.hoverBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard);
+  padding: 0;
+}
+
+.hoverBtn:hover {
+  background: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
+
+.hoverBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+
+  .priorityDot {
+    transition: none;
+  }
+
+  .dateChip {
+    transition: none;
+  }
+
+  .hoverBtn {
+    transition: none;
+  }
+
+  .row[data-state~="completed"] .title {
+    /* No animation — just static strike-through */
+  }
+}
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .row {
+    min-height: 44px;
+  }
+}

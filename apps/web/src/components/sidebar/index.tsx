@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import type { FolderId, ProjectId } from '@tasko/types';
+import { CalendarDays, CheckCircle2, Hash, Inbox, List, Sun, Sunrise, Trash2 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
@@ -10,7 +11,11 @@ import { useCreateProject, useDeleteProject, usePatchProject, useProjects } from
 import { useTags } from '../../api/tags';
 import { Button } from '../button';
 import { Dropdown } from '../dropdown';
+import { FolderHeader } from '../folder-header';
 import { Modal } from '../modal';
+import { ProjectRow } from '../project-row';
+import { SidebarNavItem } from '../sidebar-nav-item';
+import { SyncFooter } from '../sync-footer';
 import { TextInput } from '../text-input';
 import styles from './styles.module.css';
 
@@ -172,64 +177,31 @@ export function Sidebar() {
       {/* Smart lists */}
       <ul className={styles.smartList}>
         <li>
-          <Link
+          <SidebarNavItem
             to="/today"
-            className={styles.navItem}
-            data-active={isActive('/today') || isActive('/') ? '' : undefined}
-            aria-current={isActive('/today') || isActive('/') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Today</span>
-            {todayTotal > 0 && (
-              <span
-                className={styles.badge}
-                aria-label={`${todayTotal} items${todayOverdue > 0 ? `, ${todayOverdue} overdue` : ''}`}
-              >
-                ({todayTotal})
-                {todayOverdue > 0 && <span className={styles.overdueBadge}> ·{todayOverdue}</span>}
-              </span>
-            )}
-          </Link>
+            icon={Sun}
+            label="Today"
+            count={todayTotal > 0 ? todayTotal : undefined}
+            overdueCount={todayOverdue > 0 ? todayOverdue : undefined}
+            selected={isActive('/today') || isActive('/')}
+          />
         </li>
         <li>
-          <Link
-            to="/tomorrow"
-            className={styles.navItem}
-            data-active={isActive('/tomorrow') ? '' : undefined}
-            aria-current={isActive('/tomorrow') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Tomorrow</span>
-          </Link>
+          <SidebarNavItem to="/tomorrow" icon={Sunrise} label="Tomorrow" selected={isActive('/tomorrow')} />
         </li>
         <li>
-          <Link
+          <SidebarNavItem
             to="/next-7-days"
-            className={styles.navItem}
-            data-active={isActive('/next-7-days') ? '' : undefined}
-            aria-current={isActive('/next-7-days') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Next 7 Days</span>
-          </Link>
+            icon={CalendarDays}
+            label="Next 7 Days"
+            selected={isActive('/next-7-days')}
+          />
         </li>
         <li>
-          <Link
-            to="/inbox"
-            className={styles.navItem}
-            data-active={isActive('/inbox') ? '' : undefined}
-            aria-current={isActive('/inbox') ? 'page' : undefined}
-            onContextMenu={(e) => e.preventDefault()}
-          >
-            <span className={styles.navLabel}>Inbox</span>
-          </Link>
+          <SidebarNavItem to="/inbox" icon={Inbox} label="Inbox" selected={isActive('/inbox')} />
         </li>
         <li>
-          <Link
-            to="/all"
-            className={styles.navItem}
-            data-active={isActive('/all') ? '' : undefined}
-            aria-current={isActive('/all') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>All</span>
-          </Link>
+          <SidebarNavItem to="/all" icon={List} label="All" selected={isActive('/all')} />
         </li>
       </ul>
 
@@ -288,9 +260,23 @@ export function Sidebar() {
           {/* Inbox row */}
           {inboxProject && (
             <li>
-              <Link to="/inbox" className={styles.navItem} data-active={isActive('/inbox') ? '' : undefined}>
-                <span className={styles.navLabel}>{inboxProject.name}</span>
-              </Link>
+              {renamingId === inboxProject.id ? (
+                <div className={styles.navItem}>
+                  <RenameInput
+                    value={renameValue}
+                    onChange={setRenameValue}
+                    onKeyDown={(e) => handleRename(e, 'project', inboxProject.id)}
+                  />
+                </div>
+              ) : (
+                <ProjectRow
+                  id={inboxProject.id}
+                  name={inboxProject.name}
+                  selected={isActive('/inbox')}
+                  color={inboxProject.color}
+                  isInbox
+                />
+              )}
             </li>
           )}
 
@@ -304,13 +290,11 @@ export function Sidebar() {
                 key={folder.id}
                 onContextMenu={(e) => handleContextMenu(e, 'folder', folder.id, folder.name)}
               >
-                <h2 className={styles.folderHeader}>
-                  <button
-                    type="button"
-                    className={styles.folderToggle}
-                    aria-expanded={!isCollapsed}
-                    aria-controls={`folder-${folder.id}-list`}
-                    onClick={() =>
+                <h2 className={styles.folderHeaderWrapper}>
+                  <FolderHeader
+                    name={renamingId === folder.id ? renameValue : folder.name}
+                    expanded={!isCollapsed}
+                    onToggle={() =>
                       setCollapsedFolders((prev) => {
                         const next = new Set(prev);
                         if (next.has(folder.id)) {
@@ -321,34 +305,45 @@ export function Sidebar() {
                         return next;
                       })
                     }
-                  >
-                    {isCollapsed ? '▸' : '▾'}
-                    {renamingId === folder.id ? (
-                      <RenameInput
-                        value={renameValue}
-                        onChange={setRenameValue}
-                        onKeyDown={(e) => handleRename(e, 'folder', folder.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <span className={styles.folderName}>{folder.name}</span>
-                    )}
-                  </button>
+                    onRename={() => {
+                      setRenamingId(folder.id);
+                      setRenameValue(folder.name);
+                      setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                      deleteFolder.mutate(folder.id as unknown as FolderId);
+                    }}
+                    onNewProject={() => {
+                      setNewProjectModal({ open: true, folderId: folder.id as unknown as FolderId });
+                    }}
+                    id={folder.id}
+                  />
                 </h2>
 
                 {!isCollapsed && (
                   <ul id={`folder-${folder.id}-list`} className={styles.folderProjects}>
                     {folderProjects.map((project) => (
-                      <ProjectRow
+                      <li
                         key={project.id}
-                        project={project}
-                        isActive={isActive(`/project/${project.id}`)}
-                        renamingId={renamingId}
-                        renameValue={renameValue}
-                        setRenameValue={setRenameValue}
-                        handleRename={handleRename}
                         onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
-                      />
+                      >
+                        {renamingId === project.id ? (
+                          <div className={styles.navItem}>
+                            <RenameInput
+                              value={renameValue}
+                              onChange={setRenameValue}
+                              onKeyDown={(e) => handleRename(e, 'project', project.id)}
+                            />
+                          </div>
+                        ) : (
+                          <ProjectRow
+                            id={project.id}
+                            name={project.name}
+                            selected={isActive(`/project/${project.id}`)}
+                            color={project.color}
+                          />
+                        )}
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -360,16 +355,27 @@ export function Sidebar() {
           {userProjects
             .filter((p) => p.folder_id === null)
             .map((project) => (
-              <ProjectRow
+              <li
                 key={project.id}
-                project={project}
-                isActive={isActive(`/project/${project.id}`)}
-                renamingId={renamingId}
-                renameValue={renameValue}
-                setRenameValue={setRenameValue}
-                handleRename={handleRename}
                 onContextMenu={(e) => handleContextMenu(e, 'project', project.id, project.name)}
-              />
+              >
+                {renamingId === project.id ? (
+                  <div className={styles.navItem}>
+                    <RenameInput
+                      value={renameValue}
+                      onChange={setRenameValue}
+                      onKeyDown={(e) => handleRename(e, 'project', project.id)}
+                    />
+                  </div>
+                ) : (
+                  <ProjectRow
+                    id={project.id}
+                    name={project.name}
+                    selected={isActive(`/project/${project.id}`)}
+                    color={project.color}
+                  />
+                )}
+              </li>
             ))}
         </ul>
       </div>
@@ -382,15 +388,12 @@ export function Sidebar() {
         <ul aria-labelledby="tags-heading" className={styles.tagList}>
           {tags.map((tag) => (
             <li key={tag.id}>
-              <Link
-                to="/tag/$name"
-                params={{ name: tag.name_lower }}
-                className={styles.navItem}
-                data-active={isActive(`/tag/${tag.name_lower}`) ? '' : undefined}
-                aria-current={isActive(`/tag/${tag.name_lower}`) ? 'page' : undefined}
-              >
-                <span className={styles.navLabel}># {tag.name}</span>
-              </Link>
+              <SidebarNavItem
+                to={`/tag/${tag.name_lower}`}
+                icon={Hash}
+                label={`# ${tag.name}`}
+                selected={isActive(`/tag/${tag.name_lower}`)}
+              />
             </li>
           ))}
         </ul>
@@ -399,34 +402,23 @@ export function Sidebar() {
       {/* Bottom links */}
       <ul className={styles.bottomLinks}>
         <li>
-          <Link
+          <SidebarNavItem
             to="/calendar"
-            className={styles.navItem}
-            data-active={currentPath.startsWith('/calendar') ? '' : undefined}
-            aria-current={currentPath.startsWith('/calendar') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Calendar</span>
-          </Link>
+            icon={CalendarDays}
+            label="Calendar"
+            selected={currentPath.startsWith('/calendar')}
+          />
         </li>
         <li>
-          <Link
+          <SidebarNavItem
             to="/completed"
-            className={styles.navItem}
-            data-active={isActive('/completed') ? '' : undefined}
-            aria-current={isActive('/completed') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Completed</span>
-          </Link>
+            icon={CheckCircle2}
+            label="Completed"
+            selected={isActive('/completed')}
+          />
         </li>
         <li>
-          <Link
-            to="/trash"
-            className={styles.navItem}
-            data-active={isActive('/trash') ? '' : undefined}
-            aria-current={isActive('/trash') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Trash</span>
-          </Link>
+          <SidebarNavItem to="/trash" icon={Trash2} label="Trash" selected={isActive('/trash')} />
         </li>
         <li>
           <Link
@@ -440,11 +432,8 @@ export function Sidebar() {
         </li>
       </ul>
 
-      {/* Static footer */}
-      <div className={styles.footer}>
-        <span>Tasko v1.0</span>
-        {health?.data_dir && <span> · Local files in {health.data_dir}</span>}
-      </div>
+      {/* Static footer using SyncFooter component */}
+      <SyncFooter dataDir={health?.data_dir} />
 
       {/* Context menu */}
       {contextMenu && (
@@ -552,7 +541,7 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* New Project Modal — uses real Modal + TextInput + Dropdown + Button */}
+      {/* New Project Modal */}
       <NewProjectModal
         open={newProjectModal.open}
         folders={folders}
@@ -619,50 +608,6 @@ function InlineFolderInput({ value, onChange, onKeyDown }: InlineFolderInputProp
         onKeyDown={onKeyDown}
       />
     </div>
-  );
-}
-
-interface ProjectRowProps {
-  project: { id: string; name: string };
-  isActive: boolean;
-  renamingId: string | null;
-  renameValue: string;
-  setRenameValue: (v: string) => void;
-  handleRename: (e: KeyboardEvent<HTMLInputElement>, type: 'project' | 'folder', id: string) => void;
-  onContextMenu: (e: MouseEvent<HTMLLIElement>) => void;
-}
-
-function ProjectRow({
-  project,
-  isActive,
-  renamingId,
-  renameValue,
-  setRenameValue,
-  handleRename,
-  onContextMenu,
-}: ProjectRowProps) {
-  return (
-    <li onContextMenu={onContextMenu}>
-      {renamingId === project.id ? (
-        <div className={styles.navItem}>
-          <RenameInput
-            value={renameValue}
-            onChange={setRenameValue}
-            onKeyDown={(e) => handleRename(e, 'project', project.id)}
-          />
-        </div>
-      ) : (
-        <Link
-          to="/project/$id"
-          params={{ id: project.id }}
-          className={styles.navItem}
-          data-active={isActive ? '' : undefined}
-          aria-current={isActive ? 'page' : undefined}
-        >
-          <span className={styles.navLabel}>{project.name}</span>
-        </Link>
-      )}
-    </li>
   );
 }
 

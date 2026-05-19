@@ -1,0 +1,64 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-tag-bg);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line-height);
+  color: var(--color-tag-text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip[data-tone="accent"] {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.remove:hover {
+  opacity: 1;
+}
+
+.remove:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+@media (max-width: 768px) {
+  .chip {
+    height: 32px;
+    padding: 0 var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .remove {
+    transition: none;
+  }
+}

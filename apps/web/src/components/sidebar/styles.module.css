@@ -138,6 +138,14 @@
   padding: var(--space-1) 0;
 }
 
+/* Wrapper for FolderHeader component used inside an <h2> */
+.folderHeaderWrapper {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .folderToggle {
   display: flex;
   align-items: center;
