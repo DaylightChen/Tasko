@@ -34,9 +34,12 @@ project
 - `task-17-sse-multitab` — completed 2026-05-19 (commit `21b8b4f`). 1 iteration. Server 374 + Web 997 tests pass (+22 web + 6 server). `routes/events.ts` SSE route w/ source discriminator + 25s heartbeat; `api/events.ts` `createSSEClient` w/ 16 event handlers (all self-skip + Zod-parse); `store/sse.ts` Zustand connection-state store; `sse-connector.tsx` real impl. `routes/trash.ts` SSE payload `count` (fixes schema mismatch); `routes/bulk.ts` adds missing `bulk.completed` publish. Tester surfaced 2 fixture bugs (invalid ULID + `week_start: 'monday'`); orchestrator fixed inline. E2E Playwright deferred to task-20.
 - `task-18-hotkeys-palette-a11y-shell` — completed 2026-05-20 (commit `367e4f8`). 3 iterations. Web 1110 tests pass (+111 new). Hotkey registry (mode stack + 10 modes + `useHotkey` + capture-phase HotkeyProvider) + `GlobalShortcuts` (t/i/n// no-input nav + focused-row reschedule) + cmdk command palette (static + dynamic + tree-context catalog, `aria-modal`, document Escape) + shortcut help overlay (?-toggle, verbatim §13) + ⌘F debounced toast + a11y shell audit. Iter-1 used WRAP approach for views; iter-2 fixed cmdk ResizeObserver/scrollIntoView stubs + matchHotkey('?') shift state + Escape document listener; iter-3 wired the missing single-key shortcuts + tree-context commands + aria-modal + View group + ⌘⇧M migration.
 - `task-19-a11y-perf-audit` — completed 2026-05-20 (commit `87c3653`). 2 iterations. Web 1127 tests pass (+2 new files: reduced-motion + virtualization). Reduced-motion `@media` overrides in `tokens.css`; `@tanstack/react-virtual` wired across 11 views + kanban-column + day-detail at 5 brief-listed thresholds; `flat-list-view` quick-add aria-label fix; `FlatTreeRowRenderer` dead props removed; jsdom dimension stubs added with comments; §13 audit checklist walked. Axe-via-Playwright deferred to task-20.
+- `task-20-e2e-and-release-readiness` — completed 2026-05-20 (commit `e9d10b3`). 1 iteration. Full repo 1531 tests pass (types 30 + server 374 + web 1127). Playwright config + helpers + 6 E2E specs (today-overdue, command-palette, keyboard-help, quick-add-no-project, theme-switch, a11y-views over 11 routes). README rewrite. known-issues.md extended with full v1.1 candidate registry. CI skeleton at `.github/workflows/ci.yml`. Bundle ~304 kB gzipped. 26 runtime deps (≤35 budget). 11 E2E specs deferred to v1.1 with rationale.
+
+**v1 is functionally complete. All 20 tasks shipped.** The release artifacts are: a green test suite, a runnable production build, a CI workflow, and a README + known-issues package documenting every binding decision and every deferred v1.1 candidate.
 
 ## What's Next
-- Continuing autonomous execution at user's direction. Next: `task-20-e2e-and-release-readiness`.
+- All implementation tasks complete. Run `/phased-dev:advance-phase` to finalize the implement phase.
 
 ## Task Progress
 
@@ -61,7 +64,7 @@ project
 | 17 | sse-multitab | done (`21b8b4f`) |
 | 18 | hotkeys-palette-a11y-shell | done (`367e4f8`) |
 | 19 | a11y-perf-audit | done (`87c3653`) |
-| 20 | e2e-and-release-readiness | in progress |
+| 20 | e2e-and-release-readiness | done (`e9d10b3`) |
 
 ## Blockers
 None
