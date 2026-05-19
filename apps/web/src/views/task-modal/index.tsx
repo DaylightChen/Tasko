@@ -28,6 +28,7 @@ import { RecurrencePicker } from '../../components/recurrence-picker';
 import { Sheet } from '../../components/sheet';
 import { SubtaskList } from '../../components/subtask-row';
 import { TagInput } from '../../components/tag-input';
+import { TextareaMarkdown } from '../../components/textarea-markdown';
 import { useIsMobile } from '../../lib/use-is-mobile';
 import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
@@ -408,19 +409,11 @@ function TaskModalContent() {
           <div className={styles.moreContent}>
             {/* Notes */}
             <div className={styles.field}>
-              <label className={styles.fieldLabel} htmlFor="task-notes">
-                Notes
-              </label>
-              <textarea
-                id="task-notes"
-                className={styles.textarea}
-                placeholder=""
+              <p className={styles.fieldLabel}>Notes</p>
+              <TextareaMarkdown
                 value={values.notes}
-                onChange={(e) => setField('notes', e.target.value)}
+                onChange={(v) => setField('notes', v)}
                 aria-label="Notes"
-                aria-multiline="true"
-                rows={4}
-                maxLength={50_000}
               />
             </div>
 

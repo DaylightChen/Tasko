@@ -110,3 +110,11 @@ ol {
 .skip-link:focus {
   top: var(--space-2);
 }
+
+/* Markdown checkbox — injected by renderMarkdown() into preview HTML */
+.md-checkbox {
+  display: inline-block;
+  margin-right: 4px;
+  pointer-events: none;
+  user-select: none;
+}
