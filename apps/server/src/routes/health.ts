@@ -7,7 +7,7 @@ export function registerHealthRoute(app: FastifyInstance) {
     ok: true,
     version: '1.0.0',
     data_dir: app.config.dataDir,
-    item_count: 0, // populated in task 02 when indexer exists
+    item_count: app.indexer.getIndex().items.size,
     uptime_s: Math.floor((Date.now() - startedAt) / 1000),
   }));
 }
