@@ -27,9 +27,10 @@ project
 - `task-10-drag-and-drop` — completed 2026-05-19 (commit `13f4d69`). 3 iterations. Server 157 + Web 621 tests pass (+57 web). dnd-kit wired across sidebar / lists / tree / next-7 / subtasks. Drag-visuals + reduced-motion + auto-scroll + SR announces. Undo wired on 3 spec'd drag mutations. Surfaced + fixed real `TaskListRow` keyboard-handler conflict.
 - `task-11-recurrence` — completed 2026-05-19 (commit `f675ca0`). 3 iterations. Server 312 + Web 649 tests pass (+159 server, +28 web). `domain/time.ts` + `domain/recurrence.ts` + atomic complete-recurring op in PATCH, union response handling in `usePatchItem`/`useToggleComplete`, recurring + un-check snackbars, `describeRecurrence` preview. 80+-case matrix is a release gate.
 - `task-12-bulk-trash-undo` — completed 2026-05-19 (commit `26f5613`). 2 iterations. Server 368 + Web 683 tests pass (+56 server, +34 web). Real cascade soft-delete/restore/permanent/empty + project-delete cascade + 4 bulk endpoints; Trash view + multi-select store + BulkActionsToolbar + GlobalUndo (⌘Z) + 7 real hooks replacing task-03's 501 stubs and task-08's task-12-pending stubs.
+- `task-13-markdown-notes` — completed 2026-05-19 (commit `e771707`). 2 iterations. Web 749 tests pass (+66 new). `lib/markdown.ts` (marked v14 + DOMPurify) + `lib/textarea-ops.ts` + `<TextareaMarkdown>` component (edit/preview toggle, ⌘B/⌘I/⌘K, Tab/Shift+Tab, Enter list continuation/terminate, display-only checkboxes) + Task-modal Notes integration.
 
 ## What's Next
-- Run `/phased-dev:start-task 13` for `task-13-markdown-notes`.
+- **PAUSED** after task 13 at user request — they want to manually try the markdown notes flow. Resume with `/phased-dev:start-task 14` for `task-14-calendar-month` when ready.
 
 ## Task Progress
 
@@ -47,8 +48,8 @@ project
 | 10 | drag-and-drop | done (`13f4d69`) |
 | 11 | recurrence | done (`f675ca0`) |
 | 12 | bulk-trash-undo | done (`26f5613`) |
-| 13 | markdown-notes | in progress |
-| 14 | calendar-month | pending |
+| 13 | markdown-notes | done (`e771707`) |
+| 14 | calendar-month | pending (paused) |
 | 15 | calendar-week-and-kanban | pending |
 | 16 | tag-completed-views | pending |
 | 17 | sse-multitab | pending |
