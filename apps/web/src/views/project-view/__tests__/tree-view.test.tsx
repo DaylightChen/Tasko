@@ -46,6 +46,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useProjects } from '../../../api/projects';
+import { useHotkeyStore } from '../../../store/hotkey-registry';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';
 import { TreeView } from '../tree-view';
 
@@ -248,23 +249,22 @@ describe('TreeView — empty state', () => {
 
 describe('TreeView — ⌘⇧M opens Move-to picker for focused item', () => {
   /**
-   * Tests the ⌘⇧M global hotkey flow:
-   * 1. Render a tree with at least one item
+   * Tests the ⌘⇧M hotkey flow (now wired via useHotkey('tree', 'Mod+Shift+m', ...)):
+   * 1. Render a tree — mounts and pushes 'tree' mode to hotkeyStore
    * 2. Click the treeitem div directly (target === currentTarget) → onRowFocus is called → focusedItem state is set
-   * 3. Fire keydown { metaKey: true, shiftKey: true, key: 'm' } on document
+   * 3. Fire keydown { ctrlKey: true, shiftKey: true, key: 'm' } on document (ctrlKey used because jsdom is non-Mac)
    * 4. Assert the Move-to picker modal is rendered with the "Move to…" title
-   *
-   * The handler in TreeView reads focusedItemRef.current (synced to focusedItem state)
-   * and opens MoveToPickerModal with that item as the source.
    */
   beforeEach(() => {
     vi.setSystemTime(new Date('2026-05-19T00:00:00Z'));
     useTreeExpansionStore.setState({ expanded: {} });
+    useHotkeyStore.getState().reset();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
     vi.useRealTimers();
+    useHotkeyStore.getState().reset();
     act(() => {});
   });
 
@@ -279,11 +279,15 @@ describe('TreeView — ⌘⇧M opens Move-to picker for focused item', () => {
     expect(epicTreeItem).not.toBeNull();
 
     if (epicTreeItem) {
-      fireEvent.click(epicTreeItem);
+      act(() => {
+        fireEvent.click(epicTreeItem);
+      });
     }
 
-    // Now fire ⌘⇧M on the document — the useEffect keydown handler checks focusedItemRef.current
-    fireEvent.keyDown(document, { metaKey: true, shiftKey: true, key: 'm' });
+    // Fire Mod+Shift+M: jsdom is non-Mac so Mod = Ctrl
+    act(() => {
+      fireEvent.keyDown(document, { ctrlKey: true, shiftKey: true, key: 'm' });
+    });
 
     // The MoveToPickerModal should appear with its heading "Move to…"
     await waitFor(() => {
@@ -297,7 +301,9 @@ describe('TreeView — ⌘⇧M opens Move-to picker for focused item', () => {
 
     // Do NOT click any row — focusedItem remains null
 
-    fireEvent.keyDown(document, { metaKey: true, shiftKey: true, key: 'm' });
+    act(() => {
+      fireEvent.keyDown(document, { ctrlKey: true, shiftKey: true, key: 'm' });
+    });
 
     // Move-to picker should NOT appear
     expect(screen.queryByText('Move to…')).toBeNull();

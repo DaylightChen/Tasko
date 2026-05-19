@@ -33,12 +33,13 @@ import { arrayMove } from '@dnd-kit/sortable';
  */
 import type { Item, ItemId, ProjectId, Status } from '@tasko/types';
 import { SquareKanban } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useItems, usePatchItem, useToggleComplete } from '../../api/items';
 import { EmptyState } from '../../components/empty-state';
 import { KanbanCard } from '../../components/kanban-card';
 import { KanbanColumn } from '../../components/kanban-column';
 import { useDndSensors } from '../../lib/dnd-sensors';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
@@ -62,6 +63,14 @@ export function KanbanView({ projectId }: KanbanViewProps) {
   const patchItem = usePatchItem();
   const toggleComplete = useToggleComplete();
   const sensors = useDndSensors();
+
+  // task-18: hotkey mode — push 'kanban' on mount, pop on unmount
+  useEffect(() => {
+    useHotkeyStore.getState().push('kanban');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, []);
 
   const { data: itemsData, isLoading } = useItems({
     view: 'project',

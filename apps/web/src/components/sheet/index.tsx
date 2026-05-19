@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import styles from './styles.module.css';
 
 export interface SheetProps {
@@ -25,6 +26,15 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
   const [dragDelta, setDragDelta] = useState(0);
 
   const DISMISS_THRESHOLD = 0.3;
+
+  // task-18: hotkey mode — push 'sheet' on open, pop on close
+  useEffect(() => {
+    if (!open) return;
+    useHotkeyStore.getState().push('sheet');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, [open]);
 
   // Save/restore focus
   useEffect(() => {

@@ -9,6 +9,7 @@ import { useHealth } from '../../api/health.js';
 import { useItems } from '../../api/items';
 import { useCreateProject, useDeleteProject, usePatchProject, useProjects } from '../../api/projects';
 import { useTags } from '../../api/tags';
+import { useSidebarStore } from '../../store/sidebar';
 import { Button } from '../button';
 import { ConfirmationPrompt } from '../confirmation-prompt';
 import { Dropdown } from '../dropdown';
@@ -53,6 +54,7 @@ interface NewProjectModalState {
 }
 
 export function Sidebar() {
+  const { collapsed } = useSidebarStore();
   const { data: projectsData } = useProjects();
   const { data: foldersData } = useFolders();
   const { data: tagsData } = useTags();
@@ -190,7 +192,12 @@ export function Sidebar() {
   ];
 
   return (
-    <nav ref={sidebarRef} className={styles.sidebar} aria-label="Primary navigation">
+    <nav
+      ref={sidebarRef}
+      className={styles.sidebar}
+      aria-label="Primary navigation"
+      data-collapsed={collapsed ? '' : undefined}
+    >
       {/* Smart lists */}
       <ul className={styles.smartList}>
         <li>

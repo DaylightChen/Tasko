@@ -31,6 +31,7 @@ import { FilterChip } from '../../components/filter-chip';
 import { IconButton } from '../../components/icon-button';
 import { announce } from '../../lib/a11y';
 import { todayLocal } from '../../lib/date-fmt';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import { useTaskModalStore } from '../../store/task-modal';
 import { DayDetailPopover } from './day-detail';
 import {
@@ -388,6 +389,14 @@ export function CalendarFiltersBar({
 
 export function CalendarMonthView() {
   const today = todayLocal();
+
+  // task-18: hotkey mode — push 'calendar' on mount, pop on unmount
+  useEffect(() => {
+    useHotkeyStore.getState().push('calendar');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, []);
 
   // Month navigation state — stored locally; could be URL param (deferred polish)
   const initialMonth = toYearMonth(today);

@@ -4,8 +4,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CommandPaletteHost } from './app/command-palette-host';
 import { ErrorBoundary } from './app/error-boundary';
+import { GlobalShortcuts } from './app/global-shortcuts';
 import { GlobalUndo } from './app/global-undo';
 import { HotkeyProvider } from './app/hotkey-provider';
+import { ShortcutHelpHost } from './app/shortcut-help-host';
 import { SSEConnector } from './app/sse-connector';
 import { ThemeBootstrap } from './app/theme-bootstrap';
 import { SnackbarHost } from './components/snackbar/host';
@@ -47,9 +49,11 @@ createRoot(rootEl).render(
         <ThemeBootstrap>
           <HotkeyProvider>
             <GlobalUndo />
+            <GlobalShortcuts />
             <SSEConnector />
             <SnackbarHost />
             <CommandPaletteHost />
+            <ShortcutHelpHost />
             <RouterProvider router={router} />
           </HotkeyProvider>
         </ThemeBootstrap>

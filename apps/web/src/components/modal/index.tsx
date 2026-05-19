@@ -10,6 +10,7 @@ import { X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import { Button } from '../button';
 import styles from './styles.module.css';
 
@@ -59,6 +60,15 @@ export function Modal({
   const cancelDiscard = useCallback(() => {
     setShowDiscardGuard(false);
   }, []);
+
+  // task-18: hotkey mode — push 'modal' on open, pop on close
+  useEffect(() => {
+    if (!open) return;
+    useHotkeyStore.getState().push('modal');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, [open]);
 
   // Save focus before modal opens, restore on close
   useEffect(() => {

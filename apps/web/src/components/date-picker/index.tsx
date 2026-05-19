@@ -1,9 +1,10 @@
 import { FloatingPortal, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
 import type { LocalDate } from '@tasko/types';
 import type React from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import { Button } from '../button';
 import { Sheet } from '../sheet';
 import styles from './styles.module.css';
@@ -34,6 +35,15 @@ export function DatePicker({
   isMobile = false,
 }: DatePickerProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
+
+  // task-18: hotkey mode — push 'date-picker' while open, pop on close
+  useEffect(() => {
+    if (!open) return;
+    useHotkeyStore.getState().push('date-picker');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, [open]);
 
   const { refs, floatingStyles } = useFloating({
     open,

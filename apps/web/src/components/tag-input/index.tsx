@@ -2,6 +2,7 @@ import type { Tag, TagId } from '@tasko/types';
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTagAutocomplete } from '../../api/tags';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import styles from './styles.module.css';
 
 export interface TagInputProps {
@@ -223,10 +224,14 @@ export function TagInput({ value, tagsById, onChange, onCreateTag, allTags = [],
             onKeyDown={handleKeyDown}
             onFocus={() => {
               if (query) openDropdown();
+              // task-18: hotkey mode — override 'input' with 'tag-input'
+              useHotkeyStore.getState().push('tag-input');
             }}
             onBlur={() => {
               // Delay to allow click on option
               setTimeout(() => closeDropdown(), 150);
+              // task-18: hotkey mode — pop 'tag-input'
+              useHotkeyStore.getState().pop();
             }}
           />
 

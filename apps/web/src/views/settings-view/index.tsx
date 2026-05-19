@@ -1,11 +1,13 @@
 import type { Theme, WeekStart } from '@tasko/types';
 import { useConfig, useUpdateConfig } from '../../api/config';
 import { Button } from '../../components/button';
+import { useShortcutHelpStore } from '../../store/shortcut-help';
 import styles from './styles.module.css';
 
 export function SettingsView() {
   const { data: config } = useConfig();
   const updateConfig = useUpdateConfig();
+  const shortcutHelp = useShortcutHelpStore();
 
   const theme = config?.theme ?? 'system';
   const weekStart = config?.week_start ?? 'mon';
@@ -105,13 +107,7 @@ export function SettingsView() {
           ABOUT
         </h2>
         <p className={styles.aboutText}>Tasko v1.0 · Local-first</p>
-        <Button
-          variant="ghost"
-          size="md"
-          onClick={() => {
-            // Opens keyboard shortcuts overlay in task-18
-          }}
-        >
+        <Button variant="ghost" size="md" onClick={() => shortcutHelp.show()}>
           View keyboard shortcuts
         </Button>
       </section>

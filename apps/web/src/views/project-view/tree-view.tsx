@@ -8,9 +8,11 @@ import { MoveToPickerModal } from '../../components/move-to-picker';
 import { TreeRow } from '../../components/tree-row';
 import { ViewToggle } from '../../components/view-toggle';
 import type { ViewOption } from '../../components/view-toggle';
+import { useHotkey } from '../../hooks/useHotkey';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { rollupProgress } from '../../lib/rollup';
+import { useHotkeyStore } from '../../store/hotkey-registry';
 import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
 import { useTreeExpansionStore } from '../../store/tree-expansion';
@@ -412,6 +414,14 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   const snackbar = useSnackbarStore();
   const expansion = useTreeExpansionStore();
 
+  // task-18: hotkey mode — push 'tree' on mount, pop on unmount
+  useEffect(() => {
+    useHotkeyStore.getState().push('tree');
+    return () => {
+      useHotkeyStore.getState().pop();
+    };
+  }, []);
+
   const [currentView, setCurrentView] = useState<string>('tree');
   const [inlineAddState, setInlineAddState] = useState<InlineAddState | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -463,24 +473,14 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   const patchItem = usePatchItem();
   const moveItem = useMoveItem();
 
-  // ⌘⇧M hotkey for Move-to picker (task-18 will consolidate into registry)
   const focusedItemRef = useRef<Item | null>(null);
   focusedItemRef.current = focusedItem;
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const active = document.activeElement;
-      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return;
-      const isMod = e.metaKey || e.ctrlKey;
-      if (isMod && e.shiftKey && e.key === 'm') {
-        e.preventDefault();
-        if (focusedItemRef.current) {
-          setMoveToPickerItem(focusedItemRef.current);
-        }
-      }
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, []);
+  useHotkey('tree', 'Mod+Shift+m', (e) => {
+    e.preventDefault();
+    if (focusedItemRef.current) {
+      setMoveToPickerItem(focusedItemRef.current);
+    }
+  });
 
   const handleItemClick = (item: Item) => {
     taskModal.openEdit(item.id as ItemId);
