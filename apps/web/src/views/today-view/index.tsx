@@ -16,6 +16,7 @@ import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
 import { useFocusedRow } from '../../hooks/useFocusedRow';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
+import { useTagNavigation } from '../../hooks/useTagNavigation';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
@@ -43,6 +44,7 @@ function formatDayMonthDD(date: LocalDate): string {
 
 export function TodayView() {
   const today = todayLocal();
+  const handleTagClick = useTagNavigation();
 
   // Sort state — in v1 this is local state; task-18 will wire to URL search param
   const [sort, setSort] = useState<string>('due_asc');
@@ -229,6 +231,7 @@ export function TodayView() {
                             reschedule.mutate({ id: item.id as ItemId, newDate: today })
                           }
                           onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                          onTagClick={handleTagClick}
                           {...sortableProps}
                         />
                       )}
@@ -270,6 +273,7 @@ export function TodayView() {
                           reschedule.mutate({ id: item.id as ItemId, newDate: today })
                         }
                         onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                        onTagClick={handleTagClick}
                         {...sortableProps}
                       />
                     )}

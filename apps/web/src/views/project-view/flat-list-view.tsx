@@ -7,6 +7,7 @@ import { TaskListRow } from '../../components/task-list-row';
 import { ViewToggle } from '../../components/view-toggle';
 import type { ViewOption } from '../../components/view-toggle';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
+import { useTagNavigation } from '../../hooks/useTagNavigation';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
@@ -22,6 +23,7 @@ interface FlatListViewProps {
 export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatListViewProps) {
   const today = todayLocal();
   const taskModal = useTaskModalStore();
+  const handleTagClick = useTagNavigation();
   const [currentView, setCurrentView] = useState<string>('list');
   const [showCompleted, setShowCompleted] = useState(false);
   const [inlineEditId, setInlineEditId] = useState<ItemId | null>(null);
@@ -137,6 +139,7 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
                         }
                       }}
                       onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                      onTagClick={handleTagClick}
                       {...sortableProps}
                     />
                   )}
@@ -173,6 +176,7 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
                   })
                 }
                 onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                onTagClick={handleTagClick}
               />
             ))}
           </ul>

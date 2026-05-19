@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { CompletedView } from '../views/completed-view';
 
 export const Route = createFileRoute('/completed')({
-  component: CompletedStub,
+  component: CompletedView,
 });
-
-function CompletedStub() {
-  return (
-    <div style={{ padding: 'var(--space-6)' }}>
-      <h1>Completed</h1>
-      <p>Coming soon</p>
-    </div>
-  );
-}

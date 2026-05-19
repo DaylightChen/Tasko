@@ -6,6 +6,7 @@ import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
 import { useMultiSelect } from '../../hooks/useMultiSelect';
+import { useTagNavigation } from '../../hooks/useTagNavigation';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
@@ -15,6 +16,7 @@ import styles from './styles.module.css';
 
 export function InboxView() {
   const today = todayLocal();
+  const handleTagClick = useTagNavigation();
   // Inbox default sort: created_desc per microcopy §9
   const [sort, setSort] = useState<string>('created_desc');
 
@@ -107,6 +109,7 @@ export function InboxView() {
                     }}
                     onDeleteRequest={() => setDeleteConfirmItem(item)}
                     onOpenChevronClick={() => taskModal.openEdit(item.id as ItemId)}
+                    onTagClick={handleTagClick}
                     {...sortableProps}
                   />
                 )}

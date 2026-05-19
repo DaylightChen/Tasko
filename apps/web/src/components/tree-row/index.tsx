@@ -2,6 +2,7 @@ import type { Item, LocalDate, TagId } from '@tasko/types';
 import { ChevronDown, ChevronRight, Layers, LayoutGrid, MoreHorizontal, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTagNavigation } from '../../hooks/useTagNavigation';
 import { Checkbox } from '../checkbox';
 import styles from './styles.module.css';
 
@@ -55,7 +56,7 @@ function DateChip({ date, today }: { date: string; today: LocalDate }) {
 
 // ─── Tag chips ────────────────────────────────────────────────────────────────
 
-function TagChips({ tagIds }: { tagIds: TagId[] }) {
+function TagChips({ tagIds, onTagClick }: { tagIds: TagId[]; onTagClick?: (tagId: TagId) => void }) {
   const MAX_VISIBLE = 2;
   if (tagIds.length === 0) return null;
   const visible = tagIds.slice(0, MAX_VISIBLE);
@@ -63,9 +64,18 @@ function TagChips({ tagIds }: { tagIds: TagId[] }) {
   return (
     <span className={styles.tagChips}>
       {visible.map((id) => (
-        <span key={id} className={styles.tagChip}>
+        <button
+          key={id}
+          type="button"
+          className={styles.tagChip}
+          aria-label={`Filter by tag ${id}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onTagClick?.(id);
+          }}
+        >
           #{id}
-        </span>
+        </button>
       ))}
       {overflow > 0 && <span className={styles.tagOverflow}>+{overflow}</span>}
     </span>
@@ -173,6 +183,7 @@ export function TreeRow({
   onPriorityClick,
   onMoveToOpen,
 }: TreeRowProps) {
+  const handleTagClick = useTagNavigation();
   const [isHovered, setIsHovered] = useState(false);
   const [editValue, setEditValue] = useState(item.title);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -331,7 +342,7 @@ export function TreeRow({
       {/* Meta: date, tags, priority, rollup */}
       <div className={styles.metaArea}>
         {showDateChip && <DateChip date={item.due_date} today={todayLocalDate} />}
-        {item.tags.length > 0 && <TagChips tagIds={item.tags as TagId[]} />}
+        {item.tags.length > 0 && <TagChips tagIds={item.tags as TagId[]} onTagClick={handleTagClick} />}
         <PriorityDot
           priority={item.priority}
           {...(onPriorityClick !== undefined ? { onClick: onPriorityClick } : {})}

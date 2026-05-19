@@ -30,6 +30,7 @@ vi.mock('../../../api/items', () => ({
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
 vi.mock('../../../api/folders', () => ({ useFolders: vi.fn() }));
 vi.mock('../../../api/config', () => ({ useConfig: vi.fn() }));
+vi.mock('../../../api/tags', () => ({ useTags: vi.fn(() => ({ data: { tags: [] } })) }));
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, ...rest }: { children: React.ReactNode; to: string; [k: string]: unknown }) => (
@@ -38,6 +39,7 @@ vi.mock('@tanstack/react-router', () => ({
     </a>
   ),
   useRouterState: () => ({ location: { pathname: '/today' } }),
+  useNavigate: () => vi.fn(),
 }));
 
 import {

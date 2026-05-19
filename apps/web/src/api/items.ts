@@ -237,6 +237,12 @@ export function useToggleComplete() {
             text: 'Task reopened. Next instance kept.',
             durationMs: 5000,
           });
+        } else if (nextStatus === 'todo') {
+          snackbar.show({
+            variant: 'info',
+            text: 'Task reopened.',
+            durationMs: 5000,
+          });
         }
       }
     },

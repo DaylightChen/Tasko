@@ -12,6 +12,12 @@
 import type { Item, ItemId, LocalDate, ProjectId } from '@tasko/types';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+// Mock useTagNavigation so TreeRow doesn't need QueryClient or router
+vi.mock('../../../hooks/useTagNavigation', () => ({
+  useTagNavigation: () => vi.fn(),
+}));
+
 import { TreeRow } from '../index';
 
 // ─── Factory ─────────────────────────────────────────────────────────────────

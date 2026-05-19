@@ -27,6 +27,7 @@ vi.mock('../../../api/items', () => ({
 vi.mock('../../../api/projects', () => ({ useProjects: vi.fn() }));
 vi.mock('../../../api/folders', () => ({ useFolders: vi.fn() }));
 vi.mock('../../../api/config', () => ({ useConfig: vi.fn() }));
+vi.mock('../../../api/tags', () => ({ useTags: vi.fn(() => ({ data: { tags: [] } })) }));
 
 // Mock TanStack Router – ViewChrome doesn't use it directly but SortDropdown or
 // other children might import from it.
@@ -37,6 +38,7 @@ vi.mock('@tanstack/react-router', () => ({
     </a>
   ),
   useRouterState: () => ({ location: { pathname: '/today' } }),
+  useNavigate: () => vi.fn(),
 }));
 
 // ── Imports after mocks ───────────────────────────────────────────────────────

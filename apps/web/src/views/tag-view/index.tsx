@@ -1,8 +1,9 @@
-import type { ItemId } from '@tasko/types';
-import type { Item } from '@tasko/types';
-import { Sunrise } from 'lucide-react';
+import type { Item, ItemId, TagId } from '@tasko/types';
+import { Hash } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useFolders } from '../../api/folders';
 import { useDeleteItem, useEditTitleInline, useItems, useToggleComplete } from '../../api/items';
+import { useProjects } from '../../api/projects';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { TaskListRow } from '../../components/task-list-row';
@@ -15,34 +16,28 @@ import { ListDndContext, SortableTaskRow } from '../_shared/ListDndContext';
 import { ViewChrome } from '../_shared/ViewChrome';
 import styles from './styles.module.css';
 
-/**
- * Format a LocalDate as "Thu, May 19" for the Tomorrow section header.
- */
-function formatDayMonthDD(date: string): string {
-  const d = new Date(`${date}T00:00:00Z`);
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const dow = weekdays[d.getUTCDay()] ?? '';
-  const month = months[d.getUTCMonth()] ?? '';
-  const day = d.getUTCDate();
-  return `${dow}, ${month} ${day}`;
+interface TagViewProps {
+  tagId: TagId;
+  tagName: string;
 }
 
-export function TomorrowView() {
+export function TagView({ tagId, tagName }: TagViewProps) {
   const today = todayLocal();
   const handleTagClick = useTagNavigation();
-  const tomorrow = new Date(`${today}T00:00:00Z`);
-  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-
   const [sort, setSort] = useState<string>('due_asc');
+
   const { data, isLoading } = useItems({
-    view: 'tomorrow',
+    view: 'tag',
+    tag_id: tagId,
     sort: sort as 'due_asc' | 'priority_desc' | 'title_asc' | 'created_desc',
   });
-  const items = (data?.items ?? ([] as Item[])).filter(
-    (i) => i.status !== 'done' && i.trashed_at === null,
-  ) as Item[];
+  const items = (data?.items ?? []) as Item[];
+
+  const { data: projectsData } = useProjects();
+  const { data: foldersData } = useFolders();
+
+  const projects = projectsData?.projects ?? [];
+  const folders = foldersData?.folders ?? [];
 
   const toggleComplete = useToggleComplete();
   const editTitleInline = useEditTitleInline();
@@ -55,21 +50,42 @@ export function TomorrowView() {
   const visibleIds = useMemo(() => items.map((i) => i.id as ItemId), [items]);
   const { handleListClick, multiSelect } = useMultiSelect(visibleIds, 'list');
 
+  const getProjectBreadcrumb = (
+    projectId: string,
+  ): { name: string; folder?: { name: string } } | undefined => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return undefined;
+    const folder = project.folder_id ? folders.find((f) => f.id === project.folder_id) : undefined;
+    const result: { name: string; folder?: { name: string } } = { name: project.name };
+    if (folder) result.folder = { name: folder.name };
+    return result;
+  };
+
   if (isLoading && items.length === 0) {
     return (
-      <ViewChrome title="Tomorrow" sortValue={sort} onSortChange={setSort}>
-        <div aria-busy="true" className={styles.loadingPlaceholder} />
+      <ViewChrome
+        title={`# ${tagName}`}
+        sortValue={sort}
+        onSortChange={setSort}
+        quickAddPlaceholder={`Add task with #${tagName}`}
+      >
+        <div className={styles.loadingPlaceholder} aria-busy="true" />
       </ViewChrome>
     );
   }
 
   if (items.length === 0) {
     return (
-      <ViewChrome title="Tomorrow" sortValue={sort} onSortChange={setSort}>
+      <ViewChrome
+        title={`# ${tagName}`}
+        sortValue={sort}
+        onSortChange={setSort}
+        quickAddPlaceholder={`Add task with #${tagName}`}
+      >
         <EmptyState
-          icon={Sunrise}
-          headline="Nothing scheduled for tomorrow."
-          subline="Plan ahead — add a task."
+          icon={Hash}
+          headline={`No items tagged "${tagName}".`}
+          subline="Tag tasks in the Task modal to surface them here."
         />
       </ViewChrome>
     );
@@ -78,20 +94,33 @@ export function TomorrowView() {
   return (
     <>
       <BulkActionsToolbar />
-      <ViewChrome title="Tomorrow" sortValue={sort} onSortChange={setSort}>
-        <section className={styles.section} aria-label={`Tomorrow, ${items.length} items`}>
-          <h2 className={styles.sectionTitle}>{formatDayMonthDD(tomorrowStr)}</h2>
-          <ListDndContext items={items}>
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
-            <ul className={styles.list} onClick={handleListClick}>
-              {items.map((item) => (
+      <ViewChrome
+        title={`# ${tagName}`}
+        sortValue={sort}
+        onSortChange={setSort}
+        quickAddPlaceholder={`Add task with #${tagName}`}
+      >
+        {/* Subline: N items tagged "tag" across all projects — microcopy §17 */}
+        <p className={styles.subline}>
+          {items.length} items tagged &quot;{tagName}&quot; across all projects.
+        </p>
+
+        <ListDndContext items={items}>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access provided by individual <li> rows */}
+          <ul className={styles.list} onClick={handleListClick}>
+            {items.map((item) => {
+              const breadcrumb = getProjectBreadcrumb(item.project_id);
+              const projectProp = breadcrumb !== undefined ? { project: breadcrumb } : {};
+              return (
                 <SortableTaskRow key={item.id} item={item}>
                   {(sortableProps) => (
                     <TaskListRow
+                      {...projectProp}
                       item={item}
                       todayLocalDate={today}
                       isFocused={false}
                       isMultiSelected={multiSelect.set.has(item.id as ItemId)}
+                      showProjectBreadcrumb
                       inlineEditMode={inlineEditId === (item.id as ItemId)}
                       onClick={() => taskModal.openEdit(item.id as ItemId)}
                       onToggleCheckbox={() =>
@@ -114,10 +143,10 @@ export function TomorrowView() {
                     />
                   )}
                 </SortableTaskRow>
-              ))}
-            </ul>
-          </ListDndContext>
-        </section>
+              );
+            })}
+          </ul>
+        </ListDndContext>
       </ViewChrome>
 
       <ConfirmationPrompt
