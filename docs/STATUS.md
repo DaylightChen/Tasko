@@ -15,16 +15,17 @@ project
 - `ux` — approved 2026-05-18. Output: 7 spec files under `docs/ux/` + HTML preview
 - `engineering` — approved 2026-05-18. Output: 8 spec files under `docs/engineering/`
 - `plan` — approved 2026-05-18. Output: implementation plan + 20 task briefs under `docs/tasks/`
+- `task-01-foundation-vertical-slice` — completed 2026-05-19 (commit `fa86afb`). 1 iteration. All 12 acceptance criteria pass.
 
 ## What's Next
-- Run `/phased-dev:start-task 01` to begin the first task (foundation vertical slice). User has granted autonomous execution permission — orchestrator drives through tasks sequentially.
+- Run `/phased-dev:start-task 02` for `task-02-types-and-fs-store` (zod schemas + atomic fs-store + indexer + Inbox sentinel).
 
 ## Task Progress
 
 | # | Task | Status |
 |---|------|--------|
-| 01 | foundation-vertical-slice | pending |
-| 02 | types-and-fs-store | pending |
+| 01 | foundation-vertical-slice | done (`fa86afb`) |
+| 02 | types-and-fs-store | in progress |
 | 03 | server-crud-routes | pending |
 | 04 | frontend-shell-router-sidebar | pending |
 | 05 | components-chrome-and-dialogs | pending |
