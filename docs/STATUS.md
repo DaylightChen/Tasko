@@ -24,9 +24,10 @@ project
 - `task-07-task-modal` — completed 2026-05-19 (commit `92e17e3`). 3 iterations. 440 web tests pass (+43); 8 field-popover components + Task modal + form hook + `taskModalStore` + Item/Tag mutation hooks + quick-add wiring shipped.
 - `task-08-smart-list-views` — completed 2026-05-19 (commit `c8c96ba`). 2 iterations. 506 web tests pass (+66); Today / Tomorrow / Next 7 Days / Inbox / All views + `useOptimisticMutation` + `undoStore` + `useFocusedRow` + `ViewChrome` + 6 item mutation hooks shipped.
 - `task-09-hierarchy-and-tree-view` — completed 2026-05-19 (commit `f177582`). 2 iterations. Server 157 + Web 569 tests pass (+30 server, +67 web). Depth-cap end-to-end + `descendantsOf`/`topLevelOfProject`/shared `rollupProgress`, TreeRow + TreeView + FlatListView, per-project route + view toggle, Move-to picker w/ `⌘⇧M`, parent-completion blocking for Feature/Epic.
+- `task-10-drag-and-drop` — completed 2026-05-19 (commit `13f4d69`). 3 iterations. Server 157 + Web 621 tests pass (+57 web). dnd-kit wired across sidebar / lists / tree / next-7 / subtasks. Drag-visuals + reduced-motion + auto-scroll + SR announces. Undo wired on 3 spec'd drag mutations. Surfaced + fixed real `TaskListRow` keyboard-handler conflict.
 
 ## What's Next
-- Run `/phased-dev:start-task 10` for `task-10-drag-and-drop`.
+- Run `/phased-dev:start-task 11` for `task-11-recurrence`.
 
 ## Task Progress
 
@@ -41,8 +42,8 @@ project
 | 07 | task-modal | done (`92e17e3`) |
 | 08 | smart-list-views | done (`c8c96ba`) |
 | 09 | hierarchy-and-tree-view | done (`f177582`) |
-| 10 | drag-and-drop | in progress |
-| 11 | recurrence | pending |
+| 10 | drag-and-drop | done (`13f4d69`) |
+| 11 | recurrence | in progress |
 | 12 | bulk-trash-undo | pending |
 | 13 | markdown-notes | pending |
 | 14 | calendar-month | pending |
