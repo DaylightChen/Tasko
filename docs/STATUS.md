@@ -22,9 +22,10 @@ project
 - `task-05-components-chrome-and-dialogs` — completed 2026-05-19 (commit `f389357`). 2 iterations.
 - `task-06-components-rows-and-pickers` — completed 2026-05-19 (commit `ba41613`). 1 iteration. 397 web tests pass (+201 new); 13 components + 2 lib helpers shipped (date-fmt, a11y).
 - `task-07-task-modal` — completed 2026-05-19 (commit `92e17e3`). 3 iterations. 440 web tests pass (+43); 8 field-popover components + Task modal + form hook + `taskModalStore` + Item/Tag mutation hooks + quick-add wiring shipped.
+- `task-08-smart-list-views` — completed 2026-05-19 (commit `c8c96ba`). 2 iterations. 506 web tests pass (+66); Today / Tomorrow / Next 7 Days / Inbox / All views + `useOptimisticMutation` + `undoStore` + `useFocusedRow` + `ViewChrome` + 6 item mutation hooks shipped.
 
 ## What's Next
-- Run `/phased-dev:start-task 08` for `task-08-smart-list-views`.
+- Run `/phased-dev:start-task 09` for `task-09-hierarchy-and-tree-view`.
 
 ## Task Progress
 
@@ -37,8 +38,8 @@ project
 | 05 | components-chrome-and-dialogs | done (`f389357`) |
 | 06 | components-rows-and-pickers | done (`ba41613`) |
 | 07 | task-modal | done (`92e17e3`) |
-| 08 | smart-list-views | in progress |
-| 09 | hierarchy-and-tree-view | pending |
+| 08 | smart-list-views | done (`c8c96ba`) |
+| 09 | hierarchy-and-tree-view | in progress |
 | 10 | drag-and-drop | pending |
 | 11 | recurrence | pending |
 | 12 | bulk-trash-undo | pending |
