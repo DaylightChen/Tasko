@@ -1,0 +1,417 @@
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--color-canvas-subtle);
+  border-right: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3) 0;
+  position: relative;
+}
+
+.smartList {
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.section {
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+}
+
+.sectionTitle {
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+.addMenuWrapper {
+  position: relative;
+}
+
+.addBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.addBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.addMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  min-width: 140px;
+  padding: var(--space-1) 0;
+}
+
+.addMenuItem {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.addMenuItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-body-size);
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+}
+
+.navItem:hover {
+  background: var(--color-surface);
+}
+
+.navItem[data-active] {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+.navLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  font-size: var(--text-caption-size);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+.overdueBadge {
+  color: var(--color-text-overdue);
+}
+
+.projectList {
+  padding: 0;
+}
+
+.folderProjects {
+  padding-left: var(--space-4);
+}
+
+.folderHeader {
+  display: flex;
+  align-items: center;
+  padding: var(--space-1) 0;
+}
+
+.folderToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: var(--text-body-size);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  width: 100%;
+  text-align: left;
+}
+
+.folderToggle:hover {
+  background: var(--color-surface);
+}
+
+.folderName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folderIcon {
+  font-size: 14px;
+  margin-right: var(--space-1);
+}
+
+.inlineFolderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.inlineFolderInput {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  outline: none;
+}
+
+.inlineFolderInput:focus {
+  border-color: var(--color-accent);
+}
+
+.renameInput {
+  background: none;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 2px var(--space-2);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  outline: none;
+  width: 100%;
+}
+
+.tagList {
+  padding: 0;
+}
+
+.bottomLinks {
+  padding: 0 var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-3);
+  margin-top: auto;
+}
+
+.footer {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-caption-size);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: var(--space-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: 200;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  min-width: 160px;
+}
+
+.contextMenuItem {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.contextMenuItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.contextMenuItemDestructive {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body-size);
+  color: var(--color-text-overdue);
+  cursor: pointer;
+}
+
+.contextMenuItemDestructive:hover {
+  background: var(--color-canvas-subtle);
+}
+
+/* Modal overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-3);
+  width: 480px;
+  max-width: calc(100vw - var(--space-6));
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.modalTitle {
+  font-size: var(--text-body-strong-size);
+  font-weight: var(--text-body-strong-weight);
+  color: var(--color-text);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  font-size: 16px;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.modalClose:hover {
+  color: var(--color-text);
+}
+
+.modalBody {
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.fieldLabel {
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  display: block;
+}
+
+.required {
+  font-size: var(--text-caption-size);
+  color: var(--color-text-subtle);
+}
+
+.fieldInput {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  background: var(--color-canvas);
+  outline: none;
+}
+
+.fieldInput:focus {
+  border-color: var(--color-accent);
+}
+
+.fieldSelect {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  background: var(--color-canvas);
+  outline: none;
+}
+
+.fieldSelect:focus {
+  border-color: var(--color-accent);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.btnPrimary {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-strong-weight);
+  cursor: pointer;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  padding: var(--space-2) var(--space-4);
+  background: none;
+  color: var(--color-text-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  cursor: pointer;
+}
+
+.btnSecondary:hover {
+  background: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
