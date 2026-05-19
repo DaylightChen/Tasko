@@ -1,0 +1,122 @@
+/* CalendarDayCell styles */
+
+.cell {
+  min-height: 96px;
+  padding: var(--space-1);
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-canvas);
+  position: relative;
+  cursor: default;
+  outline: none;
+}
+
+/* Out-of-month cell */
+.cell:not([data-in-month]) {
+  background: var(--color-canvas-subtle);
+}
+
+/* Today highlight */
+.cell[data-today] {
+  background: color-mix(in srgb, var(--color-accent-subtle) 20%, var(--color-canvas));
+}
+
+/* Focused cell ring (keyboard) */
+.cell[data-focused] {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+/* Day number area */
+.dayNumberWrapper {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 2px;
+}
+
+.dayNumber {
+  font-size: var(--text-small-size, 12px);
+  font-weight: var(--text-small-weight, 400);
+  color: var(--color-text-subtle);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Out-of-month number: muted */
+.cell:not([data-in-month]) .dayNumber {
+  color: var(--color-text-muted);
+}
+
+/* Today: accent-filled circle */
+.dayNumber[data-today] {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-weight: 600;
+}
+
+/* Chips area */
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* "+N more" button */
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--motion-fast, 150ms) var(--ease-standard, ease);
+  text-align: left;
+}
+
+.moreButton:hover {
+  color: var(--color-text);
+  background: var(--color-canvas-subtle);
+}
+
+.moreButton:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* Screen reader only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moreButton {
+    transition: none;
+  }
+}

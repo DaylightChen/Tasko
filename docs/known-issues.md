@@ -26,6 +26,16 @@
 
 ---
 
+## Calendar drag-to-reschedule is not available in v1
+
+**Discovered:** 2026-05-19 (implement, Task 14)
+**Status:** open (by design — v1 scope reduction)
+**Symptom:** Users cannot drag a calendar event chip to a different date to reschedule. The only reschedule path is click → Task modal → edit the date field.
+**Workaround:** Click the event chip to open the Task modal; use the date picker in the modal to change the due date. Alternatively, right-click the chip and choose "Edit date…" (same modal opens).
+**Revisit when:** Post-v1 UX iteration. Wire `@dnd-kit` to `CalendarDayCell` to accept drops, and add `useDraggable` to `CalendarEventChip`. The `data-item-id` and `data-day-position` attributes are already in place for drag source identification. Per binding resolution §1.1 this was explicitly CUT from v1 scope.
+
+---
+
 ## TreeRow `aria-label` on `role="treeitem"` (deferred to task-18)
 - **Where:** `apps/web/src/components/tree-row/index.tsx`
 - **What:** TreeRow's `role="treeitem"` div doesn't set `aria-label`. Accessibility spec §3.6 and microcopy §29 define full row labels: `"Epic: <Title>, N of M tasks complete"`, `"Feature: <Title>, N of M tasks complete"`, etc.

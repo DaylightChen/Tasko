@@ -7,6 +7,9 @@ export interface FilterChipProps {
   value: string;
   onRemove: () => void;
   tone?: 'neutral' | 'accent';
+  /** Optional override for the visible chip label and aria-label. When provided,
+   * overrides the auto-formatted "${facet}: ${value}" text. */
+  label?: string;
 }
 
 /**
@@ -14,8 +17,8 @@ export interface FilterChipProps {
  * Accessible remove button with Delete/Backspace keyboard shortcut.
  * Height: 24px desktop / 32px mobile.
  */
-export function FilterChip({ facet, value, onRemove, tone = 'neutral' }: FilterChipProps) {
-  const label = `${facet}: ${value}`;
+export function FilterChip({ facet, value, onRemove, tone = 'neutral', label: labelProp }: FilterChipProps) {
+  const label = labelProp ?? `${facet}: ${value}`;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'Delete' || e.key === 'Backspace') {

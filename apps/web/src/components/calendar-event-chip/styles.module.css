@@ -1,0 +1,174 @@
+/* CalendarEventChip styles */
+
+.chip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 20px;
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-subtle);
+  color: var(--color-text);
+  font-size: var(--text-small-size, 12px);
+  line-height: 1.3;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+  border-left: 2px solid transparent;
+  transition: opacity var(--motion-fast, 150ms) var(--ease-standard, ease);
+  user-select: none;
+}
+
+.chip:hover {
+  filter: brightness(0.95);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* Priority left-border colors */
+.chip[data-priority="low"] {
+  border-left-color: var(--color-priority-low);
+}
+
+.chip[data-priority="medium"] {
+  border-left-color: var(--color-priority-medium);
+}
+
+.chip[data-priority="high"] {
+  border-left-color: var(--color-priority-high);
+}
+
+/* Overdue treatment: replace border with overdue color, text overdue */
+.chip[data-overdue] {
+  border-left-color: var(--color-overdue);
+  background: color-mix(in srgb, var(--color-overdue) 10%, transparent);
+}
+
+.chip[data-overdue] .title {
+  color: var(--color-text-overdue);
+}
+
+/* Completed treatment: strike-through + reduced opacity */
+.chip[data-completed] {
+  opacity: 0.6;
+}
+
+.chip[data-completed] .title {
+  text-decoration: line-through;
+}
+
+/* Timed variant: slight visual difference */
+.chip[data-variant="timed"] {
+  background: var(--color-surface-elevated, var(--color-surface));
+  border: 1px solid var(--color-border-subtle);
+  border-left-width: 2px;
+}
+
+/* Multi-day start emphasis */
+.chip[data-variant="multi-day"][data-day-position="start"] {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: var(--color-accent-subtle);
+  border-left-color: var(--color-accent);
+}
+
+/* Multi-day end emphasis */
+.chip[data-variant="multi-day"][data-day-position="end"] {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* Middle day: thin continuation bar */
+.chip[data-variant="middle"] {
+  background: var(--color-tag-bg, var(--color-canvas-subtle));
+  height: 18px;
+  min-height: 18px;
+  border-radius: 0;
+  border-left: none;
+  opacity: 0.7;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.time {
+  font-size: 10px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.spanLabel {
+  font-size: 10px;
+  opacity: 0.75;
+  flex-shrink: 0;
+  margin-left: var(--space-1);
+}
+
+/* Context menu */
+.contextBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-popover, 100);
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: calc(var(--z-popover, 100) + 1);
+  background: var(--color-surface-elevated, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  min-width: 160px;
+  list-style: none;
+  margin: 0;
+}
+
+.contextItem {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  transition: background var(--motion-fast, 150ms) var(--ease-standard, ease);
+}
+
+.contextItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.contextItem:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.contextItemDestructive {
+  color: var(--color-text-overdue);
+}
+
+.contextSeparator {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: var(--space-1) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .contextItem {
+    transition: none;
+  }
+}
