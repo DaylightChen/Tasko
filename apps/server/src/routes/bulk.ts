@@ -193,6 +193,13 @@ export function registerBulkRoutes(app: FastifyInstance): void {
         }
       }
 
+      const completedIds = completedItems.map((i) => i.id as string);
+      app.broker.publish({
+        type: 'bulk.completed',
+        payload: { ids: completedIds, count: completedItems.length },
+        tabId,
+      });
+
       return {
         completed_count: completedItems.length,
         new_instances: newInstances,

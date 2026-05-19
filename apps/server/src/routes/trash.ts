@@ -75,7 +75,7 @@ export function registerTrashRoutes(app: FastifyInstance): void {
       for (const item of allTrashed) {
         await ops.removeFromTrash(item.id);
       }
-      app.broker.publish({ type: 'trash.emptied', payload: { deleted_count: deletedCount }, tabId });
+      app.broker.publish({ type: 'trash.emptied', payload: { count: deletedCount }, tabId });
       return { deleted_count: deletedCount };
     });
 

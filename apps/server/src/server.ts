@@ -7,6 +7,7 @@ import { envelope } from './middleware/error-envelope.js';
 import { type Broker, buildBroker } from './middleware/sse-broker.js';
 import { registerBulkRoutes } from './routes/bulk.js';
 import { registerConfigRoutes } from './routes/config.js';
+import { registerEventsRoute } from './routes/events.js';
 import { registerFolderRoutes } from './routes/folders.js';
 import { registerHealthRoute } from './routes/health.js';
 import { registerItemRoutes } from './routes/items.js';
@@ -66,6 +67,7 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
 
   // Routes
   registerHealthRoute(app);
+  registerEventsRoute(app);
   registerItemRoutes(app);
   registerTrashRoutes(app);
   registerProjectRoutes(app);
