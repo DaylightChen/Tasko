@@ -120,4 +120,46 @@ $ pnpm lint → clean
 ```
 
 ### Review
-_(pending re-review)_
+
+**Verdict:** Approved.
+
+**Per-criterion check:** all 11 acceptance criteria pass.
+
+**Issues resolution:**
+- Issue 1 (blocking) — `ItemBaseSchema` is no longer exported (module-private); `ItemDiskSchema` is self-contained in `indexer.ts`; `ItemCreateSchema` and `ItemPatchSchema` both carry the date refinement. Fixed correctly.
+- Issue 2 (non-blocking) — `loadDir` uses `readJsonFile` exclusively; `readFile` import removed. Fixed correctly.
+- Issue 3 (non-blocking) — `bootstrap()` returns stats from `index.*.size` after the Inbox write. Fixed correctly.
+
+**Code quality:** clean. The 4 new schema tests cover Create (both-dates accept + reject) and Patch (both-present reject, partial-only accept).
+
+**Test quality:** adequate. No over-mocking; deterministic.
+
+**Downstream-contract findings:** task 03's contract intact — Index shape, WriteOps interface, Indexer.withWriteLock signature all unchanged from Iteration 1.
+
+**Regressions:** none. 66 total tests pass (30 types + 36 server).
+
+**Issues to fix:** none.
+
+---
+
+## Completion
+
+- **Commit:** `47d7482` — "Task 02: Types package + fs-store + indexer"
+- **Iterations:** 2 (one fix iteration to address ItemBaseSchema leak + missing refinement)
+- **Verification evidence:**
+  ```
+  $ pnpm --filter @tasko/types test
+  Test Files  2 passed (2)  Tests  30 passed (30)
+
+  $ pnpm --filter @tasko/server test
+  Test Files  9 passed (9)  Tests  36 passed (36)
+
+  $ pnpm --filter @tasko/{types,server,web} typecheck
+  → tsc --noEmit (exit 0 each, no errors)
+
+  $ pnpm lint
+  Checked 52 files in 21ms. No fixes applied.
+  ```
+- **Acceptance criteria:** all 11 verified (typecheck both packages 0 errors, types test schemas + sse events round-trip + reject invalid, server tests all 9 files pass, --init creates dir tree + Inbox sentinel, missing data dir throws exact error, lint clean).
+- **Regressions:** none.
+- **Deviations from plan:** spec-bug mitigation (relaxed disk schemas) for INBOX_PROJECT_ID — accepted, tracked in `docs/known-issues.md`. Otherwise none.
