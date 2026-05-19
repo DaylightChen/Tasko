@@ -1,0 +1,143 @@
+/* CalendarWeekBlock — timed event block for the week view time grid */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent);
+  border-left-width: 3px;
+  padding: 2px var(--space-1);
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  transition: background var(--motion-fast, 150ms) var(--ease-standard, ease);
+  font-size: var(--text-small-size, 12px);
+  line-height: 1.3;
+  position: relative;
+  min-height: 20px;
+}
+
+.block:hover {
+  background: var(--color-accent-subtle);
+  filter: brightness(0.95);
+}
+
+.block:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* Priority left-border color overrides */
+.block[data-priority="high"] {
+  border-left-color: var(--color-priority-high, #dc2626);
+}
+
+.block[data-priority="medium"] {
+  border-left-color: var(--color-priority-medium, #d97706);
+}
+
+.block[data-priority="low"] {
+  border-left-color: var(--color-priority-low, #6b7280);
+}
+
+.block[data-priority="none"] {
+  border-left-color: var(--color-border);
+}
+
+/* Overdue state */
+.block[data-overdue] {
+  border-left-color: var(--color-overdue, #dc2626);
+  background: var(--color-overdue-subtle, #fef2f2);
+}
+
+/* Completed state */
+.block[data-completed] {
+  opacity: 0.6;
+}
+
+.block[data-completed] .title {
+  text-decoration: line-through;
+}
+
+.time {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title {
+  font-size: var(--text-small-size, 12px);
+  font-weight: 500;
+  color: var(--color-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Context menu */
+.contextBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-popover, 100) - 1);
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: var(--z-popover, 100);
+  background: var(--color-surface-elevated, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  min-width: 160px;
+  list-style: none;
+  margin: 0;
+}
+
+.contextItem {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-body-size, 14px);
+  color: var(--color-text);
+  text-align: left;
+  transition: background var(--motion-fast, 150ms) var(--ease-standard, ease);
+}
+
+.contextItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.contextItem:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.contextItemDestructive {
+  color: var(--color-overdue, #dc2626);
+}
+
+.contextSeparator {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: var(--space-1) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    transition: none;
+  }
+}

@@ -1,0 +1,55 @@
+/* KanbanView styles */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4) var(--space-6);
+  overflow: hidden;
+}
+
+/* Board: 3 horizontal columns */
+.board {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-2);
+}
+
+/* Empty board state */
+.emptyBoard {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Drag overlay */
+.dragOverlayCard {
+  opacity: 0.85;
+  box-shadow: var(--elevation-3);
+  transform: rotate(2deg);
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: var(--space-3);
+  }
+
+  .board {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dragOverlayCard {
+    transform: none;
+  }
+}

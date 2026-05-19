@@ -1,0 +1,255 @@
+/* KanbanCard styles — per UX §25 */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: box-shadow var(--motion-fast, 150ms) var(--ease-standard, ease), border-color
+    var(--motion-fast, 150ms) var(--ease-standard, ease);
+  user-select: none;
+  overflow: hidden;
+  width: 100%;
+  text-align: left;
+}
+
+.card:hover {
+  box-shadow: var(--elevation-1);
+  border-color: var(--color-border);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.card[data-overdue] {
+  border-left-color: var(--color-overdue, #dc2626);
+}
+
+.card[data-completed] {
+  opacity: 0.7;
+}
+
+.card[data-dragging] {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.card[data-selected] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+
+/* Priority left stripe (2-3px wide) */
+.priorityStripe {
+  width: 3px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: transparent;
+}
+
+.priorityStripe[data-priority="high"] {
+  background: var(--color-priority-high, #dc2626);
+}
+
+.priorityStripe[data-priority="medium"] {
+  background: var(--color-priority-medium, #d97706);
+}
+
+.priorityStripe[data-priority="low"] {
+  background: var(--color-priority-low, #6b7280);
+}
+
+.priorityStripe[data-priority="none"] {
+  background: transparent;
+}
+
+/* When selected, accent replaces priority stripe and priority moves inline */
+.card[data-selected] .priorityStripe {
+  background: var(--color-accent);
+  width: 4px;
+}
+
+/* Card body */
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Title row with optional inline priority dot (visible in multi-select mode) */
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+/* Inline priority dot (only shown when card is in multi-select selected state) */
+.inlinePriorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+  display: none;
+}
+
+.inlinePriorityDot[data-priority="high"] {
+  background: var(--color-priority-high, #dc2626);
+}
+
+.inlinePriorityDot[data-priority="medium"] {
+  background: var(--color-priority-medium, #d97706);
+}
+
+.inlinePriorityDot[data-priority="low"] {
+  background: var(--color-priority-low, #6b7280);
+}
+
+.card[data-selected] .inlinePriorityDot {
+  display: block;
+}
+
+.title {
+  font-size: var(--text-body-size, 14px);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  flex: 1;
+}
+
+.card[data-completed] .title {
+  text-decoration: line-through;
+  color: var(--color-text-subtle);
+}
+
+/* Meta row */
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Tag chip */
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 18px;
+  background: var(--color-canvas-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+/* Subtask progress chip */
+.subtaskChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 18px;
+  background: var(--color-canvas-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  gap: 2px;
+}
+
+/* Date chip (only when today or overdue) */
+.dateChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dateChip[data-today] {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+.dateChip[data-overdue] {
+  background: var(--color-overdue-subtle, #fef2f2);
+  color: var(--color-overdue, #dc2626);
+}
+
+/* Context menu */
+.contextBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-popover, 100) - 1);
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: var(--z-popover, 100);
+  background: var(--color-surface-elevated, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  min-width: 160px;
+  list-style: none;
+  margin: 0;
+}
+
+.contextItem {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-body-size, 14px);
+  color: var(--color-text);
+  text-align: left;
+  transition: background var(--motion-fast, 150ms) var(--ease-standard, ease);
+}
+
+.contextItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.contextItem:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.contextItemDestructive {
+  color: var(--color-overdue, #dc2626);
+}
+
+.contextSeparator {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: var(--space-1) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

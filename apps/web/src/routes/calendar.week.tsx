@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { CalendarWeekView } from '../views/calendar-view/week';
 
 export const Route = createFileRoute('/calendar/week')({
-  component: CalendarWeekStub,
+  component: CalendarWeekView,
 });
-
-function CalendarWeekStub() {
-  return (
-    <div style={{ padding: 'var(--space-6)' }}>
-      <h1>Calendar — Week</h1>
-      <p>Coming soon</p>
-    </div>
-  );
-}
