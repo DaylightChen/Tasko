@@ -17,10 +17,11 @@ project
 - `plan` — approved 2026-05-18. Output: implementation plan + 20 task briefs under `docs/tasks/`
 - `task-01-foundation-vertical-slice` — completed 2026-05-19 (commit `fa86afb`). 1 iteration.
 - `task-02-types-and-fs-store` — completed 2026-05-19 (commit `47d7482`). 2 iterations.
-- `task-03-server-crud-routes` — completed 2026-05-19 (commit `0736f3d`). 2 iterations. 115 server tests pass. Route-level INBOX_PROJECT_ID mitigation added (same root cause as known-issue #1).
+- `task-03-server-crud-routes` — completed 2026-05-19 (commit `0736f3d`). 2 iterations.
+- `task-04-frontend-shell-router-sidebar` — completed 2026-05-19 (commit `81e7c8e`). 2 iterations. 62 web tests pass; full provider tree + TanStack Router + Sidebar + Settings shipped.
 
 ## What's Next
-- Run `/phased-dev:start-task 04` for `task-04-frontend-shell-router-sidebar` (provider tree + TanStack Router + sidebar + Settings + apiCall wrapper).
+- Run `/phased-dev:start-task 05` for `task-05-components-chrome-and-dialogs` (Button / IconButton / TextInput / Modal / Sheet / Snackbar / Tooltip / Dropdown / EmptyState / Skeleton / ConfirmationPrompt).
 
 ## Task Progress
 
@@ -29,8 +30,8 @@ project
 | 01 | foundation-vertical-slice | done (`fa86afb`) |
 | 02 | types-and-fs-store | done (`47d7482`) |
 | 03 | server-crud-routes | done (`0736f3d`) |
-| 04 | frontend-shell-router-sidebar | in progress |
-| 05 | components-chrome-and-dialogs | pending |
+| 04 | frontend-shell-router-sidebar | done (`81e7c8e`) |
+| 05 | components-chrome-and-dialogs | in progress |
 | 06 | components-rows-and-pickers | pending |
 | 07 | task-modal | pending |
 | 08 | smart-list-views | pending |
