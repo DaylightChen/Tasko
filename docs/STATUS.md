@@ -33,9 +33,10 @@ project
 - `task-16-tag-completed-views` — completed 2026-05-19 (commit `0cda638`). 3 iterations. Web 976 tests pass (+54 new). `views/tag-view/index.tsx` + `views/completed-view/{index.tsx, grouping.ts}` + `hooks/useTagNavigation.ts` (tag chips navigate from every TaskListRow context). `useToggleComplete` snackbar branch added for recurring un-check (`Task reopened. Next instance kept.`). Completed view groups items by `completed_at` into 6 buckets respecting `useConfig().week_start`. Iter-1 shipped views; iter-2 fixed `<li>`-in-`<li>` bug + 4 test gaps; iter-3 closed hardcoded weekStart + missing onTagClick in flat-list-view + 404 anchor→Link.
 - `task-17-sse-multitab` — completed 2026-05-19 (commit `21b8b4f`). 1 iteration. Server 374 + Web 997 tests pass (+22 web + 6 server). `routes/events.ts` SSE route w/ source discriminator + 25s heartbeat; `api/events.ts` `createSSEClient` w/ 16 event handlers (all self-skip + Zod-parse); `store/sse.ts` Zustand connection-state store; `sse-connector.tsx` real impl. `routes/trash.ts` SSE payload `count` (fixes schema mismatch); `routes/bulk.ts` adds missing `bulk.completed` publish. Tester surfaced 2 fixture bugs (invalid ULID + `week_start: 'monday'`); orchestrator fixed inline. E2E Playwright deferred to task-20.
 - `task-18-hotkeys-palette-a11y-shell` — completed 2026-05-20 (commit `367e4f8`). 3 iterations. Web 1110 tests pass (+111 new). Hotkey registry (mode stack + 10 modes + `useHotkey` + capture-phase HotkeyProvider) + `GlobalShortcuts` (t/i/n// no-input nav + focused-row reschedule) + cmdk command palette (static + dynamic + tree-context catalog, `aria-modal`, document Escape) + shortcut help overlay (?-toggle, verbatim §13) + ⌘F debounced toast + a11y shell audit. Iter-1 used WRAP approach for views; iter-2 fixed cmdk ResizeObserver/scrollIntoView stubs + matchHotkey('?') shift state + Escape document listener; iter-3 wired the missing single-key shortcuts + tree-context commands + aria-modal + View group + ⌘⇧M migration.
+- `task-19-a11y-perf-audit` — completed 2026-05-20 (commit `87c3653`). 2 iterations. Web 1127 tests pass (+2 new files: reduced-motion + virtualization). Reduced-motion `@media` overrides in `tokens.css`; `@tanstack/react-virtual` wired across 11 views + kanban-column + day-detail at 5 brief-listed thresholds; `flat-list-view` quick-add aria-label fix; `FlatTreeRowRenderer` dead props removed; jsdom dimension stubs added with comments; §13 audit checklist walked. Axe-via-Playwright deferred to task-20.
 
 ## What's Next
-- Continuing autonomous execution at user's direction. Next: `task-19-a11y-perf-audit`.
+- Continuing autonomous execution at user's direction. Next: `task-20-e2e-and-release-readiness`.
 
 ## Task Progress
 
@@ -59,8 +60,8 @@ project
 | 16 | tag-completed-views | done (`0cda638`) |
 | 17 | sse-multitab | done (`21b8b4f`) |
 | 18 | hotkeys-palette-a11y-shell | done (`367e4f8`) |
-| 19 | a11y-perf-audit | in progress |
-| 20 | e2e-and-release-readiness | pending |
+| 19 | a11y-perf-audit | done (`87c3653`) |
+| 20 | e2e-and-release-readiness | in progress |
 
 ## Blockers
 None

@@ -47,6 +47,7 @@ This is the last task — no downstream dependencies. The completion of this tas
    - `quick-add-project-context-exception.spec.ts`: navigate to a project's Tree view; click "+ Add Task" inside a Feature → modal opens with `project_id` AND `parent_id` pre-filled (the destination-context exception per §9.4 #8). Confirm via DevTools / the project select shows the project.
    - `command-palette.spec.ts`: open palette via Mod+K; type "today" → "Go to Today" highlighted; Enter → navigates. Verify "Go to <Project>" dynamic commands appear.
    - `keyboard-help.spec.ts`: press `?` → help overlay; press `?` again → dismisses.
+   - **a11y-views.spec.ts** (deferred from task-19) — for each of the 13 routes (/today, /tomorrow, /next-7-days, /inbox, /all, /completed, /trash, /calendar/month, /calendar/week, /settings, /project/$id, /project/$id/kanban, /tag/$name), run AxeBuilder({ page }).analyze() and assert zero `serious` or `critical` violations. Add @axe-core/playwright to devDependencies.
 4. **Biome lint sweep** — at the repo root, run `pnpm format` then `pnpm lint`. Resolve every reported issue. Common cleanups:
    - Unused imports.
    - Inconsistent quote style (Biome enforces single quotes per `biome.json` from task-01).
