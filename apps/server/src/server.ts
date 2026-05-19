@@ -3,7 +3,14 @@ import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import type { ServerConfig } from './config/load.js';
+import { envelope } from './middleware/error-envelope.js';
+import { type Broker, buildBroker } from './middleware/sse-broker.js';
+import { registerConfigRoutes } from './routes/config.js';
+import { registerFolderRoutes } from './routes/folders.js';
 import { registerHealthRoute } from './routes/health.js';
+import { registerItemRoutes } from './routes/items.js';
+import { registerProjectRoutes } from './routes/projects.js';
+import { registerTagRoutes } from './routes/tags.js';
 import { ensureDir } from './store/fs-store.js';
 import { type Indexer, buildIndexer } from './store/indexer.js';
 import { buildPaths } from './store/paths.js';
@@ -44,20 +51,33 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
     app.log.warn(w);
   }
 
+  const broker = buildBroker();
+
   app.decorate('config', config);
   app.decorate('indexer', indexer);
+  app.decorate('broker', broker);
 
   await app.register(cors, {
     origin: [`http://${config.host}:${config.port}`, 'http://127.0.0.1:5173'],
     credentials: false,
   });
 
-  app.setErrorHandler((err, _req, reply) => {
-    app.log.error(err);
-    void reply.code(500).send({ error: { code: 'INTERNAL', message: 'Server error.' } });
+  // Routes
+  registerHealthRoute(app);
+  registerItemRoutes(app);
+  registerProjectRoutes(app);
+  registerFolderRoutes(app);
+  registerTagRoutes(app);
+  registerConfigRoutes(app);
+
+  // 404 handler for unmatched routes
+  app.setNotFoundHandler((_req, reply) => {
+    void reply.code(404).send({ error: { code: 'INTERNAL', message: 'Route not found.' } });
   });
 
-  registerHealthRoute(app);
+  // Error envelope — replaces the default error handler
+  app.setErrorHandler(envelope);
+
   return app;
 }
 
@@ -66,5 +86,6 @@ declare module 'fastify' {
   interface FastifyInstance {
     config: ServerConfig;
     indexer: Indexer;
+    broker: Broker;
   }
 }
