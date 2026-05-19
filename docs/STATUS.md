@@ -19,10 +19,11 @@ project
 - `task-02-types-and-fs-store` — completed 2026-05-19 (commit `47d7482`). 2 iterations.
 - `task-03-server-crud-routes` — completed 2026-05-19 (commit `0736f3d`). 2 iterations.
 - `task-04-frontend-shell-router-sidebar` — completed 2026-05-19 (commit `81e7c8e`). 2 iterations.
-- `task-05-components-chrome-and-dialogs` — completed 2026-05-19 (commit `f389357`). 2 iterations. 196 web tests pass; 11 components shipped (Button, IconButton, TextInput, Dropdown, Modal, Sheet, Snackbar, Tooltip, EmptyState, Skeleton, ConfirmationPrompt).
+- `task-05-components-chrome-and-dialogs` — completed 2026-05-19 (commit `f389357`). 2 iterations.
+- `task-06-components-rows-and-pickers` — completed 2026-05-19 (commit `ba41613`). 1 iteration. 397 web tests pass (+201 new); 13 components + 2 lib helpers shipped (date-fmt, a11y).
 
 ## What's Next
-- Run `/phased-dev:start-task 06` for `task-06-components-rows-and-pickers` (Checkbox / SubtaskCheckbox / Card / Filter chip / Sort dropdown / View toggle / Multi-day chip / Sidebar primitives / Quick-add input / TaskListRow).
+- **PAUSED** at user request after task 06. Resume with `/phased-dev:start-task 07` for `task-07-task-modal` when ready.
 
 ## Task Progress
 
@@ -33,8 +34,8 @@ project
 | 03 | server-crud-routes | done (`0736f3d`) |
 | 04 | frontend-shell-router-sidebar | done (`81e7c8e`) |
 | 05 | components-chrome-and-dialogs | done (`f389357`) |
-| 06 | components-rows-and-pickers | in progress |
-| 07 | task-modal | pending |
+| 06 | components-rows-and-pickers | done (`ba41613`) |
+| 07 | task-modal | pending (paused) |
 | 08 | smart-list-views | pending |
 | 09 | hierarchy-and-tree-view | pending |
 | 10 | drag-and-drop | pending |
