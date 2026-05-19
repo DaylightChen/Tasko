@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import type { FolderId, ProjectId } from '@tasko/types';
+import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { useCreateFolder, useDeleteFolder, useFolders, usePatchFolder } from '../../api/folders';
@@ -7,6 +8,10 @@ import { useHealth } from '../../api/health.js';
 import { useItems } from '../../api/items';
 import { useCreateProject, useDeleteProject, usePatchProject, useProjects } from '../../api/projects';
 import { useTags } from '../../api/tags';
+import { Button } from '../button';
+import { Dropdown } from '../dropdown';
+import { Modal } from '../modal';
+import { TextInput } from '../text-input';
 import styles from './styles.module.css';
 
 function useTodayBadge() {
@@ -68,6 +73,7 @@ export function Sidebar() {
 
   const addMenuRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  const addProjectBtnRef = useRef<HTMLButtonElement>(null);
 
   // Close menus on outside click
   useEffect(() => {
@@ -138,6 +144,13 @@ export function Sidebar() {
     setNewProjectHierarchical(false);
   }, [newProjectName, newProjectFolderId, newProjectHierarchical, createProject]);
 
+  const handleCloseModal = useCallback(() => {
+    setNewProjectModal({ open: false, folderId: null });
+    setNewProjectName('');
+    setNewProjectFolderId(null);
+    setNewProjectHierarchical(false);
+  }, []);
+
   const projects = projectsData?.projects ?? [];
   const folders = foldersData?.folders ?? [];
   const tags = tagsData?.tags ?? [];
@@ -146,6 +159,13 @@ export function Sidebar() {
   const inboxProject = projects.find((p) => p.is_inbox);
 
   const isActive = (path: string) => currentPath === path;
+
+  // Build folder options for Dropdown
+  type FolderValue = string;
+  const folderOptions: Array<{ value: FolderValue; label: string }> = [
+    { value: '', label: 'No folder' },
+    ...folders.map((f) => ({ value: f.id, label: f.name })),
+  ];
 
   return (
     <nav className={styles.sidebar} aria-label="Primary navigation">
@@ -221,6 +241,7 @@ export function Sidebar() {
           </h2>
           <div className={styles.addMenuWrapper} ref={addMenuRef}>
             <button
+              ref={addProjectBtnRef}
               type="button"
               className={styles.addBtn}
               aria-label="Add project or folder"
@@ -531,27 +552,23 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* New Project Modal */}
-      {newProjectModal.open && (
-        <NewProjectModal
-          folders={folders}
-          initialFolderId={newProjectModal.folderId}
-          onClose={() => {
-            setNewProjectModal({ open: false, folderId: null });
-            setNewProjectName('');
-            setNewProjectFolderId(null);
-            setNewProjectHierarchical(false);
-          }}
-          projectName={newProjectName}
-          setProjectName={setNewProjectName}
-          folderId={newProjectFolderId}
-          setFolderId={setNewProjectFolderId}
-          isHierarchical={newProjectHierarchical}
-          setIsHierarchical={setNewProjectHierarchical}
-          onSubmit={handleCreateProject}
-          isPending={createProject.isPending}
-        />
-      )}
+      {/* New Project Modal — uses real Modal + TextInput + Dropdown + Button */}
+      <NewProjectModal
+        open={newProjectModal.open}
+        folders={folders}
+        initialFolderId={newProjectModal.folderId}
+        onClose={handleCloseModal}
+        projectName={newProjectName}
+        setProjectName={setNewProjectName}
+        folderId={newProjectFolderId}
+        setFolderId={setNewProjectFolderId}
+        isHierarchical={newProjectHierarchical}
+        setIsHierarchical={setNewProjectHierarchical}
+        onSubmit={handleCreateProject}
+        isPending={createProject.isPending}
+        folderOptions={folderOptions}
+        returnFocusTo={addProjectBtnRef as React.RefObject<HTMLElement>}
+      />
     </nav>
   );
 }
@@ -650,6 +667,7 @@ function ProjectRow({
 }
 
 interface NewProjectModalProps {
+  open: boolean;
   folders: Array<{ id: string; name: string }>;
   initialFolderId: FolderId | null;
   onClose: () => void;
@@ -661,10 +679,12 @@ interface NewProjectModalProps {
   setIsHierarchical: (v: boolean) => void;
   onSubmit: () => void;
   isPending: boolean;
+  folderOptions: Array<{ value: string; label: string }>;
+  returnFocusTo: React.RefObject<HTMLElement>;
 }
 
 function NewProjectModal({
-  folders,
+  open,
   initialFolderId,
   onClose,
   projectName,
@@ -675,99 +695,77 @@ function NewProjectModal({
   setIsHierarchical,
   onSubmit,
   isPending,
+  folderOptions,
+  returnFocusTo,
 }: NewProjectModalProps) {
-  const nameInputRef = useRef<HTMLInputElement>(null);
-
+  // Set initial folder id on open
   useEffect(() => {
-    nameInputRef.current?.focus();
-    if (initialFolderId) {
+    if (open && initialFolderId) {
       setFolderId(initialFolderId);
     }
-  }, [initialFolderId, setFolderId]);
+  }, [open, initialFolderId, setFolderId]);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDialogElement>) => {
-    if (e.key === 'Escape') onClose();
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') onSubmit();
-  };
+  const footer = (
+    <>
+      <Button variant="ghost" size="md" onClick={onClose}>
+        Cancel
+      </Button>
+      <Button
+        variant="primary"
+        size="md"
+        onClick={onSubmit}
+        disabled={!projectName.trim()}
+        isLoading={isPending}
+      >
+        Create project
+      </Button>
+    </>
+  );
 
   return (
-    <dialog
-      className={styles.modalOverlay}
-      open
-      aria-label="Add project"
-      onKeyDown={handleKeyDown}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Add project"
+      maxWidth={480}
+      footer={footer}
+      returnFocusTo={returnFocusTo}
     >
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Add project</h2>
-          <button type="button" className={styles.modalClose} onClick={onClose} aria-label="Close">
-            ✕
-          </button>
+      <div className={styles.modalFields}>
+        <TextInput
+          label="Name"
+          placeholder="Project name"
+          value={projectName}
+          onChange={setProjectName}
+          required
+          autoFocus
+          maxLength={80}
+        />
+
+        <div className={styles.fieldGroup}>
+          {/* biome-ignore lint/a11y/noLabelWithoutControl: Dropdown's ariaLabel prop provides the accessible name; this is a visual label only */}
+          <label className={styles.fieldLabel}>Folder (optional)</label>
+          <Dropdown
+            options={folderOptions}
+            value={folderId ?? ''}
+            onChange={(v) => setFolderId((v as unknown as FolderId) || null)}
+            ariaLabel="Folder (optional)"
+            placeholder="No folder"
+          />
         </div>
 
-        <div className={styles.modalBody}>
-          <label className={styles.fieldLabel} htmlFor="project-name">
-            Name
-            <span className={styles.required}> · Required</span>
+        <div className={styles.toggleRow}>
+          <label htmlFor="project-hierarchical-modal" className={styles.fieldLabel}>
+            Use Epic / Feature / Task hierarchy
           </label>
           <input
-            ref={nameInputRef}
-            id="project-name"
-            className={styles.fieldInput}
-            placeholder="Project name"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            aria-required="true"
-            maxLength={80}
+            type="checkbox"
+            id="project-hierarchical-modal"
+            checked={isHierarchical}
+            onChange={(e) => setIsHierarchical(e.target.checked)}
           />
-
-          <label className={styles.fieldLabel} htmlFor="project-folder">
-            Folder (optional)
-          </label>
-          <select
-            id="project-folder"
-            className={styles.fieldSelect}
-            value={folderId ?? ''}
-            onChange={(e) => setFolderId((e.target.value as unknown as FolderId) || null)}
-          >
-            <option value="">No folder</option>
-            {folders.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
-
-          <div className={styles.toggleRow}>
-            <label htmlFor="project-hierarchical" className={styles.fieldLabel}>
-              Use Epic / Feature / Task hierarchy
-            </label>
-            <input
-              type="checkbox"
-              id="project-hierarchical"
-              checked={isHierarchical}
-              onChange={(e) => setIsHierarchical(e.target.checked)}
-            />
-          </div>
-        </div>
-
-        <div className={styles.modalFooter}>
-          <button type="button" className={styles.btnSecondary} onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={styles.btnPrimary}
-            onClick={onSubmit}
-            disabled={!projectName.trim() || isPending}
-          >
-            Create project
-          </button>
         </div>
       </div>
-    </dialog>
+    </Modal>
   );
 }

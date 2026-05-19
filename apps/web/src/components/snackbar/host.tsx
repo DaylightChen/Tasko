@@ -1,44 +1,55 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSnackbarStore } from '../../store/snackbar';
 import styles from './host.module.css';
+import { Snackbar } from './index';
 
 export function SnackbarHost() {
   const { current, dismiss } = useSnackbarStore();
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const startTimer = useCallback(() => {
+    if (!current) return;
+    clearTimer();
+    timerRef.current = setTimeout(() => dismiss(), current.durationMs);
+  }, [current, dismiss, clearTimer]);
 
   useEffect(() => {
-    if (!current) return;
-    const timer = setTimeout(() => dismiss(), current.durationMs);
-    return () => clearTimeout(timer);
-  }, [current, dismiss]);
+    if (!current || paused) {
+      clearTimer();
+      return;
+    }
+    startTimer();
+    return clearTimer;
+  }, [current, paused, startTimer, clearTimer]);
+
+  const handleMouseEnter = useCallback(() => {
+    setPaused(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setPaused(false);
+  }, []);
 
   if (!current) return null;
 
-  const isError = current.variant === 'error' || current.variant === 'depth-cap';
-
   return (
-    <div
-      className={styles.snackbar}
-      data-variant={current.variant}
-      role={isError ? 'alert' : 'status'}
-      aria-live={isError ? 'assertive' : 'polite'}
-      aria-atomic="true"
-    >
-      <span className={styles.text}>{current.text}</span>
-      {current.action && (
-        <button
-          type="button"
-          className={styles.action}
-          onClick={() => {
-            current.action?.onClick();
-            dismiss();
-          }}
-        >
-          {current.action.label}
-        </button>
-      )}
-      <button type="button" className={styles.close} onClick={dismiss} aria-label="Dismiss">
-        ✕
-      </button>
+    <div className={styles.host} aria-live="off" aria-atomic="false">
+      <Snackbar
+        variant={current.variant}
+        text={current.text}
+        action={current.action}
+        onDismiss={dismiss}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
     </div>
   );
 }

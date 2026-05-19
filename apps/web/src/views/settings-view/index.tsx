@@ -1,5 +1,6 @@
 import type { Theme, WeekStart } from '@tasko/types';
 import { useConfig, useUpdateConfig } from '../../api/config';
+import { Button } from '../../components/button';
 import styles from './styles.module.css';
 
 export function SettingsView() {
@@ -104,15 +105,15 @@ export function SettingsView() {
           ABOUT
         </h2>
         <p className={styles.aboutText}>Tasko v1.0 · Local-first</p>
-        <button
-          type="button"
-          className={styles.shortcutsLink}
+        <Button
+          variant="ghost"
+          size="md"
           onClick={() => {
             // Opens keyboard shortcuts overlay in task-18
           }}
         >
           View keyboard shortcuts
-        </button>
+        </Button>
       </section>
     </div>
   );

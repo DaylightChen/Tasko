@@ -415,3 +415,16 @@
   background: var(--color-canvas-subtle);
   color: var(--color-text);
 }
+
+/* New project modal fields (using real component library) */
+.modalFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}

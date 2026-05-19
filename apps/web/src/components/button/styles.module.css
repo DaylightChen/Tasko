@@ -1,0 +1,169 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: var(--text-body-strong-weight);
+  font-size: var(--text-body-strong-size);
+  line-height: var(--text-body-strong-line-height);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast)
+    var(--ease-standard), color var(--motion-fast) var(--ease-standard), transform var(--motion-fast)
+    var(--ease-standard);
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+}
+
+/* Focus indicator */
+.root:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- Sizes ---- */
+.root[data-size="sm"] {
+  height: 28px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-small-strong-size);
+  line-height: var(--text-small-strong-line-height);
+  font-weight: var(--text-small-strong-weight);
+  border-radius: var(--radius-sm);
+}
+
+.root[data-size="md"] {
+  height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+}
+
+.root[data-size="lg"] {
+  height: 44px;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+/* ---- Variants ---- */
+
+/* Primary */
+.root[data-variant="primary"] {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-color: transparent;
+}
+
+.root[data-variant="primary"]:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+}
+
+.root[data-variant="primary"]:active:not(:disabled) {
+  background-color: var(--color-accent-pressed);
+  transform: scale(0.98);
+}
+
+/* Secondary */
+.root[data-variant="secondary"] {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.root[data-variant="secondary"]:hover:not(:disabled) {
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.root[data-variant="secondary"]:active:not(:disabled) {
+  background-color: var(--color-canvas);
+  border-color: var(--color-border-strong);
+  transform: scale(0.98);
+}
+
+/* Ghost */
+.root[data-variant="ghost"] {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: transparent;
+}
+
+.root[data-variant="ghost"]:hover:not(:disabled) {
+  background-color: var(--color-canvas-subtle);
+}
+
+.root[data-variant="ghost"]:active:not(:disabled) {
+  background-color: var(--color-canvas);
+  transform: scale(0.98);
+}
+
+/* Destructive */
+.root[data-variant="destructive"] {
+  background-color: var(--color-overdue);
+  color: var(--color-text-on-accent);
+  border-color: transparent;
+}
+
+.root[data-variant="destructive"]:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.root[data-variant="destructive"]:active:not(:disabled) {
+  filter: brightness(0.88);
+  transform: scale(0.98);
+}
+
+/* ---- Disabled ---- */
+.root[data-variant="primary"]:disabled,
+.root[data-variant="destructive"]:disabled {
+  background-color: var(--color-text-disabled);
+  color: var(--color-text-on-accent);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.root[data-variant="secondary"]:disabled {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.root[data-variant="ghost"]:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ---- Screen-reader-only text (for accessible name when loading) ---- */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---- Loading spinner ---- */
+.spinner {
+  animation: spin var(--motion-slow) linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

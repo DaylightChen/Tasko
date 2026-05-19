@@ -1,0 +1,131 @@
+.root {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.root[data-variant="kanban"],
+.root[data-variant="calendar"] {
+  flex-direction: row;
+  gap: var(--space-4);
+}
+
+/* Base skeleton bar */
+.bar {
+  background-color: var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+/* Shimmer animation */
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-border-subtle) 0%,
+    var(--color-border) 50%,
+    var(--color-border-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--motion-slow) var(--ease-standard) infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+    background-image: none;
+    background-color: var(--color-border-subtle);
+  }
+}
+
+/* ---- List variant ---- */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-4);
+}
+
+.datePill {
+  margin-left: auto;
+  border-radius: var(--radius-full) !important;
+}
+
+/* ---- Sidebar variant ---- */
+.sidebarWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+
+.sidebarRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-2);
+}
+
+/* ---- Kanban variant ---- */
+.kanbanWrapper {
+  display: flex;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.kanbanColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-canvas-subtle);
+  border-radius: var(--radius-md);
+  min-width: 200px;
+}
+
+.kanbanCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  min-height: 64px;
+  justify-content: center;
+}
+
+/* ---- Calendar variant ---- */
+.calendarWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.calendarRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+}
+
+.calendarCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  min-height: 96px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  align-items: flex-start;
+}
