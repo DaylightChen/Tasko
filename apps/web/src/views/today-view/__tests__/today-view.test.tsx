@@ -14,6 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Must come before importing the component under test ──────────────────────
 
 vi.mock('../../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
   useToggleComplete: vi.fn(),
   useReschedule: vi.fn(),

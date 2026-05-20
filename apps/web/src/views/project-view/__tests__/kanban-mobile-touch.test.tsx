@@ -24,6 +24,7 @@ const toggleMock = vi.fn();
 const setAnchorMock = vi.fn();
 
 vi.mock('../../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
   usePatchItem: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
   useToggleComplete: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),

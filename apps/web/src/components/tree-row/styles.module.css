@@ -1,5 +1,6 @@
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   padding: 4px var(--space-3);
@@ -8,6 +9,28 @@
   cursor: pointer;
   position: relative;
   outline: none;
+}
+
+/* Inline subtask sub-list (when chip toggled on). Sits on a new flex line
+   below the parent row content thanks to flex-basis: 100% on .row's wrap. */
+.subtasks {
+  flex-basis: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 4px;
+  /* Indent so subtask rows sit under the parent's title column. The parent
+     row has padding 4px var(--space-3) plus indent guides + chevron + checkbox
+     + (optional) type-icon. We approximate with a fixed token. */
+  padding-left: calc(var(--space-3) + 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.subtaskListItem {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Epic-level rows render the title bold (t-body-strong) per preview. */

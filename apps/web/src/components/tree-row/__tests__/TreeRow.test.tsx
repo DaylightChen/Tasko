@@ -9,7 +9,7 @@
  * - Keyboard: ArrowRight → expand (if collapsed + has children), ArrowLeft → collapse,
  *   Enter → onClick, Space → onToggleCheckbox (Tasks only)
  */
-import type { Item, ItemId, LocalDate, ProjectId } from '@tasko/types';
+import type { Item, ItemId, LocalDate, ProjectId, Subtask, SubtaskId } from '@tasko/types';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -22,6 +22,12 @@ vi.mock('../../../hooks/useTagNavigation', () => ({
 // name isn't found, which matches the existing test assertions.
 vi.mock('../../../api/tags', () => ({
   useTags: () => ({ data: { tags: [] } }),
+}));
+
+// Mock api/items so the row's inline subtask toggle doesn't need a
+// QueryClient wrapper for these unit tests.
+vi.mock('../../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
 }));
 
 import { TreeRow } from '../index';
@@ -378,5 +384,86 @@ describe('TreeRow — keyboard interactions', () => {
     const row = screen.getByRole('treeitem');
     fireEvent.keyDown(row, { key: ' ' });
     expect(onToggleCheckbox).not.toHaveBeenCalled();
+  });
+});
+
+describe('TreeRow — inline subtasks', () => {
+  function makeSub(id: string, title: string, status: 'todo' | 'done' = 'todo'): Subtask {
+    return {
+      id: id as SubtaskId,
+      title,
+      status,
+      completed_at: status === 'done' ? '2026-01-01T00:00:00Z' : null,
+      sort_order: 0,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    };
+  }
+
+  it('task row with subtasks shows the X/N chip', () => {
+    const item = makeItem({
+      id: '01ARZ3NDEKTSV4RRFFQ69G5FAA' as ItemId,
+      type: 'task',
+      subtasks: [makeSub('s1', 'A'), makeSub('s2', 'B', 'done')],
+    });
+    render(
+      <TreeRow
+        item={item}
+        level={1}
+        expanded={false}
+        posInSet={1}
+        setSize={1}
+        hasChildren={false}
+        todayLocalDate={TODAY}
+        onToggleExpand={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /1 of 2 subtasks complete/i })).toBeInTheDocument();
+  });
+
+  it('clicking the chip expands inline subtask rows', () => {
+    const item = makeItem({
+      id: '01ARZ3NDEKTSV4RRFFQ69G5FBB' as ItemId,
+      type: 'task',
+      subtasks: [makeSub('s1', 'Sub Alpha'), makeSub('s2', 'Sub Beta')],
+    });
+    render(
+      <TreeRow
+        item={item}
+        level={1}
+        expanded={false}
+        posInSet={1}
+        setSize={1}
+        hasChildren={false}
+        todayLocalDate={TODAY}
+        onToggleExpand={vi.fn()}
+      />,
+    );
+    // Collapsed: subtask titles not in DOM.
+    expect(screen.queryByText('Sub Alpha')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /subtasks complete/i }));
+    expect(screen.getByText('Sub Alpha')).toBeInTheDocument();
+    expect(screen.getByText('Sub Beta')).toBeInTheDocument();
+  });
+
+  it('non-task rows (Epic/Feature) do NOT show the subtask chip', () => {
+    const item = makeItem({
+      id: '01ARZ3NDEKTSV4RRFFQ69G5FCC' as ItemId,
+      type: 'feature',
+      subtasks: [makeSub('s1', 'A')],
+    });
+    render(
+      <TreeRow
+        item={item}
+        level={2}
+        expanded={false}
+        posInSet={1}
+        setSize={1}
+        hasChildren={false}
+        todayLocalDate={TODAY}
+        onToggleExpand={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /subtasks complete/i })).toBeNull();
   });
 });

@@ -20,6 +20,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   usePatchItem: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false })),
 }));
 

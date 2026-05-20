@@ -2,9 +2,14 @@ import type { Item, LocalDate, TagId } from '@tasko/types';
 import { ChevronDown, ChevronRight, Layers, LayoutGrid, MoreHorizontal, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePatchSubtask } from '../../api/items';
 import { useTags } from '../../api/tags';
 import { useTagNavigation } from '../../hooks/useTagNavigation';
+import { useSubtaskExpansionStore } from '../../store/subtask-expansion';
+import { useTaskModalStore } from '../../store/task-modal';
 import { Checkbox } from '../checkbox';
+import { SubtaskChip } from '../subtask-chip';
+import { SubtaskInlineRow } from '../subtask-inline-row';
 import styles from './styles.module.css';
 
 // ─── Rollup progress chip ──────────────────────────────────────────────────────
@@ -200,6 +205,12 @@ export function TreeRow({
   const [editValue, setEditValue] = useState(item.title);
   const rowRef = useRef<HTMLDivElement>(null);
 
+  // Inline subtask expansion (per-task, persisted to localStorage)
+  const subtasksExpanded = useSubtaskExpansionStore((s) => s.expanded[item.id] === true);
+  const toggleSubtasksExpanded = useSubtaskExpansionStore((s) => s.toggle);
+  const taskModal = useTaskModalStore();
+  const patchSubtask = usePatchSubtask();
+
   useEffect(() => {
     setEditValue(item.title);
   }, [item.title]);
@@ -264,6 +275,9 @@ export function TreeRow({
   const isTask = item.type === 'task';
   const showRollup = !isTask && rollup !== undefined && rollup.total > 0;
   const showDateChip = isTask;
+  const subtasksTotal = item.subtasks.length;
+  const subtasksDone = item.subtasks.filter((s) => s.status === 'done').length;
+  const showSubtaskChip = isTask && subtasksTotal > 0;
   // Type icon: shown for Epics/Features always, and for loose top-level tasks.
   // Hidden for nested tasks — the chevron-empty + checkbox already signal "task".
   const showTypeIcon = !isTask || item.parent_id === null;
@@ -362,12 +376,41 @@ export function TreeRow({
         )}
       </div>
 
-      {/* Meta (right side): tags, date, rollup. Priority is now on the left. */}
+      {/* Meta (right side): tags, date, rollup, subtask chip. Priority is on the left. */}
       <div className={styles.metaArea}>
         {item.tags.length > 0 && <TagChips tagIds={item.tags as TagId[]} onTagClick={handleTagClick} />}
         {showDateChip && <DateChip date={item.due_date} today={todayLocalDate} />}
         {showRollup && rollup && <RollupChip completed={rollup.completed} total={rollup.total} />}
+        {showSubtaskChip && (
+          <SubtaskChip
+            done={subtasksDone}
+            total={subtasksTotal}
+            expanded={subtasksExpanded}
+            onClick={() => toggleSubtasksExpanded(item.id)}
+          />
+        )}
       </div>
+
+      {/* Inline subtasks (when chip toggled on) */}
+      {showSubtaskChip && subtasksExpanded && (
+        <ul className={styles.subtasks} role="list" aria-label={`Subtasks of ${item.title}`}>
+          {item.subtasks.map((s) => (
+            <li key={s.id} className={styles.subtaskListItem}>
+              <SubtaskInlineRow
+                subtask={s}
+                onToggle={(done) => {
+                  void patchSubtask.mutateAsync({
+                    itemId: item.id,
+                    subtaskId: s.id,
+                    patch: { status: done ? 'done' : 'todo' },
+                  });
+                }}
+                onOpenParent={() => taskModal.openEdit(item.id)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* Hover affordances — always rendered so they reserve space at the
        * right end of the row (no jump on hover) and don't overlap the

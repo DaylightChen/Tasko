@@ -22,6 +22,7 @@ const { useConfigMock } = vi.hoisted(() => ({ useConfigMock: vi.fn() }));
 vi.mock('../../api/config', () => ({ useConfig: useConfigMock }));
 
 vi.mock('../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
   useToggleComplete: vi.fn(),
   useDeleteItem: vi.fn(),

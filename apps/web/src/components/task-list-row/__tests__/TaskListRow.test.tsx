@@ -27,6 +27,12 @@ vi.mock('../../../api/tags', () => ({
   useTags: () => ({ data: { tags: [] } }),
 }));
 
+// Same reasoning for api/items — the row uses usePatchSubtask for inline
+// subtask toggle. Stub it so tests don't need a QueryClient wrapper.
+vi.mock('../../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
+}));
+
 import { TaskListRow } from '../index';
 
 // ─── Factory ─────────────────────────────────────────────────────────────────
@@ -464,6 +470,42 @@ describe('TaskListRow', () => {
       );
       fireEvent.click(screen.getByRole('button', { name: /subtasks complete/ }));
       expect(onSubtaskChipClick).toHaveBeenCalledOnce();
+    });
+
+    it('clicking the subtask chip expands inline subtask rows', () => {
+      const sub1: Subtask = {
+        id: 's1' as SubtaskId,
+        title: 'Sub Alpha',
+        status: 'todo',
+        completed_at: null,
+        sort_order: 0,
+        created_at: NOW,
+        updated_at: NOW,
+      };
+      const sub2: Subtask = {
+        id: 's2' as SubtaskId,
+        title: 'Sub Beta',
+        status: 'done',
+        completed_at: NOW,
+        sort_order: 1,
+        created_at: NOW,
+        updated_at: NOW,
+      };
+      render(
+        <TaskListRow
+          item={makeItem({ id: '01ARZ3NDEKTSV4RRFFQ69G5FXX' as ItemId, subtasks: [sub1, sub2] })}
+          todayLocalDate={TODAY}
+        />,
+      );
+
+      // Collapsed by default — subtask titles not in DOM.
+      expect(screen.queryByText('Sub Alpha')).toBeNull();
+      expect(screen.queryByText('Sub Beta')).toBeNull();
+
+      // Click chip → both subtask rows appear.
+      fireEvent.click(screen.getByRole('button', { name: /subtasks complete/ }));
+      expect(screen.getByText('Sub Alpha')).toBeInTheDocument();
+      expect(screen.getByText('Sub Beta')).toBeInTheDocument();
     });
   });
 

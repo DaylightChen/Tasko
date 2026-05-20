@@ -1,6 +1,7 @@
 /* ── Base row ─────────────────────────────────────────────────── */
 .row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
   min-height: 38px;
@@ -287,26 +288,28 @@
   outline-offset: 1px;
 }
 
-/* ── Subtask progress chip ────────────────────────────────────── */
-.subtaskChip {
-  display: inline-flex;
-  align-items: center;
-  height: 18px;
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--color-text-subtle);
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line-height);
-  white-space: nowrap;
-  border: none;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
+/* Subtask progress chip styles moved to components/subtask-chip. */
+
+/* ── Inline subtask list (when chip toggled on) ───────────────── */
+.subtasks {
+  flex-basis: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 4px;
+  /* Indent so subtask rows align with the parent's title column.
+     Parent row left padding is var(--space-4) (16px) + priority dot (~16px) +
+     gap (var(--space-3) ~ 12px) + checkbox (~20px) + gap = ~64px. We approximate
+     with a single spacing token to keep flex math simple. */
+  padding-left: calc(var(--space-4) + 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.subtaskChip:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 1px;
+.subtaskListItem {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* ── Hover affordances ────────────────────────────────────────── */

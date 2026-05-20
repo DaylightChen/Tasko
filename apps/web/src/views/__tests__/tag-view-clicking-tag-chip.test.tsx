@@ -26,6 +26,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
   useToggleComplete: vi.fn(),
   useReschedule: vi.fn(),

@@ -58,6 +58,7 @@ vi.mock('../../api/tags', () => ({
 }));
 
 vi.mock('../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
 }));
 

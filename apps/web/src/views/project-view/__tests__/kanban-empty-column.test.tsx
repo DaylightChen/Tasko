@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('../../../api/items', () => ({
+  usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
   usePatchItem: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
   useToggleComplete: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),

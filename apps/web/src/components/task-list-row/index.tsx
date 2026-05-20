@@ -2,11 +2,16 @@ import type { Item, LocalDate, TagId } from '@tasko/types';
 import { ChevronRight, Layers, LayoutGrid, Repeat, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePatchSubtask } from '../../api/items';
 import { useTags } from '../../api/tags';
 import { daysBetween, formatDateChip, formatDateLong, isOverdue } from '../../lib/date-fmt';
 import { guardDndKeyDown } from '../../lib/dnd-keydown';
+import { useSubtaskExpansionStore } from '../../store/subtask-expansion';
+import { useTaskModalStore } from '../../store/task-modal';
 import { Checkbox } from '../checkbox';
 import { MultiDayChip } from '../multi-day-chip';
+import { SubtaskChip } from '../subtask-chip';
+import { SubtaskInlineRow } from '../subtask-inline-row';
 import styles from './styles.module.css';
 
 // ─── Priority dot ──────────────────────────────────────────────────────────────
@@ -139,29 +144,7 @@ function TagChips({ tagIds, onTagClick }: TagChipsProps) {
   );
 }
 
-// ─── Subtask progress chip ────────────────────────────────────────────────────
-
-interface SubtaskChipProps {
-  done: number;
-  total: number;
-  onClick?: (() => void) | undefined;
-}
-
-function SubtaskChip({ done, total, onClick }: SubtaskChipProps) {
-  return (
-    <button
-      type="button"
-      className={styles.subtaskChip}
-      aria-label={`${done} of ${total} subtasks complete`}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
-      }}
-    >
-      {done}/{total}
-    </button>
-  );
-}
+// SubtaskChip is now a shared component — see components/subtask-chip.
 
 // ─── TaskListRow props ─────────────────────────────────────────────────────────
 
@@ -285,6 +268,12 @@ export function TaskListRow({
   const [isHovered, setIsHovered] = useState(false);
   const [editValue, setEditValue] = useState(item.title);
   const hoverOutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Subtask expansion (per-task, persisted to localStorage)
+  const expandedSubtasks = useSubtaskExpansionStore((s) => s.expanded[item.id] === true);
+  const toggleExpand = useSubtaskExpansionStore((s) => s.toggle);
+  const taskModal = useTaskModalStore();
+  const patchSubtask = usePatchSubtask();
 
   // Swipe state for mobile
   const swipeRef = useRef<SwipeState>({ startX: 0, currentX: 0, active: false });
@@ -520,11 +509,40 @@ export function TaskListRow({
         {/* Tag chips */}
         {item.tags.length > 0 && <TagChips tagIds={item.tags as TagId[]} onTagClick={onTagClick} />}
 
-        {/* Subtask progress chip */}
+        {/* Subtask progress chip — also the expand toggle for inline subtasks */}
         {subtasksTotal > 0 && (
-          <SubtaskChip done={subtasksDone} total={subtasksTotal} onClick={onSubtaskChipClick} />
+          <SubtaskChip
+            done={subtasksDone}
+            total={subtasksTotal}
+            expanded={expandedSubtasks}
+            onClick={() => {
+              toggleExpand(item.id);
+              onSubtaskChipClick?.();
+            }}
+          />
         )}
       </div>
+
+      {/* Inline subtasks (when chip toggled on) */}
+      {expandedSubtasks && subtasksTotal > 0 && (
+        <ul className={styles.subtasks} role="list" aria-label={`Subtasks of ${item.title}`}>
+          {item.subtasks.map((s) => (
+            <li key={s.id} className={styles.subtaskListItem}>
+              <SubtaskInlineRow
+                subtask={s}
+                onToggle={(done) => {
+                  void patchSubtask.mutateAsync({
+                    itemId: item.id,
+                    subtaskId: s.id,
+                    patch: { status: done ? 'done' : 'todo' },
+                  });
+                }}
+                onOpenParent={() => taskModal.openEdit(item.id)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* Hover affordances — always rendered so they reserve space and the
        * row doesn't jump on hover. Opacity drives visibility via
