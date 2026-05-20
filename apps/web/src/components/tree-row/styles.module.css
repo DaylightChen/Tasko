@@ -12,15 +12,19 @@
 }
 
 /* Inline subtask sub-list (when chip toggled on). Sits on a new flex line
-   below the parent row content thanks to flex-basis: 100% on .row's wrap. */
+   below the parent row content thanks to flex-basis: 100% on .row's wrap.
+   IndentGuides don't repeat on the wrapped line, so we compute the parent's
+   depth from --tree-level (set on .row) and add a fixed offset that sits
+   the subtask checkbox column under the parent's checkbox column. */
 .subtasks {
   flex-basis: 100%;
   list-style: none;
   margin: 0;
   padding: 2px 0 6px;
-  /* Indent so subtask rows sit roughly under the parent's title column.
-     Tail icon + checkbox provide the rest of the nesting cue. */
-  padding-left: calc(var(--space-3) + 48px);
+  /* 35px per indent-guide level + an offset that sits the subtask content
+     clearly past the parent's checkbox (so it reads as "one level deeper"
+     rather than aligned with the parent). */
+  padding-left: calc((var(--tree-level, 1) - 1) * 35px + 72px);
   display: flex;
   flex-direction: column;
   gap: 2px;

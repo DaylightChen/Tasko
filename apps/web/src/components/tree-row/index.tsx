@@ -330,6 +330,10 @@ export function TreeRow({
       aria-setsize={setSize}
       aria-posinset={posInSet}
       className={styles.row}
+      // Expose the tree level so the wrapped subtask <ul> can indent itself
+      // to match the parent's visual depth (IndentGuides don't repeat on the
+      // wrapped flex line).
+      style={{ '--tree-level': level } as React.CSSProperties}
       data-state={dataStates.length > 0 ? dataStates.join(' ') : undefined}
       data-item-id={item.id}
       data-type={item.type}
