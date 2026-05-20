@@ -446,6 +446,62 @@ describe('TreeRow — inline subtasks', () => {
     expect(screen.getByText('Sub Beta')).toBeInTheDocument();
   });
 
+  it('task with subtasks shows the chevron (>) and clicking it expands subtasks', () => {
+    const item = makeItem({
+      id: '01ARZ3NDEKTSV4RRFFQ69G5FBD' as ItemId,
+      type: 'task',
+      subtasks: [makeSub('s1', 'Sub Inline 1'), makeSub('s2', 'Sub Inline 2')],
+    });
+    render(
+      <TreeRow
+        item={item}
+        level={1}
+        expanded={false}
+        posInSet={1}
+        setSize={1}
+        // hasChildren is false — tasks have no parent_id children
+        hasChildren={false}
+        todayLocalDate={TODAY}
+        onToggleExpand={vi.fn()}
+      />,
+    );
+
+    // Chevron is visible (its parent is a button labelled Expand / Collapse).
+    const chevron = screen.getByRole('button', { name: /expand/i });
+    expect(chevron).toBeInTheDocument();
+    // Subtasks not yet rendered.
+    expect(screen.queryByText('Sub Inline 1')).toBeNull();
+
+    fireEvent.click(chevron);
+    expect(screen.getByText('Sub Inline 1')).toBeInTheDocument();
+    expect(screen.getByText('Sub Inline 2')).toBeInTheDocument();
+  });
+
+  it('ArrowRight on a task with collapsed subtasks expands them', () => {
+    const item = makeItem({
+      id: '01ARZ3NDEKTSV4RRFFQ69G5FBE' as ItemId,
+      type: 'task',
+      subtasks: [makeSub('s1', 'Sub Kbd')],
+    });
+    render(
+      <TreeRow
+        item={item}
+        level={1}
+        expanded={false}
+        posInSet={1}
+        setSize={1}
+        hasChildren={false}
+        isFocused={true}
+        todayLocalDate={TODAY}
+        onToggleExpand={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('Sub Kbd')).toBeNull();
+    const row = screen.getByRole('treeitem');
+    fireEvent.keyDown(row, { key: 'ArrowRight' });
+    expect(screen.getByText('Sub Kbd')).toBeInTheDocument();
+  });
+
   it('non-task rows (Epic/Feature) do NOT show the subtask chip', () => {
     const item = makeItem({
       id: '01ARZ3NDEKTSV4RRFFQ69G5FCC' as ItemId,

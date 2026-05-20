@@ -1,4 +1,5 @@
 import type { Subtask } from '@tasko/types';
+import { CornerDownRight } from 'lucide-react';
 import { SubtaskCheckbox } from '../subtask-checkbox';
 import styles from './styles.module.css';
 
@@ -14,7 +15,10 @@ export function SubtaskInlineRow({ subtask, onToggle, onOpenParent }: SubtaskInl
   const isDone = subtask.status === 'done';
 
   return (
-    <div className={styles.row}>
+    <div className={styles.row} data-done={isDone ? '' : undefined}>
+      <span className={styles.tail} aria-hidden="true">
+        <CornerDownRight size={14} />
+      </span>
       <span className={styles.checkboxWrap}>
         <SubtaskCheckbox
           checked={isDone}

@@ -1,15 +1,40 @@
+/* Inline subtask row — visually subordinate to its parent task. A faint
+   tint + slight de-emphasis reads as "nested under" without competing
+   with the parent's chips. Hover lifts to the regular row treatment. */
 .row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 28px;
-  padding: 0 var(--space-1);
+  min-height: 30px;
+  padding: 2px var(--space-1);
   border-radius: var(--radius-sm);
-  transition: background-color var(--motion-fast) var(--ease-standard);
+  background: var(--color-canvas-subtle);
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
 }
 
 .row:hover {
-  background-color: var(--color-canvas-subtle);
+  background: var(--color-canvas-emphasis, var(--color-canvas));
+}
+
+.row[data-done] {
+  background: transparent;
+}
+
+.row[data-done]:hover {
+  background: var(--color-canvas-subtle);
+}
+
+/* Left-tail arrow indicates this row belongs to a parent task. */
+.tail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-disabled, var(--color-text-subtle));
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .checkboxWrap {

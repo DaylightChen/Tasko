@@ -295,15 +295,13 @@
   flex-basis: 100%;
   list-style: none;
   margin: 0;
-  padding: 2px 0 4px;
-  /* Indent so subtask rows align with the parent's title column.
-     Parent row left padding is var(--space-4) (16px) + priority dot (~16px) +
-     gap (var(--space-3) ~ 12px) + checkbox (~20px) + gap = ~64px. We approximate
-     with a single spacing token to keep flex math simple. */
-  padding-left: calc(var(--space-4) + 48px);
+  padding: 2px 0 6px;
+  /* Indent so subtask rows align roughly with the parent's title column.
+     Tail icon + checkbox provide the rest of the nesting cue. */
+  padding-left: calc(var(--space-4) + 36px);
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
 }
 
 .subtaskListItem {

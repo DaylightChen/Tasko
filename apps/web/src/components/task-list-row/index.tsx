@@ -523,27 +523,6 @@ export function TaskListRow({
         )}
       </div>
 
-      {/* Inline subtasks (when chip toggled on) */}
-      {expandedSubtasks && subtasksTotal > 0 && (
-        <ul className={styles.subtasks} role="list" aria-label={`Subtasks of ${item.title}`}>
-          {item.subtasks.map((s) => (
-            <li key={s.id} className={styles.subtaskListItem}>
-              <SubtaskInlineRow
-                subtask={s}
-                onToggle={(done) => {
-                  void patchSubtask.mutateAsync({
-                    itemId: item.id,
-                    subtaskId: s.id,
-                    patch: { status: done ? 'done' : 'todo' },
-                  });
-                }}
-                onOpenParent={() => taskModal.openEdit(item.id)}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-
       {/* Hover affordances — always rendered so they reserve space and the
        * row doesn't jump on hover. Opacity drives visibility via
        * .row:hover / :focus-within (matches the project tree row behaviour).
@@ -564,6 +543,28 @@ export function TaskListRow({
           <ChevronRight size={16} aria-hidden="true" />
         </button>
       </div>
+
+      {/* Inline subtasks (when chip toggled on) — rendered last so flex-wrap
+          puts this row on its own line below the parent content + hover actions. */}
+      {expandedSubtasks && subtasksTotal > 0 && (
+        <ul className={styles.subtasks} role="list" aria-label={`Subtasks of ${item.title}`}>
+          {item.subtasks.map((s) => (
+            <li key={s.id} className={styles.subtaskListItem}>
+              <SubtaskInlineRow
+                subtask={s}
+                onToggle={(done) => {
+                  void patchSubtask.mutateAsync({
+                    itemId: item.id,
+                    subtaskId: s.id,
+                    patch: { status: done ? 'done' : 'todo' },
+                  });
+                }}
+                onOpenParent={() => taskModal.openEdit(item.id)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
     </li>
   );
 }

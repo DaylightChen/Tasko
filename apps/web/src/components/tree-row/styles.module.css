@@ -17,14 +17,13 @@
   flex-basis: 100%;
   list-style: none;
   margin: 0;
-  padding: 2px 0 4px;
-  /* Indent so subtask rows sit under the parent's title column. The parent
-     row has padding 4px var(--space-3) plus indent guides + chevron + checkbox
-     + (optional) type-icon. We approximate with a fixed token. */
-  padding-left: calc(var(--space-3) + 64px);
+  padding: 2px 0 6px;
+  /* Indent so subtask rows sit roughly under the parent's title column.
+     Tail icon + checkbox provide the rest of the nesting cue. */
+  padding-left: calc(var(--space-3) + 48px);
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
 }
 
 .subtaskListItem {
