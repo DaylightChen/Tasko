@@ -48,9 +48,14 @@ function TypeIcon({ type }: { type: Item['type'] }) {
 
 function DateChip({ date, today }: { date: string; today: LocalDate }) {
   const isOverdue = date < today;
+  const isToday = date === today;
   return (
-    <span className={styles.dateChip} data-overdue={isOverdue ? '' : undefined}>
-      {date}
+    <span
+      className={styles.dateChip}
+      data-overdue={isOverdue ? '' : undefined}
+      data-today={isToday ? '' : undefined}
+    >
+      {isToday ? 'Today' : date}
     </span>
   );
 }

@@ -1,13 +1,18 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
-  min-height: 36px;
+  gap: var(--space-2);
+  padding: 4px var(--space-3);
+  min-height: 38px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   position: relative;
   outline: none;
+}
+
+/* Epic-level rows render the title bold (t-body-strong) per preview. */
+.row[data-type="epic"] .title {
+  font-weight: 500;
 }
 
 .row:hover,
@@ -40,25 +45,29 @@
   margin-left: 11px;
 }
 
-/* Expand/collapse chevron button */
+/* Expand/collapse chevron — 16×16 inline, no box on hover. */
 .expandBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-subtle);
-  border-radius: var(--radius-sm);
+  color: var(--color-text-subtle);
   padding: 0;
 }
 
 .expandBtn:hover {
-  color: var(--text);
-  background: var(--canvas);
+  color: var(--color-text);
+}
+
+.expandBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+  border-radius: var(--radius-xs);
 }
 
 /* Type icon */
@@ -116,33 +125,49 @@
   flex-shrink: 0;
 }
 
-/* Date chip */
+/* Date chip — borderless inline subtle text per preview. */
 .dateChip {
-  font-size: var(--text-small);
-  color: var(--text-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 1px var(--space-1);
+  font-size: var(--text-small-size);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dateChip[data-today] {
+  color: var(--color-accent);
+  font-weight: 500;
 }
 
 .dateChip[data-overdue] {
-  color: var(--overdue);
-  border-color: var(--overdue);
+  color: var(--color-text-overdue);
 }
 
-/* Tag chips */
+/* Tag chips — filled tag-bg pill per preview. */
 .tagChips {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-1);
 }
 
 .tagChip,
 .tagOverflow {
-  font-size: var(--text-small);
-  color: var(--text-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: 9999px;
-  padding: 1px var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-2);
+  background: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tagOverflow {
+  background: var(--color-canvas-subtle);
+  color: var(--color-text-subtle);
 }
 
 /* Priority dot */
@@ -185,18 +210,18 @@
 
 .rollupBar {
   display: inline-block;
-  width: 32px;
+  width: 64px;
   height: 4px;
-  background: var(--border-subtle);
-  border-radius: 2px;
+  background: var(--color-border-subtle);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .rollupFill {
   display: block;
   height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
   transition: width 0.2s;
 }
 

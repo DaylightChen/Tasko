@@ -15,6 +15,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
  * Within-column sorting is handled by SortableContext in the parent.
  */
 import type { Item, ItemId, ProjectId, Status } from '@tasko/types';
+import { Plus } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 
 const KANBAN_VIRTUALIZE_THRESHOLD = 50;
@@ -184,7 +185,7 @@ export function KanbanColumn({
           title={`Add task to ${title}`}
           onClick={handleAddClick}
         >
-          +
+          <Plus size={14} aria-hidden="true" />
         </button>
       </div>
 

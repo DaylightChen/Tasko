@@ -26,15 +26,13 @@
   flex: 1;
 }
 
-/* Board: 3 horizontal columns */
+/* Board: 3 equal columns via grid. */
 .board {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
   flex: 1;
   min-height: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
   padding-bottom: var(--space-2);
 }
 
@@ -59,8 +57,7 @@
   }
 
   .board {
-    flex-direction: column;
-    overflow-x: hidden;
+    grid-template-columns: 1fr;
     overflow-y: auto;
   }
 }
