@@ -19,10 +19,11 @@
 ## INBOX_PROJECT_ID contains chars excluded from the ULID base32 alphabet
 
 **Discovered:** 2026-05-18 (implement, Task 02)
-**Status:** mitigated
-**Symptom:** The engineering spec states `INBOX_PROJECT_ID = '00000000000000000000INBOX0'` and claims all chars are in the ULID base32 alphabet, but `I` and `O` are excluded from Crockford base32. The strict `ProjectIdSchema` regex `/^[0-9A-HJKMNP-TV-Z]{26}$/` therefore rejects the constant.
-**Workaround:** The indexer defines `ProjectDiskSchema` and `ItemDiskSchema` with relaxed id fields (`z.string().brand<...>()` without regex) for disk reads only. The strict schema is preserved for user-supplied input (API routes). The sentinel is created via `ProjectDiskSchema.parse(...)` internally.
-**Revisit when:** The sentinel constant is changed to a valid Crockford base32 string (e.g. `00000000000000000000000000`). At that point, `ProjectDiskSchema` / `ItemDiskSchema` can be removed and the strict schemas used everywhere. Coordinate with any existing data migration if users have data with the old sentinel id.
+**Status:** resolved 2026-05-20 (bug-triage pass)
+**Symptom (original):** The engineering spec states `INBOX_PROJECT_ID = '00000000000000000000INBOX0'` and claims all chars are in the ULID base32 alphabet, but `I` and `O` are excluded from Crockford base32. The strict `ProjectIdSchema` regex `/^[0-9A-HJKMNP-TV-Z]{26}$/` therefore rejected the constant.
+**Server mitigation (Task 02):** The indexer defines `ProjectDiskSchema` and `ItemDiskSchema` with relaxed id fields for disk reads. The strict schema was preserved for user-supplied input (API routes).
+**Client surface (discovered 2026-05-20):** The client's `GET /api/projects` response uses the strict `ProjectSchema` (with strict `ProjectIdSchema.id`). The Inbox project is the first element of the list. `z.array(ProjectSchema).parse(...)` therefore threw on the Inbox row, `useProjects()` returned `data: undefined`, and **every project disappeared from the sidebar** — including newly created ones. The empty `useProjects` cache also broke the project picker in the Add task modal. Item lists for Inbox have the same shape (`project_id === INBOX_PROJECT_ID`) and would have failed the same way.
+**Resolution:** `ProjectIdSchema` (in `packages/types/src/domain/ids.ts`) now accepts ULID OR the `INBOX_PROJECT_ID` sentinel via `.refine()`. The schema-level fix removes the need for the server's `ProjectDiskSchema` / `ItemDiskSchema` workarounds, though they're left in place as defense in depth. Regression coverage added in `packages/types/src/__tests__/schemas.test.ts` (`ProjectIdSchema accepts the INBOX_PROJECT_ID sentinel`, `ProjectSchema parses an Inbox project`, `ItemSchema parses an item whose project_id is INBOX_PROJECT_ID`).
 
 ---
 

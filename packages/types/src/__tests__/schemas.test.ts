@@ -6,6 +6,7 @@ import {
   ItemCreateSchema,
   ItemPatchSchema,
   ItemSchema,
+  ProjectIdSchema,
   ProjectSchema,
   TagSchema,
 } from '../index.js';
@@ -157,11 +158,43 @@ describe('@tasko/types schema round-trips', () => {
   });
 
   it('INBOX_PROJECT_ID is 26 chars and is the designated sentinel value', () => {
-    // INBOX_PROJECT_ID contains 'I' and 'O' which are excluded from the ULID base32 alphabet,
-    // so it does NOT pass the strict UlidSchema regex. It is used via 'as ProjectId' cast.
-    // This test documents the known behavior.
     expect(INBOX_PROJECT_ID).toHaveLength(26);
     expect(INBOX_PROJECT_ID).toBe('00000000000000000000INBOX0');
+  });
+
+  // INBOX_PROJECT_ID contains 'I' and 'O' (excluded from the ULID Crockford
+  // base32 alphabet) — but it's a real ProjectId in the system, so
+  // ProjectIdSchema must accept it as a special case alongside ULIDs. Without
+  // these, the client's `GET /api/projects` response parse throws on the
+  // first element and every project disappears from the sidebar.
+  it('ProjectIdSchema accepts the INBOX_PROJECT_ID sentinel', () => {
+    const result = ProjectIdSchema.safeParse(INBOX_PROJECT_ID);
+    expect(result.success).toBe(true);
+  });
+
+  it('ProjectIdSchema accepts a normal ULID', () => {
+    const result = ProjectIdSchema.safeParse(VALID_PROJECT_ID);
+    expect(result.success).toBe(true);
+  });
+
+  it('ProjectIdSchema rejects a malformed id', () => {
+    const result = ProjectIdSchema.safeParse('not-a-ulid');
+    expect(result.success).toBe(false);
+  });
+
+  it('ProjectSchema parses an Inbox project (id = INBOX_PROJECT_ID, is_inbox = true)', () => {
+    const inbox = {
+      ...validProject,
+      id: INBOX_PROJECT_ID,
+      name: 'Inbox',
+      is_inbox: true,
+    };
+    expect(() => ProjectSchema.parse(inbox)).not.toThrow();
+  });
+
+  it('ItemSchema parses an item whose project_id is INBOX_PROJECT_ID', () => {
+    const inboxItem = { ...validItem, project_id: INBOX_PROJECT_ID };
+    expect(() => ItemSchema.parse(inboxItem)).not.toThrow();
   });
 
   it('ItemCreateSchema rejects start_date > due_date', () => {
