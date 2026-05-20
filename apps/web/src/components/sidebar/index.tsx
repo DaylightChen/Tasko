@@ -208,6 +208,8 @@ export function Sidebar() {
       aria-label="Primary navigation"
       data-collapsed={collapsed ? '' : undefined}
     >
+      <div className={styles.logo}>Tasko</div>
+
       {/* Smart lists */}
       <ul className={styles.smartList}>
         <li>
@@ -441,9 +443,11 @@ export function Sidebar() {
 
       {/* Tags section */}
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle} id="tags-heading">
-          TAGS
-        </h2>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle} id="tags-heading">
+            TAGS
+          </h2>
+        </div>
         <ul aria-labelledby="tags-heading" className={styles.tagList}>
           {tags.map((tag) => (
             <li key={tag.id}>
