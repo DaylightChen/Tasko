@@ -460,22 +460,25 @@ describe('TaskListRow', () => {
   });
 
   describe('hover affordances', () => {
-    it('shows ⋯ and Open chevron when isFocused=true', () => {
+    // The "More actions" (⋯) button was removed in v1 — no menu was wired by
+    // any consumer, so the button was a guaranteed no-op for users. The Open
+    // chevron remains as the sole hover affordance.
+    // See docs/known-issues.md (Row "More actions" menu deferred to v1.1).
+    it('shows the Open chevron when isFocused=true', () => {
       render(<TaskListRow item={makeItem()} todayLocalDate={TODAY} isFocused={true} />);
-      expect(screen.getByRole('button', { name: 'More actions' })).toBeTruthy();
       expect(screen.getByRole('button', { name: /Open/ })).toBeTruthy();
     });
 
     it('does not show hover buttons when isFocused=false and not hovered', () => {
       render(<TaskListRow item={makeItem()} todayLocalDate={TODAY} isFocused={false} />);
-      expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+      expect(screen.queryByRole('button', { name: /Open/ })).toBeNull();
     });
 
     it('shows hover buttons on mouseenter', () => {
       const { container } = render(<TaskListRow item={makeItem()} todayLocalDate={TODAY} />);
       const li = container.querySelector('li') as HTMLElement;
       fireEvent.mouseEnter(li);
-      expect(screen.getByRole('button', { name: 'More actions' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /Open/ })).toBeTruthy();
     });
 
     it('hides hover buttons after mouseleave (after 120ms grace)', async () => {
@@ -485,7 +488,7 @@ describe('TaskListRow', () => {
       act(() => {
         fireEvent.mouseEnter(li);
       });
-      expect(screen.getByRole('button', { name: 'More actions' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /Open/ })).toBeTruthy();
       act(() => {
         fireEvent.mouseLeave(li);
       });
@@ -493,22 +496,13 @@ describe('TaskListRow', () => {
       act(() => {
         vi.advanceTimersByTime(50);
       });
-      expect(screen.getByRole('button', { name: 'More actions' })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /Open/ })).toBeTruthy();
       // After 120ms: buttons hidden
       act(() => {
         vi.advanceTimersByTime(100);
       });
-      expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+      expect(screen.queryByRole('button', { name: /Open/ })).toBeNull();
       vi.useRealTimers();
-    });
-
-    it('calls onMenuOpen when ⋯ button is clicked', () => {
-      const onMenuOpen = vi.fn();
-      render(
-        <TaskListRow item={makeItem()} todayLocalDate={TODAY} isFocused={true} onMenuOpen={onMenuOpen} />,
-      );
-      fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
-      expect(onMenuOpen).toHaveBeenCalledOnce();
     });
 
     it('calls onOpenChevronClick when Open chevron is clicked', () => {

@@ -47,6 +47,16 @@
 
 ---
 
+## Row "More actions" (⋯) menu deferred to v1.1 — button removed in flat lists
+
+**Discovered:** 2026-05-20 (bug-triage pass)
+**Status:** mitigated — button removed; menu scoped for v1.1
+**Symptom:** Clicking the ⋯ button on a task row in any flat-list view (Today, Tomorrow, Next 7 Days, Inbox, All, flat project list, Trash, Completed, Tag view) did nothing. The button was rendered with the proper `aria-label="More actions"` and called `onMenuOpen?.()`, but no consumer of `TaskListRow` ever wired that callback — so it was a guaranteed no-op for users. (Tree view's `TreeRow` *does* wire its `onMenuOpen` to `onContextMenu(item, 0, 0)`, so the menu works there.)
+**Mitigation:** The ⋯ button has been removed from `TaskListRow` along with the `onMenuOpen` prop. The Open chevron remains as the sole hover affordance, and right-click context menu / keyboard shortcuts (Delete, T to schedule today, 1–4 priority, O to open) are unchanged.
+**Revisit when:** v1.1 — build a real row-context menu that the user can open from the ⋯ hover button. UX spec items per `docs/ux/microcopy.md` (Row "More actions" menu): Open, Set priority, Reschedule, Move to project…, Delete. Wire it into `TaskListRow` (and reuse for `TreeRow`) so the same pattern works in every flat-list consumer.
+
+---
+
 ## TreeRow `aria-label` on `role="treeitem"` (deferred to task-18)
 - **Where:** `apps/web/src/components/tree-row/index.tsx`
 - **What:** TreeRow's `role="treeitem"` div doesn't set `aria-label`. Accessibility spec §3.6 and microcopy §29 define full row labels: `"Epic: <Title>, N of M tasks complete"`, `"Feature: <Title>, N of M tasks complete"`, etc.

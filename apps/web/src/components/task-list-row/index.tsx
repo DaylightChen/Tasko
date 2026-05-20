@@ -1,5 +1,5 @@
 import type { Item, LocalDate, TagId } from '@tasko/types';
-import { ChevronRight, Layers, LayoutGrid, MoreHorizontal, Repeat, SquareCheckBig } from 'lucide-react';
+import { ChevronRight, Layers, LayoutGrid, Repeat, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { daysBetween, formatDateChip, formatDateLong, isOverdue } from '../../lib/date-fmt';
@@ -173,7 +173,6 @@ export interface TaskListRowProps {
   onPriorityClick?: () => void;
   onTagClick?: (tagId: TagId) => void;
   onSubtaskChipClick?: () => void;
-  onMenuOpen?: () => void;
   onOpenChevronClick?: () => void;
   onScheduleTodayKeyboard?: () => void;
   onDeleteRequest?: () => void;
@@ -262,7 +261,6 @@ export function TaskListRow({
   onPriorityClick,
   onTagClick,
   onSubtaskChipClick,
-  onMenuOpen,
   onOpenChevronClick,
   onScheduleTodayKeyboard,
   onDeleteRequest,
@@ -514,21 +512,13 @@ export function TaskListRow({
         )}
       </div>
 
-      {/* Hover affordances */}
+      {/* Hover affordances. The "More actions" (⋯) button was scoped here in
+       * the original UX spec but no menu was implemented in v1 — see
+       * docs/known-issues.md (Row "More actions" menu deferred to v1.1). The
+       * button was removed because rendering a dead control is worse than the
+       * UX downgrade of having only the Open chevron. */}
       {(isHovered || isFocused) && (
         <div className={styles.hoverActions}>
-          <button
-            type="button"
-            className={styles.hoverBtn}
-            aria-label="More actions"
-            title="More actions"
-            onClick={(e) => {
-              e.stopPropagation();
-              onMenuOpen?.();
-            }}
-          >
-            <MoreHorizontal size={16} aria-hidden="true" />
-          </button>
           <button
             type="button"
             className={styles.hoverBtn}
