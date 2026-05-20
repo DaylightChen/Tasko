@@ -1,9 +1,12 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { Item, ItemId, ProjectId } from '@tasko/types';
-import { ListTree, SquareKanban } from 'lucide-react';
+import { ListTree, Plus, SquareKanban } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useFolders } from '../../api/folders';
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../api/items';
+import { useProjects } from '../../api/projects';
+import { Button } from '../../components/button';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
 import { EmptyState } from '../../components/empty-state';
 import { MoveToPickerModal } from '../../components/move-to-picker';
@@ -563,6 +566,16 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   const snackbar = useSnackbarStore();
   const expansion = useTreeExpansionStore();
 
+  // Folder subtitle: look up the project's folder name (if any).
+  const { data: projectsData } = useProjects();
+  const { data: foldersData } = useFolders();
+  const folderName = useMemo(() => {
+    const project = projectsData?.projects?.find((p) => p.id === projectId);
+    const folderId = project?.folder_id;
+    if (!folderId) return null;
+    return foldersData?.folders?.find((f) => f.id === folderId)?.name ?? null;
+  }, [projectsData, foldersData, projectId]);
+
   // task-18: hotkey mode — push 'tree' on mount, pop on unmount
   useEffect(() => {
     useHotkeyStore.getState().push('tree');
@@ -782,24 +795,33 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
       <div className={styles.root}>
         {/* Header */}
         <div className={styles.header}>
-          <h1 className={styles.heading}>{projectName}</h1>
+          <h1 className={styles.heading}>
+            {projectName}
+            {folderName && <span className={styles.headingSubtitle}>(in {folderName})</span>}
+          </h1>
           <div className={styles.headerControls}>
             <ViewToggle options={VIEW_OPTIONS} value={currentView} onChange={handleViewChange} />
-            <button
-              type="button"
-              className={styles.addEpicBtn}
-              onClick={() => setInlineAddState({ parentId: null, type: 'epic', afterItemId: null })}
-            >
-              + Add Epic
-            </button>
-            <button
-              type="button"
-              className={styles.addTaskBtn}
-              onClick={() => taskModal.openNew({ initialProjectId: projectId })}
-            >
-              + Add Task in project
-            </button>
           </div>
+        </div>
+
+        {/* Project-level add actions */}
+        <div className={styles.addActions}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setInlineAddState({ parentId: null, type: 'epic', afterItemId: null })}
+          >
+            <Plus size={14} aria-hidden="true" />
+            Add Epic
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => taskModal.openNew({ initialProjectId: projectId })}
+          >
+            <Plus size={14} aria-hidden="true" />
+            Add Task in project
+          </Button>
         </div>
 
         {/* + Add Epic inline row (top-level) */}

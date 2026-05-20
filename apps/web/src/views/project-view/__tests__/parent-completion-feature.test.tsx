@@ -40,6 +40,7 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => vi.fn(),
 }));
 
+import { useFolders } from '../../../api/folders';
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useProjects } from '../../../api/projects';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';
@@ -106,6 +107,10 @@ describe('TreeView — parent completion blocking for Feature', () => {
       data: { projects: [] },
       isLoading: false,
     } as unknown as ReturnType<typeof useProjects>);
+    vi.mocked(useFolders).mockReturnValue({
+      data: { folders: [] },
+      isLoading: false,
+    } as unknown as ReturnType<typeof useFolders>);
   });
 
   afterEach(() => {

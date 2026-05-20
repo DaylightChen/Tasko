@@ -264,6 +264,9 @@ export function TreeRow({
   const isTask = item.type === 'task';
   const showRollup = !isTask && rollup !== undefined && rollup.total > 0;
   const showDateChip = isTask;
+  // Type icon: shown for Epics/Features always, and for loose top-level tasks.
+  // Hidden for nested tasks — the chevron-empty + checkbox already signal "task".
+  const showTypeIcon = !isTask || item.parent_id === null;
 
   return (
     <div
@@ -309,8 +312,16 @@ export function TreeRow({
         )}
       </button>
 
-      {/* Type icon (always shown) */}
-      <TypeIcon type={item.type} />
+      {/* Type icon — hidden for nested tasks; shown for Epics/Features/loose tasks. */}
+      {showTypeIcon && <TypeIcon type={item.type} />}
+
+      {/* Priority dot — Tasks only, rendered on the left between chevron/icon and checkbox. */}
+      {isTask && (
+        <PriorityDot
+          priority={item.priority}
+          {...(onPriorityClick !== undefined ? { onClick: onPriorityClick } : {})}
+        />
+      )}
 
       {/* Checkbox — Tasks only */}
       {isTask && (
@@ -351,14 +362,10 @@ export function TreeRow({
         )}
       </div>
 
-      {/* Meta: date, tags, priority, rollup */}
+      {/* Meta (right side): tags, date, rollup. Priority is now on the left. */}
       <div className={styles.metaArea}>
-        {showDateChip && <DateChip date={item.due_date} today={todayLocalDate} />}
         {item.tags.length > 0 && <TagChips tagIds={item.tags as TagId[]} onTagClick={handleTagClick} />}
-        <PriorityDot
-          priority={item.priority}
-          {...(onPriorityClick !== undefined ? { onClick: onPriorityClick } : {})}
-        />
+        {showDateChip && <DateChip date={item.due_date} today={todayLocalDate} />}
         {showRollup && rollup && <RollupChip completed={rollup.completed} total={rollup.total} />}
       </div>
 

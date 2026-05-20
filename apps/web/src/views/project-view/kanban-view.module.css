@@ -12,18 +12,31 @@
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
   margin-bottom: var(--space-3);
 }
 
 .heading {
-  font-size: var(--text-h1-size);
-  font-weight: var(--text-h1-weight);
-  line-height: var(--text-h1-line-height);
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-line-height);
+  letter-spacing: var(--text-display-tracking);
   color: var(--color-text);
   margin: 0;
-  flex: 1;
+}
+
+.headingSubtitle {
+  display: inline-block;
+  margin-left: var(--space-3);
+  font-size: var(--text-small-size);
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+.quickAdd {
+  margin-bottom: var(--space-3);
 }
 
 /* Board: 3 equal columns via grid. */

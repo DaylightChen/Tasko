@@ -39,6 +39,7 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
+import { useFolders } from '../../../api/folders';
 import { useProjects } from '../../../api/projects';
 import { useTaskModalStore } from '../../../store/task-modal';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';
@@ -93,6 +94,10 @@ function setupMocks(items: Item[], createMutateFn = vi.fn()) {
     data: { projects: [] },
     isLoading: false,
   } as unknown as ReturnType<typeof useProjects>);
+  vi.mocked(useFolders).mockReturnValue({
+    data: { folders: [] },
+    isLoading: false,
+  } as unknown as ReturnType<typeof useFolders>);
 }
 
 function renderTreeView(items: Item[], createMutateFn?: ReturnType<typeof vi.fn>) {
@@ -123,7 +128,7 @@ describe('TreeView — add flows', () => {
   it('clicking "+ Add Epic" shows an inline text input', async () => {
     renderTreeView([]);
 
-    const addEpicBtn = screen.getByRole('button', { name: /\+ Add Epic/i });
+    const addEpicBtn = screen.getByRole('button', { name: /Add Epic/i });
     fireEvent.click(addEpicBtn);
 
     await waitFor(() => {
@@ -138,7 +143,7 @@ describe('TreeView — add flows', () => {
     renderTreeView([], createMutate);
 
     // Click "+ Add Epic"
-    const addEpicBtn = screen.getByRole('button', { name: /\+ Add Epic/i });
+    const addEpicBtn = screen.getByRole('button', { name: /Add Epic/i });
     fireEvent.click(addEpicBtn);
 
     await waitFor(() => {
@@ -174,7 +179,7 @@ describe('TreeView — add flows', () => {
     const createMutate = vi.fn();
     renderTreeView([], createMutate);
 
-    fireEvent.click(screen.getByRole('button', { name: /\+ Add Epic/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Add Epic/i }));
 
     await waitFor(() => {
       expect(screen.queryAllByPlaceholderText(/epic name/i).length).toBeGreaterThan(0);
@@ -200,7 +205,7 @@ describe('TreeView — add flows', () => {
     // Reset modal state just before the interaction
     useTaskModalStore.setState({ mode: 'closed' });
 
-    const addTaskBtn = screen.getByRole('button', { name: /\+ Add Task in project/i });
+    const addTaskBtn = screen.getByRole('button', { name: /Add Task in project/i });
     fireEvent.click(addTaskBtn);
 
     const state = useTaskModalStore.getState();

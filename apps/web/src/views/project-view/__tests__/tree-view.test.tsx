@@ -45,6 +45,7 @@ vi.mock('@tanstack/react-router', () => ({
 // ── Imports after mocks ───────────────────────────────────────────────────────
 
 import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
+import { useFolders } from '../../../api/folders';
 import { useProjects } from '../../../api/projects';
 import { useHotkeyStore } from '../../../store/hotkey-registry';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';
@@ -151,6 +152,10 @@ function setupMocks(items: Item[]) {
     data: { projects: [] },
     isLoading: false,
   } as unknown as ReturnType<typeof useProjects>);
+  vi.mocked(useFolders).mockReturnValue({
+    data: { folders: [] },
+    isLoading: false,
+  } as unknown as ReturnType<typeof useFolders>);
 }
 
 function renderTreeView(items: Item[] = buildHierarchicalItems()) {
@@ -218,14 +223,14 @@ describe('TreeView — render', () => {
     expect(chips.length).toBeGreaterThan(0);
   });
 
-  it('renders the "+ Add Epic" button', () => {
+  it('renders the "Add Epic" button', () => {
     renderTreeView();
-    expect(screen.getByRole('button', { name: /\+ Add Epic/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Add Epic/i })).toBeTruthy();
   });
 
-  it('renders the "+ Add Task in project" button', () => {
+  it('renders the "Add Task in project" button', () => {
     renderTreeView();
-    expect(screen.getByRole('button', { name: /\+ Add Task in project/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Add Task in project/i })).toBeTruthy();
   });
 });
 

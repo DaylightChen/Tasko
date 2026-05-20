@@ -35,11 +35,13 @@ import { useNavigate } from '@tanstack/react-router';
 import type { Item, ItemId, ProjectId, Status } from '@tasko/types';
 import { List, ListTree, SquareKanban } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFolders } from '../../api/folders';
 import { useItems, usePatchItem, useToggleComplete } from '../../api/items';
 import { useProject } from '../../api/projects';
 import { EmptyState } from '../../components/empty-state';
 import { KanbanCard } from '../../components/kanban-card';
 import { KanbanColumn } from '../../components/kanban-column';
+import { QuickAddInput } from '../../components/quick-add-input';
 import { ViewToggle } from '../../components/view-toggle';
 import type { ViewOption } from '../../components/view-toggle';
 import { useDndSensors } from '../../lib/dnd-sensors';
@@ -69,6 +71,11 @@ export function KanbanView({ projectId }: KanbanViewProps) {
   const sensors = useDndSensors();
   const navigate = useNavigate();
   const { project } = useProject(projectId);
+  const { data: foldersData } = useFolders();
+  const folderName = useMemo(() => {
+    if (!project?.folder_id) return null;
+    return foldersData?.folders?.find((f) => f.id === project.folder_id)?.name ?? null;
+  }, [project, foldersData]);
 
   // View toggle: show "Kanban" + the project's native default (Tree if
   // hierarchical, otherwise List). Picking the non-kanban option navigates
@@ -293,8 +300,17 @@ export function KanbanView({ projectId }: KanbanViewProps) {
 
   const header = (
     <div className={styles.header}>
-      <h1 className={styles.heading}>{project?.name ?? 'Project'}</h1>
+      <h1 className={styles.heading}>
+        {project?.name ?? 'Project'}
+        {folderName && <span className={styles.headingSubtitle}>(in {folderName})</span>}
+      </h1>
       <ViewToggle options={VIEW_OPTIONS} value="kanban" onChange={handleViewChange} />
+    </div>
+  );
+
+  const quickAdd = (
+    <div className={styles.quickAdd}>
+      <QuickAddInput placeholder={`Add task to ${project?.name ?? 'project'}`} />
     </div>
   );
 
@@ -333,6 +349,7 @@ export function KanbanView({ projectId }: KanbanViewProps) {
   return (
     <div className={styles.root}>
       {header}
+      {quickAdd}
       <BulkActionsToolbar />
 
       <DndContext
