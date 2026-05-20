@@ -349,8 +349,12 @@ export function TaskListRow({
     }
   };
 
-  // Mobile swipe via PointerEvents
+  // Mobile swipe via PointerEvents.
+  // Capture is only taken for touch/pen — capturing on a mouse click reroutes
+  // the synthesized click event's target to the <li>, which makes the row's
+  // onClick fire (modal opens) and suppresses native checkbox/button clicks.
   const handlePointerDown = (e: React.PointerEvent<HTMLLIElement>) => {
+    if (e.pointerType !== 'touch' && e.pointerType !== 'pen') return;
     swipeRef.current = { startX: e.clientX, currentX: e.clientX, active: true };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
