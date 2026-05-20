@@ -65,6 +65,7 @@ vi.mock('../_shared/BulkActionsToolbar', () => ({
 
 vi.mock('@tanstack/react-router', () => ({
   useRouterState: () => ({ location: { pathname: '/project/proj/kanban' } }),
+  useNavigate: () => vi.fn(),
 }));
 
 // ── Imports after mocks ───────────────────────────────────────────────────────

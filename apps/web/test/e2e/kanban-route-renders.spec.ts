@@ -60,4 +60,14 @@ test('navigating to /project/<id>/kanban renders the kanban board, not the tree/
   for (const label of ['To Do', 'In Progress', 'Done']) {
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
   }
+
+  // Regression for: "I cannot go back after going to kanban". The kanban view
+  // must include the ViewToggle in its header. Picking the non-kanban option
+  // (Tree or List depending on the project) navigates back to /project/<id>.
+  const treeBtn = page.getByRole('tab', { name: /Tree view|List view/ });
+  await expect(treeBtn).toBeVisible();
+  await treeBtn.click();
+  await expect(page).toHaveURL(new RegExp(`/project/${target!.id}/?$`));
+  // The kanban <section> must be gone now (we're back on the index route).
+  await expect(page.locator('section[aria-label="Kanban board"]')).toHaveCount(0);
 });

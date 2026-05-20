@@ -31,13 +31,17 @@ import { arrayMove } from '@dnd-kit/sortable';
  * Snackbar: "Status: <In Progress / Done / To Do>." (microcopy §7).
  * For Done with recurrence: "Task completed. Next: <date>." from useToggleComplete.
  */
+import { useNavigate } from '@tanstack/react-router';
 import type { Item, ItemId, ProjectId, Status } from '@tasko/types';
-import { SquareKanban } from 'lucide-react';
+import { List, ListTree, SquareKanban } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useItems, usePatchItem, useToggleComplete } from '../../api/items';
+import { useProject } from '../../api/projects';
 import { EmptyState } from '../../components/empty-state';
 import { KanbanCard } from '../../components/kanban-card';
 import { KanbanColumn } from '../../components/kanban-column';
+import { ViewToggle } from '../../components/view-toggle';
+import type { ViewOption } from '../../components/view-toggle';
 import { useDndSensors } from '../../lib/dnd-sensors';
 import { useHotkeyStore } from '../../store/hotkey-registry';
 import { useSnackbarStore } from '../../store/snackbar';
@@ -63,6 +67,29 @@ export function KanbanView({ projectId }: KanbanViewProps) {
   const patchItem = usePatchItem();
   const toggleComplete = useToggleComplete();
   const sensors = useDndSensors();
+  const navigate = useNavigate();
+  const { project } = useProject(projectId);
+
+  // View toggle: show "Kanban" + the project's native default (Tree if
+  // hierarchical, otherwise List). Picking the non-kanban option navigates
+  // back to /project/$id, which renders TreeView / FlatListView via the
+  // index route. Without this header the kanban board had no in-app
+  // affordance to return to the list/tree view.
+  const isHierarchical = project?.is_hierarchical ?? false;
+  const VIEW_OPTIONS: ViewOption[] = isHierarchical
+    ? [
+        { value: 'tree', icon: ListTree, label: 'Tree view' },
+        { value: 'kanban', icon: SquareKanban, label: 'Kanban view' },
+      ]
+    : [
+        { value: 'list', icon: List, label: 'List view' },
+        { value: 'kanban', icon: SquareKanban, label: 'Kanban view' },
+      ];
+  const handleViewChange = (value: string) => {
+    if (value !== 'kanban') {
+      void navigate({ to: '/project/$id', params: { id: projectId } });
+    }
+  };
 
   // task-18: hotkey mode — push 'kanban' on mount, pop on unmount
   useEffect(() => {
@@ -264,9 +291,17 @@ export function KanbanView({ projectId }: KanbanViewProps) {
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
+  const header = (
+    <div className={styles.header}>
+      <h1 className={styles.heading}>{project?.name ?? 'Project'}</h1>
+      <ViewToggle options={VIEW_OPTIONS} value="kanban" onChange={handleViewChange} />
+    </div>
+  );
+
   if (isLoading && tasks.length === 0) {
     return (
       <div className={styles.root} aria-busy="true">
+        {header}
         <div
           style={{ height: 200, background: 'var(--color-canvas-subtle)', borderRadius: 'var(--radius-md)' }}
         />
@@ -277,6 +312,7 @@ export function KanbanView({ projectId }: KanbanViewProps) {
   if (isEmptyBoard) {
     return (
       <div className={styles.root}>
+        {header}
         <div className={styles.emptyBoard}>
           <EmptyState
             icon={SquareKanban}
@@ -296,6 +332,7 @@ export function KanbanView({ projectId }: KanbanViewProps) {
 
   return (
     <div className={styles.root}>
+      {header}
       <BulkActionsToolbar />
 
       <DndContext

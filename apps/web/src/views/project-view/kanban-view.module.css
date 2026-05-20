@@ -9,6 +9,23 @@
   overflow: hidden;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.heading {
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  line-height: var(--text-h1-line-height);
+  color: var(--color-text);
+  margin: 0;
+  flex: 1;
+}
+
 /* Board: 3 horizontal columns */
 .board {
   display: flex;
