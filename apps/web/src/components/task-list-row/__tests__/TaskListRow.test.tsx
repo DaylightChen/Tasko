@@ -19,6 +19,14 @@
 import type { Item, ItemId, LocalDate, ProjectId, Subtask, SubtaskId, TagId } from '@tasko/types';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+// Mock useTags so TagChips doesn't need a QueryClient. Returning empty tags
+// means name resolution falls back to the tagId — which is what the
+// existing assertions in this file already check ("Filter by tag work").
+vi.mock('../../../api/tags', () => ({
+  useTags: () => ({ data: { tags: [] } }),
+}));
+
 import { TaskListRow } from '../index';
 
 // ─── Factory ─────────────────────────────────────────────────────────────────

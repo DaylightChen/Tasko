@@ -16,6 +16,7 @@
  */
 import type { Item, ItemId, LocalDate } from '@tasko/types';
 import { useCallback, useRef, useState } from 'react';
+import { useTags } from '../../api/tags';
 import { todayLocal } from '../../lib/date-fmt';
 import { useTaskModalStore } from '../../store/task-modal';
 import styles from './styles.module.css';
@@ -66,7 +67,10 @@ export function KanbanCard({ item, isDragging = false, isSelected = false }: Kan
   const isOverdue = item.due_date < today && item.status !== 'done';
   const isCompleted = item.status === 'done';
 
-  // Tags: show first 2, then "+N" overflow
+  // Tags: show first 2, then "+N" overflow. Resolve TagId → name from the
+  // shared tags cache; fall back to id if not in the list yet (transient).
+  const { data: tagsData } = useTags(true);
+  const tagNameById = new Map<string, string>((tagsData?.tags ?? []).map((t) => [t.id, t.name]));
   const visibleTags = item.tags.slice(0, MAX_VISIBLE_TAGS);
   const overflowTagCount = item.tags.length - visibleTags.length;
 
@@ -141,11 +145,14 @@ export function KanbanCard({ item, isDragging = false, isSelected = false }: Kan
           {(visibleTags.length > 0 || subtaskTotal > 0 || showDateChip) && (
             <div className={styles.metaRow}>
               {/* Tag chips */}
-              {visibleTags.map((tagId) => (
-                <span key={tagId} className={styles.tagChip} title={tagId}>
-                  {tagId}
-                </span>
-              ))}
+              {visibleTags.map((tagId) => {
+                const name = tagNameById.get(tagId) ?? tagId;
+                return (
+                  <span key={tagId} className={styles.tagChip} title={name}>
+                    #{name}
+                  </span>
+                );
+              })}
               {overflowTagCount > 0 && <span className={styles.tagChip}>+{overflowTagCount}</span>}
 
               {/* Subtask progress */}

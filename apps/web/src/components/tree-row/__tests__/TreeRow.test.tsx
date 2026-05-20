@@ -18,6 +18,12 @@ vi.mock('../../../hooks/useTagNavigation', () => ({
   useTagNavigation: () => vi.fn(),
 }));
 
+// Mock useTags for the same reason; TagChips falls back to tagId when the
+// name isn't found, which matches the existing test assertions.
+vi.mock('../../../api/tags', () => ({
+  useTags: () => ({ data: { tags: [] } }),
+}));
+
 import { TreeRow } from '../index';
 
 // ─── Factory ─────────────────────────────────────────────────────────────────

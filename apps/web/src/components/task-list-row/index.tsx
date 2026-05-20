@@ -2,6 +2,7 @@ import type { Item, LocalDate, TagId } from '@tasko/types';
 import { ChevronRight, Layers, LayoutGrid, Repeat, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTags } from '../../api/tags';
 import { daysBetween, formatDateChip, formatDateLong, isOverdue } from '../../lib/date-fmt';
 import { guardDndKeyDown } from '../../lib/dnd-keydown';
 import { Checkbox } from '../checkbox';
@@ -91,6 +92,12 @@ function TagChips({ tagIds, onTagClick }: TagChipsProps) {
   const [expanded, setExpanded] = useState(false);
   const MAX_VISIBLE = 2;
 
+  // Resolve TagId → name from the tags list cache. The query key is shared
+  // across rows so this is a cheap cache subscription, not N requests.
+  const { data: tagsData } = useTags(true);
+  const nameById = new Map<string, string>((tagsData?.tags ?? []).map((t) => [t.id, t.name]));
+  const labelFor = (id: TagId) => nameById.get(id) ?? id;
+
   if (tagIds.length === 0) return null;
 
   const visible = expanded ? tagIds : tagIds.slice(0, MAX_VISIBLE);
@@ -98,20 +105,23 @@ function TagChips({ tagIds, onTagClick }: TagChipsProps) {
 
   return (
     <span className={styles.tagChips}>
-      {visible.map((tagId) => (
-        <button
-          key={tagId}
-          type="button"
-          className={styles.tagChip}
-          aria-label={`Filter by tag ${tagId}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onTagClick?.(tagId);
-          }}
-        >
-          #{tagId}
-        </button>
-      ))}
+      {visible.map((tagId) => {
+        const name = labelFor(tagId);
+        return (
+          <button
+            key={tagId}
+            type="button"
+            className={styles.tagChip}
+            aria-label={`Filter by tag ${name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onTagClick?.(tagId);
+            }}
+          >
+            #{name}
+          </button>
+        );
+      })}
       {!expanded && overflow > 0 && (
         <button
           type="button"

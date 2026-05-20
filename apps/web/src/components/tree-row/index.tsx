@@ -2,6 +2,7 @@ import type { Item, LocalDate, TagId } from '@tasko/types';
 import { ChevronDown, ChevronRight, Layers, LayoutGrid, MoreHorizontal, SquareCheckBig } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTags } from '../../api/tags';
 import { useTagNavigation } from '../../hooks/useTagNavigation';
 import { Checkbox } from '../checkbox';
 import styles from './styles.module.css';
@@ -58,25 +59,31 @@ function DateChip({ date, today }: { date: string; today: LocalDate }) {
 
 function TagChips({ tagIds, onTagClick }: { tagIds: TagId[]; onTagClick?: (tagId: TagId) => void }) {
   const MAX_VISIBLE = 2;
+  // Resolve TagId → name from the shared tags cache; fall back to id.
+  const { data: tagsData } = useTags(true);
+  const nameById = new Map<string, string>((tagsData?.tags ?? []).map((t) => [t.id, t.name]));
   if (tagIds.length === 0) return null;
   const visible = tagIds.slice(0, MAX_VISIBLE);
   const overflow = tagIds.length - MAX_VISIBLE;
   return (
     <span className={styles.tagChips}>
-      {visible.map((id) => (
-        <button
-          key={id}
-          type="button"
-          className={styles.tagChip}
-          aria-label={`Filter by tag ${id}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onTagClick?.(id);
-          }}
-        >
-          #{id}
-        </button>
-      ))}
+      {visible.map((id) => {
+        const name = nameById.get(id) ?? id;
+        return (
+          <button
+            key={id}
+            type="button"
+            className={styles.tagChip}
+            aria-label={`Filter by tag ${name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onTagClick?.(id);
+            }}
+          >
+            #{name}
+          </button>
+        );
+      })}
       {overflow > 0 && <span className={styles.tagOverflow}>+{overflow}</span>}
     </span>
   );
