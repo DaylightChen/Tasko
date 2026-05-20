@@ -171,6 +171,15 @@
 }
 
 .title {
+  /* Reset native <button> UA defaults so the dark theme can't leak the OS
+   * light buttonface background and clip the text against it. */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font: inherit;
+
   font-size: var(--text-body-size);
   line-height: var(--text-body-line-height);
   color: var(--color-text);

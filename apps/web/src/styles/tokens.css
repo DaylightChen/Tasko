@@ -96,6 +96,13 @@
 /* --- Light theme (default fallback) --- */
 :root,
 :root[data-theme="light"] {
+  /* color-scheme tells the browser to use light UA defaults for native form
+   * controls (button, input, scrollbar). Without it, dark theme renders
+   * native <button> elements with the OS's light buttonface background — for
+   * elements like .title (a transparent inline-edit affordance) the UA bg
+   * bleeds through and produces white-on-white text. */
+  color-scheme: light;
+
   /* Canvas & surface */
   --color-canvas: #fcfcfc;
   --color-canvas-subtle: #f6f6f6;
@@ -169,6 +176,8 @@
 
 /* --- Dark theme --- */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   /* Canvas & surface */
   --color-canvas: #0e0f11;
   --color-canvas-subtle: #16181b;

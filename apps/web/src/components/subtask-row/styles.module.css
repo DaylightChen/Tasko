@@ -38,6 +38,14 @@
 }
 
 .title {
+  /* Reset native <button> UA defaults — see task-list-row .title for context. */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font: inherit;
+
   flex: 1;
   font-size: var(--text-body-size);
   color: var(--color-text);
