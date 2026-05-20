@@ -156,7 +156,7 @@ export interface TreeRowProps {
   onToggleCheckbox?: () => void;
   onAddChild?: () => void;
   onClick?: () => void;
-  onMenuOpen?: () => void;
+  onMenuOpen?: (coords: { x: number; y: number }) => void;
   onTitleClickInlineEdit?: () => void;
   onTitleCommitInlineEdit?: (newTitle: string) => void;
   onDateClick?: () => void;
@@ -369,52 +369,53 @@ export function TreeRow({
         {showRollup && rollup && <RollupChip completed={rollup.completed} total={rollup.total} />}
       </div>
 
-      {/* Hover affordances */}
-      {(isHovered || isFocused) && (
-        <div className={styles.hoverActions}>
-          {/* + Add child affordance (Epic → Feature, Feature → Task) */}
-          {!isTask && onAddChild && (
-            <button
-              type="button"
-              className={styles.hoverBtn}
-              aria-label={item.type === 'epic' ? '+ Add Feature' : '+ Add Task'}
-              title={item.type === 'epic' ? '+ Add Feature' : '+ Add Task'}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddChild();
-              }}
-            >
-              +
-            </button>
-          )}
-
+      {/* Hover affordances — always rendered so they reserve space at the
+       * right end of the row (no jump on hover) and don't overlap the
+       * meta chips. Visibility is driven by .row:hover / :focus-within. */}
+      <div className={styles.hoverActions}>
+        {/* + Add child affordance (Epic → Feature, Feature → Task) */}
+        {!isTask && onAddChild && (
           <button
             type="button"
             className={styles.hoverBtn}
-            aria-label="More actions"
-            title="More actions"
+            aria-label={item.type === 'epic' ? '+ Add Feature' : '+ Add Task'}
+            title={item.type === 'epic' ? '+ Add Feature' : '+ Add Task'}
             onClick={(e) => {
               e.stopPropagation();
-              onMenuOpen?.();
+              onAddChild();
             }}
           >
-            <MoreHorizontal size={16} aria-hidden="true" />
+            +
           </button>
+        )}
 
-          <button
-            type="button"
-            className={styles.hoverBtn}
-            aria-label="Open (O)"
-            title="Open"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick?.();
-            }}
-          >
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </div>
-      )}
+        <button
+          type="button"
+          className={styles.hoverBtn}
+          aria-label="More actions"
+          title="More actions"
+          onClick={(e) => {
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            onMenuOpen?.({ x: rect.left, y: rect.bottom + 4 });
+          }}
+        >
+          <MoreHorizontal size={16} aria-hidden="true" />
+        </button>
+
+        <button
+          type="button"
+          className={styles.hoverBtn}
+          aria-label="Open (O)"
+          title="Open"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
+        >
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
+      </div>
     </div>
   );
 }

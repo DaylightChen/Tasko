@@ -292,7 +292,7 @@ function TreeNode({
               onRowFocus(item);
               onItemClick(item);
             }}
-            onMenuOpen={() => onContextMenu(item, 0, 0)}
+            onMenuOpen={({ x, y }) => onContextMenu(item, x, y)}
             onMoveToOpen={() => onMoveToOpen(item)}
             onTitleClickInlineEdit={() => {
               /* inline title edit handled by TreeRow internally */
@@ -530,7 +530,7 @@ function FlatTreeRowRenderer({
             onRowFocus(item);
             onItemClick(item);
           }}
-          onMenuOpen={() => onContextMenu(item, 0, 0)}
+          onMenuOpen={({ x, y }) => onContextMenu(item, x, y)}
           onMoveToOpen={() => onMoveToOpen(item)}
           onTitleClickInlineEdit={() => {}}
           onTitleCommitInlineEdit={(newTitle) => {

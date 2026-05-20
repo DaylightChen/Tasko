@@ -269,18 +269,30 @@
   }
 }
 
-/* Hover affordances */
+/* Hover affordances — always rendered inline at the right end of the row.
+ * Opacity drives visibility on hover/focus so the buttons reserve their
+ * own space and never overlap the meta chips. */
 .hoverActions {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  position: absolute;
-  right: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--color-canvas-subtle);
-  border-radius: var(--radius-sm);
-  padding: 2px var(--space-1);
+  margin-left: var(--space-1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.row:hover .hoverActions,
+.row:focus-within .hoverActions,
+.row[data-state~="focus"] .hoverActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hoverActions {
+    transition: none;
+  }
 }
 
 .hoverBtn {
