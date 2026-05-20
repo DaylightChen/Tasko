@@ -371,8 +371,10 @@ export function TreeRow({
 
       {/* Hover affordances — always rendered so they reserve space at the
        * right end of the row (no jump on hover) and don't overlap the
-       * meta chips. Visibility is driven by .row:hover / :focus-within. */}
-      <div className={styles.hoverActions}>
+       * meta chips. Visibility is driven by .row:hover / :focus-within;
+       * aria-hidden tracks the React isHovered/isFocused state so AT and
+       * queryByRole consumers don't see the buttons when invisible. */}
+      <div className={styles.hoverActions} aria-hidden={!isHovered && !isFocused}>
         {/* + Add child affordance (Epic → Feature, Feature → Task) */}
         {!isTask && onAddChild && (
           <button

@@ -526,27 +526,26 @@ export function TaskListRow({
         )}
       </div>
 
-      {/* Hover affordances. The "More actions" (⋯) button was scoped here in
-       * the original UX spec but no menu was implemented in v1 — see
-       * docs/known-issues.md (Row "More actions" menu deferred to v1.1). The
-       * button was removed because rendering a dead control is worse than the
-       * UX downgrade of having only the Open chevron. */}
-      {(isHovered || isFocused) && (
-        <div className={styles.hoverActions}>
-          <button
-            type="button"
-            className={styles.hoverBtn}
-            aria-label="Open (O)"
-            title="Open (O)"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenChevronClick?.();
-            }}
-          >
-            <ChevronRight size={16} aria-hidden="true" />
-          </button>
-        </div>
-      )}
+      {/* Hover affordances — always rendered so they reserve space and the
+       * row doesn't jump on hover. Opacity drives visibility via
+       * .row:hover / :focus-within (matches the project tree row behaviour).
+       * The "More actions" (⋯) button was scoped here in the original UX
+       * spec but no menu was implemented in v1 — see docs/known-issues.md
+       * (Row "More actions" menu deferred to v1.1). */}
+      <div className={styles.hoverActions} aria-hidden={!isHovered && !isFocused}>
+        <button
+          type="button"
+          className={styles.hoverBtn}
+          aria-label="Open (O)"
+          title="Open (O)"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenChevronClick?.();
+          }}
+        >
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
+      </div>
     </li>
   );
 }

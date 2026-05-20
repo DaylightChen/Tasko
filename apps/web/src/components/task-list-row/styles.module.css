@@ -316,6 +316,16 @@
   gap: var(--space-1);
   flex-shrink: 0;
   margin-left: var(--space-1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-standard);
+}
+
+.row:hover .hoverActions,
+.row:focus-within .hoverActions,
+.row[data-state~="focus"] .hoverActions {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .hoverBtn {
@@ -358,7 +368,8 @@
     transition: none;
   }
 
-  .hoverBtn {
+  .hoverBtn,
+  .hoverActions {
     transition: none;
   }
 
