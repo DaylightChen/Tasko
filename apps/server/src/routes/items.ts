@@ -254,12 +254,39 @@ export function registerItemRoutes(app: FastifyInstance): void {
           throw new HttpError(400, 'VALIDATION', 'Invalid project_id.');
         }
         const includeCompleted = q.include_completed === 'true';
-        items = items.filter(
-          (item) =>
-            item.trashed_at === null &&
-            item.project_id === projectId.data &&
-            (includeCompleted || item.status !== 'done'),
+        const inProject = items.filter(
+          (item) => item.trashed_at === null && item.project_id === projectId.data,
         );
+        if (includeCompleted) {
+          items = inProject;
+        } else {
+          // Hide-completed mode. Keep every active (status !== 'done') item,
+          // plus any 'done' ancestor on the path of an active item — without
+          // those ancestors the client tree builder walks parent_id and cannot
+          // reach the active descendant, so reopened tasks under a completed
+          // Feature/Epic vanish from the view.
+          const active = inProject.filter((i) => i.status !== 'done');
+          const keptIds = new Set<string>(active.map((i) => i.id));
+          for (const start of active) {
+            let parentId = start.parent_id;
+            while (parentId !== null) {
+              if (keptIds.has(parentId)) break;
+              const parent = index.items.get(parentId);
+              if (
+                !parent ||
+                parent.trashed_at !== null ||
+                parent.project_id !== projectId.data
+              ) {
+                break;
+              }
+              if (parent.status === 'done') {
+                keptIds.add(parent.id);
+              }
+              parentId = parent.parent_id;
+            }
+          }
+          items = inProject.filter((i) => keptIds.has(i.id));
+        }
         if (q.parent_id !== undefined) {
           if (q.parent_id === 'root') {
             items = items.filter((item) => item.parent_id === null);
