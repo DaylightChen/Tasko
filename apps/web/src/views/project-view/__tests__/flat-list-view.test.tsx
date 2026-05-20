@@ -125,7 +125,7 @@ describe('FlatListView', () => {
       makeItem('t2', { title: 'Done Task', status: 'done' }),
     ];
     renderFlatList(items);
-    expect(screen.getByRole('button', { name: /show 1 completed/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /show completed/i })).toBeTruthy();
   });
 
   it('does NOT show "Show N completed" button when no completed tasks', () => {
@@ -141,7 +141,7 @@ describe('FlatListView', () => {
     ];
     renderFlatList(items);
 
-    const showBtn = screen.getByRole('button', { name: /show 1 completed/i });
+    const showBtn = screen.getByRole('button', { name: /show completed/i });
     fireEvent.click(showBtn);
 
     await waitFor(() => {
@@ -156,7 +156,7 @@ describe('FlatListView', () => {
     ];
     renderFlatList(items);
 
-    fireEvent.click(screen.getByRole('button', { name: /show 1 completed/i }));
+    fireEvent.click(screen.getByRole('button', { name: /show completed/i }));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /hide completed/i })).toBeTruthy();

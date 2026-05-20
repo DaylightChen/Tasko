@@ -248,19 +248,12 @@ describe('Sidebar', () => {
   });
 
   describe('footer', () => {
-    it('renders "Tasko v1.0" in footer', () => {
+    // SyncFooter now shows "Local · <dataDir>" (the version was removed; we
+    // don't sync, just surface the local data directory).
+    it('renders the local-files caption with the data-dir from the health query', () => {
       setupDefaultMocks();
       renderSidebar();
-      expect(screen.getAllByText('Tasko v1.0').length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('renders data_dir from health query in footer', () => {
-      setupDefaultMocks();
-      renderSidebar();
-      // The footer renders two separate <span> elements: "Tasko v1.0" and " · Local files in <dir>"
-      // Use a function matcher to find the data_dir text
-      const dataDir = screen.getByText((content) => content.includes('Local files in /home/user/.tasko'));
-      expect(dataDir).toBeTruthy();
+      expect(screen.getByText('Local · /home/user/.tasko')).toBeTruthy();
     });
   });
 

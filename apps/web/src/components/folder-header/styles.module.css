@@ -49,39 +49,6 @@
   white-space: nowrap;
 }
 
-/* Hover: show ⋯ button */
-.moreBtn {
-  position: absolute;
-  right: var(--space-1);
-  top: 50%;
-  transform: translateY(-50%);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-subtle);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-}
-
-.wrapper:hover .moreBtn {
-  display: flex;
-}
-
-.moreBtn:hover {
-  background: var(--color-border);
-  color: var(--color-text);
-}
-
-.moreBtn:focus-visible {
-  display: flex;
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 1px;
-}
-
 /* Drop target */
 .wrapper[data-drop-target] .toggle {
   outline: 2px dashed var(--color-accent);

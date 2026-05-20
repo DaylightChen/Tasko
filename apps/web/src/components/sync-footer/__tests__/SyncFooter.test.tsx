@@ -1,31 +1,26 @@
 /**
- * Tests for SyncFooter component (task-06)
- * Covers: "Tasko v1.0" text, data-dir display, missing data-dir fallback.
+ * Tests for SyncFooter component.
+ * Footer now shows a HardDrive icon + "Local · <dataDir>" caption (was the
+ * preview's cloud-check + "Synced Xm ago"; we don't sync, so we surface the
+ * local data dir instead).
  */
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { SyncFooter } from '../index';
 
 describe('SyncFooter', () => {
-  it('renders "Tasko v1.0"', () => {
+  it('renders the local-files caption when no data-dir is provided', () => {
     render(<SyncFooter />);
-    expect(screen.getByText('Tasko v1.0')).toBeTruthy();
+    expect(screen.getByText('Local files')).toBeTruthy();
   });
 
-  it('renders data-dir when provided', () => {
+  it('renders the data-dir inline when provided', () => {
     render(<SyncFooter dataDir="/home/user/.tasko" />);
-    expect(screen.getByText(/Local files in \/home\/user\/.tasko/)).toBeTruthy();
+    expect(screen.getByText('Local · /home/user/.tasko')).toBeTruthy();
   });
 
-  it('does not render data-dir section when dataDir is undefined', () => {
+  it('does not surface a data-dir when dataDir is undefined', () => {
     render(<SyncFooter />);
-    expect(screen.queryByText(/Local files in/)).toBeNull();
-  });
-
-  it('shows the version and data-dir together', () => {
-    render(<SyncFooter dataDir="/tmp/tasko" />);
-    // Both texts are present
-    expect(screen.getByText('Tasko v1.0')).toBeTruthy();
-    expect(screen.getByText(/Local files in \/tmp\/tasko/)).toBeTruthy();
+    expect(screen.queryByText(/Local · /)).toBeNull();
   });
 });

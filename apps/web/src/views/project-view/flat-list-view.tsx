@@ -235,7 +235,7 @@ export function FlatListView({ projectId, projectName, onNavigateKanban }: FlatL
             className={styles.showCompletedBtn}
             onClick={() => setShowCompleted((v) => !v)}
           >
-            {showCompleted ? 'Hide completed' : `Show ${completedItems.length} completed`}
+            {showCompleted ? 'Hide completed' : `Show completed`}
           </button>
         )}
 

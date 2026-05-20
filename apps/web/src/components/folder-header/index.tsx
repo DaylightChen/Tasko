@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Folder, FolderOpen, MoreHorizontal } from 'lucide-react';
+import { ChevronDown, ChevronRight, Folder } from 'lucide-react';
 import type React from 'react';
 import styles from './styles.module.css';
 
@@ -6,6 +6,10 @@ export interface FolderHeaderProps {
   name: string;
   expanded: boolean;
   onToggle: () => void;
+  /** Folder context actions are surfaced via right-click on the sidebar row.
+   * These callbacks are kept so the parent can still wire context actions;
+   * we no longer render a hover ⋯ button (preview parity + the old button
+   * only triggered rename anyway). */
   onRename?: () => void;
   onDelete?: () => void;
   onNewProject?: () => void;
@@ -17,15 +21,12 @@ export interface FolderHeaderProps {
  * FolderHeader — collapsible sidebar folder row.
  * Chevron rotates from 0° (collapsed) to 90° (expanded) on toggle.
  * Keyboard: Right/Enter/Space = expand; Left = collapse.
- * Hover-only ⋯ for context actions.
+ * Folder icon is fixed (Folder); the chevron carries the expanded state.
  */
 export function FolderHeader({
   name,
   expanded,
   onToggle,
-  onRename,
-  onDelete,
-  onNewProject,
   children,
   id,
 }: FolderHeaderProps) {
@@ -41,16 +42,8 @@ export function FolderHeader({
     }
   };
 
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // Context menu is shown via the ⋯ button; right-click delegates to the same menu
-    // The parent decides menu rendering — this just exposes callbacks.
-  };
-
-  const hasMenu = onRename || onDelete || onNewProject;
-
   return (
-    <div className={styles.wrapper} onContextMenu={handleContextMenu}>
+    <div className={styles.wrapper}>
       <button
         type="button"
         className={styles.toggle}
@@ -64,29 +57,9 @@ export function FolderHeader({
         ) : (
           <ChevronRight size={16} aria-hidden="true" className={styles.chevron} />
         )}
-        {expanded ? (
-          <FolderOpen size={16} aria-hidden="true" className={styles.folderIcon} />
-        ) : (
-          <Folder size={16} aria-hidden="true" className={styles.folderIcon} />
-        )}
+        <Folder size={16} aria-hidden="true" className={styles.folderIcon} />
         <span className={styles.name}>{name}</span>
       </button>
-
-      {hasMenu && (
-        <button
-          type="button"
-          className={styles.moreBtn}
-          aria-label={`More actions for ${name}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            // Trigger context menu — parent wires this via onRename / onDelete / onNewProject
-            // For now show a native context menu at button position
-            onRename?.();
-          }}
-        >
-          <MoreHorizontal size={16} aria-hidden="true" />
-        </button>
-      )}
 
       {expanded && children && <div id={controlsId}>{children}</div>}
     </div>

@@ -54,7 +54,7 @@ export function SidebarNavItem({
       <span className={styles.label}>{label}</span>
       {count !== undefined && count > 0 && (
         <span className={styles.badge} aria-hidden="true">
-          ({count})
+          {count}
           {overdueCount !== undefined && overdueCount > 0 && (
             <span className={styles.overdueBadge}>{overdueCount}</span>
           )}

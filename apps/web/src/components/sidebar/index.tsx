@@ -6,6 +6,7 @@ import {
   Hash,
   Inbox,
   List,
+  Plus,
   Settings as SettingsIcon,
   Sun,
   Sunrise,
@@ -256,7 +257,7 @@ export function Sidebar() {
               onClick={() => setShowAddMenu((v) => !v)}
               aria-expanded={showAddMenu}
             >
-              +
+              <Plus size={14} aria-hidden="true" />
             </button>
             {showAddMenu && (
               <div className={styles.addMenu} role="menu">

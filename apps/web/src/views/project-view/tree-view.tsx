@@ -829,7 +829,7 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
               className={styles.showCompletedBtn}
               onClick={() => setShowCompleted((v) => !v)}
             >
-              {showCompleted ? 'Hide completed' : `Show ${completedCount} completed`}
+              {showCompleted ? 'Hide completed' : 'Show completed'}
             </Button>
           )}
         </div>

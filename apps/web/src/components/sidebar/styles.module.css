@@ -70,19 +70,28 @@
 }
 
 .addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
   color: var(--color-text-subtle);
   cursor: pointer;
-  padding: 2px 6px;
   border-radius: var(--radius-sm);
-  font-size: 16px;
-  line-height: 1;
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard);
 }
 
 .addBtn:hover {
   color: var(--color-text);
   background: var(--color-border-subtle);
+}
+
+.addBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 
 .addMenu {

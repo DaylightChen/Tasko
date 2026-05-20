@@ -46,7 +46,7 @@ export function ProjectRow({
       <span className={styles.label}>{name}</span>
       {count !== undefined && count > 0 && (
         <span className={styles.badge} aria-hidden="true">
-          ({count})
+          {count}
         </span>
       )}
     </Link>

@@ -85,7 +85,10 @@ describe('FolderHeader', () => {
     expect(screen.queryByText('Child item')).toBeNull();
   });
 
-  it('renders ⋯ more-actions button when menu callbacks are provided', () => {
+  // The hover ⋯ button was removed for preview parity — folder context
+  // actions (Rename / Delete / New project in folder) are reachable via
+  // right-click on the sidebar row.
+  it('does not render a hover ⋯ button even when menu callbacks are provided', () => {
     render(
       <FolderHeader
         name="Folder"
@@ -95,11 +98,6 @@ describe('FolderHeader', () => {
         onDelete={() => {}}
       />,
     );
-    expect(screen.getByRole('button', { name: /More actions for Folder/ })).toBeTruthy();
-  });
-
-  it('does not render ⋯ button when no menu callbacks', () => {
-    render(<FolderHeader name="Folder" expanded={true} onToggle={() => {}} />);
     expect(screen.queryByRole('button', { name: /More actions/ })).toBeNull();
   });
 });

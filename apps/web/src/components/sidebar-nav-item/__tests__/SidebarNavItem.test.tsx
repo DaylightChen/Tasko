@@ -43,10 +43,13 @@ describe('SidebarNavItem', () => {
     expect(container.querySelector('[class*="badge"]')).toBeNull();
   });
 
-  it('renders count badge "(5)" when count=5', () => {
-    render(<SidebarNavItem to="/today" label="Today" count={5} selected={false} />);
-    // Badge text includes (5)
-    expect(screen.getByText(/\(5\)/)).toBeTruthy();
+  it('renders count badge "5" when count=5', () => {
+    const { container } = render(
+      <SidebarNavItem to="/today" label="Today" count={5} selected={false} />,
+    );
+    const badge = container.querySelector('[class*="badge"]') as HTMLElement | null;
+    expect(badge).toBeTruthy();
+    expect(badge?.textContent).toContain('5');
   });
 
   it('does not render badge when count=0', () => {

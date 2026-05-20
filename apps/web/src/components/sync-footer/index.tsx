@@ -1,3 +1,4 @@
+import { HardDrive } from 'lucide-react';
 import type React from 'react';
 import styles from './styles.module.css';
 
@@ -6,15 +7,15 @@ export interface SyncFooterProps {
 }
 
 /**
- * SyncFooter — static sidebar footer showing app version and data directory.
- * Right-click: copy the data-dir to clipboard (one menu item).
+ * SyncFooter — static sidebar footer with an icon + caption. The UX preview
+ * has a cloud-check + "Synced Xm ago" line; Tasko is local-only so we use
+ * a HardDrive icon and surface the actual data directory instead.
+ * Right-click: copy the data-dir to clipboard (nice-to-have).
  */
 export function SyncFooter({ dataDir }: SyncFooterProps) {
   const handleContextMenu = (e: React.MouseEvent) => {
     if (!dataDir) return;
     e.preventDefault();
-    // Use native clipboard API — a simple right-click-to-copy behavior.
-    // This is "not load-bearing; nice to have" per brief.
     navigator.clipboard.writeText(dataDir).catch(() => {
       // Ignore clipboard errors silently.
     });
@@ -26,8 +27,10 @@ export function SyncFooter({ dataDir }: SyncFooterProps) {
       onContextMenu={handleContextMenu}
       title={dataDir ? `Right-click to copy: ${dataDir}` : undefined}
     >
-      <span>Tasko v1.0</span>
-      {dataDir && <span> · Local files in {dataDir}</span>}
+      <HardDrive size={14} aria-hidden="true" className={styles.icon} />
+      <span className={styles.text}>
+        {dataDir ? `Local · ${dataDir}` : 'Local files'}
+      </span>
     </div>
   );
 }
