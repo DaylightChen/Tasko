@@ -3,6 +3,7 @@ import { ChevronRight, Layers, LayoutGrid, MoreHorizontal, Repeat, SquareCheckBi
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { daysBetween, formatDateChip, formatDateLong, isOverdue } from '../../lib/date-fmt';
+import { guardDndKeyDown } from '../../lib/dnd-keydown';
 import { Checkbox } from '../checkbox';
 import { MultiDayChip } from '../multi-day-chip';
 import styles from './styles.module.css';
@@ -403,10 +404,12 @@ export function TaskListRow({
   };
 
   // Merge component's keydown handler with dnd-kit's listener so both fire.
+  // dnd-kit's onKeyDown is guarded — see lib/dnd-keydown.ts for rationale.
   const dndKeyDown = dragListeners?.onKeyDown as React.KeyboardEventHandler<HTMLLIElement> | undefined;
+  const guardedDndKeyDown = guardDndKeyDown(dndKeyDown);
   const mergedKeyDown = (e: React.KeyboardEvent<HTMLLIElement>) => {
     handleKeyDown(e);
-    dndKeyDown?.(e);
+    guardedDndKeyDown(e);
   };
 
   // Build merged listeners: keep all dnd listeners but replace onKeyDown with the merged handler.

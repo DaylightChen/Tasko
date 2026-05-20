@@ -22,6 +22,7 @@ import type { Item, ItemId, ProjectId } from '@tasko/types';
 import type React from 'react';
 import { useRef, useState } from 'react';
 import { useMoveItem } from '../../api/items';
+import { guardDndKeyDown } from '../../lib/dnd-keydown';
 import { DragOverlayContent } from '../../components/drag-visuals';
 import { announce } from '../../lib/a11y';
 import { canMoveClient } from '../../lib/depth-cap-client';
@@ -86,8 +87,19 @@ export function TreeRowDraggable({
       .filter(Boolean)
       .join(' ') || undefined;
 
+  // See lib/dnd-keydown.ts for why we guard the keyboard sensor.
+  const { onKeyDown: dndKeyDown, ...otherListeners } = (listeners ?? {}) as {
+    onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  } & React.HTMLAttributes<HTMLDivElement>;
+
   return (
-    <div ref={mergedRef} data-state={dataState} {...attributes} {...listeners}>
+    <div
+      ref={mergedRef}
+      data-state={dataState}
+      {...attributes}
+      {...otherListeners}
+      onKeyDown={guardDndKeyDown(dndKeyDown)}
+    >
       {children}
     </div>
   );

@@ -22,6 +22,8 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { FolderId, ProjectId } from '@tasko/types';
+import type React from 'react';
+import { guardDndKeyDown } from '../../lib/dnd-keydown';
 
 // Loose types to avoid brand mismatch with zod-parsed API data
 type LooseProject = {
@@ -75,13 +77,20 @@ export function SortableProject({ projectId, children }: SortableProjectProps) {
     transition,
   };
 
+  // See lib/dnd-keydown.ts — Enter inside the inline RenameInput would
+  // otherwise activate a phantom keyboard drag.
+  const { onKeyDown: dndKeyDown, ...otherListeners } = (listeners ?? {}) as {
+    onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  } & React.HTMLAttributes<HTMLDivElement>;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       data-state={isDragging ? 'drag-source-placeholder' : undefined}
       {...attributes}
-      {...listeners}
+      {...otherListeners}
+      onKeyDown={guardDndKeyDown(dndKeyDown)}
     >
       {children}
     </div>
@@ -107,13 +116,20 @@ export function SortableFolder({
     transition,
   };
 
+  // See lib/dnd-keydown.ts — Enter inside the inline folder-rename input
+  // would otherwise activate a phantom keyboard drag.
+  const { onKeyDown: dndKeyDown, ...otherListeners } = (listeners ?? {}) as {
+    onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  } & React.HTMLAttributes<HTMLDivElement>;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       data-state={isDragging ? 'drag-source-placeholder' : undefined}
       {...attributes}
-      {...listeners}
+      {...otherListeners}
+      onKeyDown={guardDndKeyDown(dndKeyDown)}
     >
       {children}
     </div>
