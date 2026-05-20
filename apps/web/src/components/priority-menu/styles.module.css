@@ -58,22 +58,24 @@
   flex-shrink: 0;
 }
 
+/* Priority dot colors mirror the design-language tokens used on the task row
+ * so picking "Low" (or any other) in the menu matches what the row renders.
+ * See docs/ux/design-language.md §2.7 — `priority-low` is gray, not green. */
 .dotNone {
-  background-color: var(--color-text-disabled);
-  border: 1px solid var(--color-border);
   background-color: transparent;
+  border: 1px solid var(--color-border);
 }
 
 .dotLow {
-  background-color: #22c55e;
+  background-color: var(--color-priority-low);
 }
 
 .dotMedium {
-  background-color: #f59e0b;
+  background-color: var(--color-priority-medium);
 }
 
 .dotHigh {
-  background-color: #ef4444;
+  background-color: var(--color-priority-high);
 }
 
 .label {
