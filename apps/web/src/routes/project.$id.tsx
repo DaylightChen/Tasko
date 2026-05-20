@@ -1,54 +1,10 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import type { ProjectId } from '@tasko/types';
-import { useProject } from '../api/projects';
-import { FlatListView } from '../views/project-view/flat-list-view';
-import { TreeView } from '../views/project-view/tree-view';
+import { Outlet, createFileRoute } from '@tanstack/react-router';
 
+// Layout route for /project/$id. The default (TreeView / FlatListView) lives
+// in project.$id.index.tsx; the kanban sub-route lives in project.$id.kanban.tsx.
+// Previously this file rendered the default view directly, with no <Outlet />,
+// so /project/$id/kanban silently fell back to the tree/flat list and the
+// kanban route never actually mounted.
 export const Route = createFileRoute('/project/$id')({
-  component: ProjectView,
+  component: () => <Outlet />,
 });
-
-function ProjectView() {
-  const { id } = Route.useParams();
-  const navigate = useNavigate();
-  const { project, isLoading } = useProject(id);
-
-  const handleNavigateKanban = () => {
-    void navigate({ to: '/project/$id/kanban', params: { id } });
-  };
-
-  if (isLoading) {
-    return (
-      <div style={{ padding: 'var(--space-6)' }} aria-busy="true">
-        Loading…
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div style={{ padding: 'var(--space-6)' }}>
-        <h1>Project not found</h1>
-        <p>The project with id "{id}" could not be found.</p>
-      </div>
-    );
-  }
-
-  if (project.is_hierarchical) {
-    return (
-      <TreeView
-        projectId={project.id as ProjectId}
-        projectName={project.name}
-        onNavigateKanban={handleNavigateKanban}
-      />
-    );
-  }
-
-  return (
-    <FlatListView
-      projectId={project.id as ProjectId}
-      projectName={project.name}
-      onNavigateKanban={handleNavigateKanban}
-    />
-  );
-}

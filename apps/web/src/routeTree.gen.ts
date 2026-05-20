@@ -23,6 +23,7 @@ import { Route as TagNameRouteImport } from './routes/tag.$name'
 import { Route as ProjectIdRouteImport } from './routes/project.$id'
 import { Route as CalendarWeekRouteImport } from './routes/calendar.week'
 import { Route as CalendarMonthRouteImport } from './routes/calendar.month'
+import { Route as ProjectIdIndexRouteImport } from './routes/project.$id.index'
 import { Route as ProjectIdKanbanRouteImport } from './routes/project.$id.kanban'
 
 const TrashRoute = TrashRouteImport.update({
@@ -95,6 +96,11 @@ const CalendarMonthRoute = CalendarMonthRouteImport.update({
   path: '/calendar/month',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectIdIndexRoute = ProjectIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProjectIdRoute,
+} as any)
 const ProjectIdKanbanRoute = ProjectIdKanbanRouteImport.update({
   id: '/kanban',
   path: '/kanban',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/tag/$name': typeof TagNameRoute
   '/calendar/': typeof CalendarIndexRoute
   '/project/$id/kanban': typeof ProjectIdKanbanRoute
+  '/project/$id/': typeof ProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,10 +137,10 @@ export interface FileRoutesByTo {
   '/trash': typeof TrashRoute
   '/calendar/month': typeof CalendarMonthRoute
   '/calendar/week': typeof CalendarWeekRoute
-  '/project/$id': typeof ProjectIdRouteWithChildren
   '/tag/$name': typeof TagNameRoute
   '/calendar': typeof CalendarIndexRoute
   '/project/$id/kanban': typeof ProjectIdKanbanRoute
+  '/project/$id': typeof ProjectIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +159,7 @@ export interface FileRoutesById {
   '/tag/$name': typeof TagNameRoute
   '/calendar/': typeof CalendarIndexRoute
   '/project/$id/kanban': typeof ProjectIdKanbanRoute
+  '/project/$id/': typeof ProjectIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +179,7 @@ export interface FileRouteTypes {
     | '/tag/$name'
     | '/calendar/'
     | '/project/$id/kanban'
+    | '/project/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,10 +193,10 @@ export interface FileRouteTypes {
     | '/trash'
     | '/calendar/month'
     | '/calendar/week'
-    | '/project/$id'
     | '/tag/$name'
     | '/calendar'
     | '/project/$id/kanban'
+    | '/project/$id'
   id:
     | '__root__'
     | '/'
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/tag/$name'
     | '/calendar/'
     | '/project/$id/kanban'
+    | '/project/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -324,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarMonthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/project/$id/': {
+      id: '/project/$id/'
+      path: '/'
+      fullPath: '/project/$id/'
+      preLoaderRoute: typeof ProjectIdIndexRouteImport
+      parentRoute: typeof ProjectIdRoute
+    }
     '/project/$id/kanban': {
       id: '/project/$id/kanban'
       path: '/kanban'
@@ -336,10 +353,12 @@ declare module '@tanstack/react-router' {
 
 interface ProjectIdRouteChildren {
   ProjectIdKanbanRoute: typeof ProjectIdKanbanRoute
+  ProjectIdIndexRoute: typeof ProjectIdIndexRoute
 }
 
 const ProjectIdRouteChildren: ProjectIdRouteChildren = {
   ProjectIdKanbanRoute: ProjectIdKanbanRoute,
+  ProjectIdIndexRoute: ProjectIdIndexRoute,
 }
 
 const ProjectIdRouteWithChildren = ProjectIdRoute._addFileChildren(
