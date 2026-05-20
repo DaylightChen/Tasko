@@ -1,6 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ItemCreateSchema, ItemPatchSchema, ItemSchema } from '@tasko/types';
-import type { Item, ItemCreate, ItemId, ItemPatch, LocalDate, Priority, Status } from '@tasko/types';
+import {
+  ItemCreateSchema,
+  ItemPatchSchema,
+  ItemSchema,
+  SubtaskCreateSchema,
+  SubtaskPatchSchema,
+} from '@tasko/types';
+import type {
+  Item,
+  ItemCreate,
+  ItemId,
+  ItemPatch,
+  LocalDate,
+  Priority,
+  Status,
+  SubtaskCreate,
+  SubtaskId,
+  SubtaskPatch,
+} from '@tasko/types';
 import { z } from 'zod';
 import { formatLocalDate } from '../components/date-picker/utils';
 import { useOptimisticMutation } from '../hooks/useOptimisticMutation';
@@ -107,6 +124,80 @@ export function usePatchItem() {
     },
     onError: () => {
       snackbar.show({ variant: 'error', text: "Couldn't save. Try again.", durationMs: 5000 });
+    },
+  });
+}
+
+export function useCreateSubtask() {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbarStore();
+
+  return useMutation({
+    mutationFn: ({ itemId, body }: { itemId: ItemId; body: SubtaskCreate }) =>
+      apiCall(
+        'POST',
+        `/api/items/${itemId}/subtasks`,
+        SubtaskCreateSchema.parse(body),
+        ItemSchema,
+      ) as Promise<Item>,
+    onSuccess: (parent) => {
+      queryClient.setQueryData(itemKeys.detail(parent.id as ItemId), parent);
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+    onError: () => {
+      snackbar.show({ variant: 'error', text: "Couldn't add subtask. Try again.", durationMs: 5000 });
+    },
+  });
+}
+
+export function usePatchSubtask() {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbarStore();
+
+  return useMutation({
+    mutationFn: ({
+      itemId,
+      subtaskId,
+      patch,
+    }: {
+      itemId: ItemId;
+      subtaskId: SubtaskId;
+      patch: SubtaskPatch;
+    }) =>
+      apiCall(
+        'PATCH',
+        `/api/items/${itemId}/subtasks/${subtaskId}`,
+        SubtaskPatchSchema.parse(patch),
+        ItemSchema,
+      ) as Promise<Item>,
+    onSuccess: (parent) => {
+      queryClient.setQueryData(itemKeys.detail(parent.id as ItemId), parent);
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+    onError: () => {
+      snackbar.show({ variant: 'error', text: "Couldn't update subtask. Try again.", durationMs: 5000 });
+    },
+  });
+}
+
+export function useDeleteSubtask() {
+  const queryClient = useQueryClient();
+  const snackbar = useSnackbarStore();
+
+  return useMutation({
+    mutationFn: ({ itemId, subtaskId }: { itemId: ItemId; subtaskId: SubtaskId }) =>
+      apiCall(
+        'DELETE',
+        `/api/items/${itemId}/subtasks/${subtaskId}`,
+        undefined,
+        ItemSchema,
+      ) as Promise<Item>,
+    onSuccess: (parent) => {
+      queryClient.setQueryData(itemKeys.detail(parent.id as ItemId), parent);
+      queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    },
+    onError: () => {
+      snackbar.show({ variant: 'error', text: "Couldn't delete subtask. Try again.", durationMs: 5000 });
     },
   });
 }

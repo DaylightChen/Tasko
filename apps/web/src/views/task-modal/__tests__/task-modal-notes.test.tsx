@@ -18,6 +18,9 @@ vi.mock('../../../api/items', () => ({
   usePatchItem: vi.fn(),
   useItem: vi.fn(),
   useItems: vi.fn(),
+  useCreateSubtask: vi.fn(() => ({ mutateAsync: vi.fn(), isPending: false })),
+  usePatchSubtask: vi.fn(() => ({ mutateAsync: vi.fn(), isPending: false })),
+  useDeleteSubtask: vi.fn(() => ({ mutateAsync: vi.fn(), isPending: false })),
 }));
 
 vi.mock('../../../api/tags', () => ({

@@ -21,6 +21,9 @@ vi.mock('../../../api/items', () => ({
   usePatchItem: vi.fn(),
   useItem: vi.fn(),
   useItems: vi.fn(),
+  useCreateSubtask: vi.fn(),
+  usePatchSubtask: vi.fn(),
+  useDeleteSubtask: vi.fn(),
 }));
 
 vi.mock('../../../api/tags', () => ({
@@ -48,7 +51,14 @@ vi.mock('../../../lib/use-is-mobile', () => ({
 
 import { useConfig } from '../../../api/config';
 import { useFolders } from '../../../api/folders';
-import { useCreateItem, useItem, usePatchItem } from '../../../api/items';
+import {
+  useCreateItem,
+  useCreateSubtask,
+  useDeleteSubtask,
+  useItem,
+  usePatchItem,
+  usePatchSubtask,
+} from '../../../api/items';
 import { useProjects } from '../../../api/projects';
 import { useCreateTag, useTags } from '../../../api/tags';
 import { useTaskModalStore } from '../../../store/task-modal';
@@ -140,6 +150,21 @@ function setupDefaultMocks() {
     mutateAsync: vi.fn(),
     isPending: false,
   } as unknown as ReturnType<typeof useCreateTag>);
+
+  vi.mocked(useCreateSubtask).mockReturnValue({
+    mutateAsync: vi.fn().mockResolvedValue(makeItem()),
+    isPending: false,
+  } as unknown as ReturnType<typeof useCreateSubtask>);
+
+  vi.mocked(usePatchSubtask).mockReturnValue({
+    mutateAsync: vi.fn().mockResolvedValue(makeItem()),
+    isPending: false,
+  } as unknown as ReturnType<typeof usePatchSubtask>);
+
+  vi.mocked(useDeleteSubtask).mockReturnValue({
+    mutateAsync: vi.fn().mockResolvedValue(makeItem()),
+    isPending: false,
+  } as unknown as ReturnType<typeof useDeleteSubtask>);
 }
 
 function renderTaskModal() {
@@ -761,5 +786,177 @@ describe('TaskModal — subtasks in new-task mode ship in POST body', () => {
     const titles = callArg.subtasks?.map((s) => s.title) ?? [];
     expect(titles).toContain('Subtask Alpha');
     expect(titles).toContain('Subtask Beta');
+  });
+});
+
+describe('TaskModal — edit-mode subtask mutations go through dedicated endpoints', () => {
+  // Regression for Bug 1: editing a task and clicking "Add subtask" used to push
+  // a client-side crypto.randomUUID() into the form-state subtasks array, then
+  // ship the whole array via the parent PATCH on Save. ItemPatchSchema rejected
+  // the temp UUID (not a ULID) on the client, so Save silently failed with the
+  // generic "Couldn't save. Try again." snackbar.
+  //
+  // Regression for Bug 2: toggling a subtask done in the modal used to set
+  // status='done' without stamping completed_at, because the modal sent the
+  // change inline through parent PATCH (which doesn't stamp). kanban-card's
+  // progress badge (which counts `completed_at !== null`) under-counted.
+  //
+  // Fix: in edit mode, each subtask interaction calls its dedicated endpoint,
+  // and the parent PATCH on Save does not include subtasks.
+  const EDIT_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+
+  let createSubtaskMutate: ReturnType<typeof vi.fn>;
+  let patchSubtaskMutate: ReturnType<typeof vi.fn>;
+  let deleteSubtaskMutate: ReturnType<typeof vi.fn>;
+  let patchItemMutate: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    setupDefaultMocks();
+    act(() => {
+      useTaskModalStore.getState().close();
+    });
+
+    // Existing item with one already-saved subtask so we can also exercise toggle.
+    const existing = makeItem({
+      id: EDIT_ID as ItemId,
+      title: 'Existing Task',
+      subtasks: [
+        {
+          id: '01HXYZSUBTASK0000000000001' as import('@tasko/types').SubtaskId,
+          title: 'Pre-existing sub',
+          status: 'todo',
+          completed_at: null,
+          sort_order: 1024,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+      ],
+    });
+
+    vi.mocked(useItem).mockReturnValue({
+      data: existing,
+      isLoading: false,
+    } as unknown as ReturnType<typeof useItem>);
+
+    createSubtaskMutate = vi.fn().mockResolvedValue(existing);
+    patchSubtaskMutate = vi.fn().mockResolvedValue(existing);
+    deleteSubtaskMutate = vi.fn().mockResolvedValue(existing);
+    patchItemMutate = vi.fn().mockResolvedValue(existing);
+
+    vi.mocked(useCreateSubtask).mockReturnValue({
+      mutateAsync: createSubtaskMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useCreateSubtask>);
+
+    vi.mocked(usePatchSubtask).mockReturnValue({
+      mutateAsync: patchSubtaskMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof usePatchSubtask>);
+
+    vi.mocked(useDeleteSubtask).mockReturnValue({
+      mutateAsync: deleteSubtaskMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useDeleteSubtask>);
+
+    vi.mocked(usePatchItem).mockReturnValue({
+      mutateAsync: patchItemMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof usePatchItem>);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    act(() => {
+      useTaskModalStore.getState().close();
+    });
+  });
+
+  it('adding a subtask in edit mode calls useCreateSubtask (not parent PATCH with temp UUID)', async () => {
+    renderTaskModal();
+    openEditModal(EDIT_ID);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Expand "More" to reveal the subtask list
+    fireEvent.click(screen.getByRole('button', { name: /more/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /^add subtask$/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /^add subtask$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: /new subtask title/i })).toBeInTheDocument();
+    });
+
+    const input = screen.getByRole('textbox', { name: /new subtask title/i });
+    fireEvent.change(input, { target: { value: 'New child task' } });
+
+    await act(async () => {
+      fireEvent.keyDown(input, { key: 'Enter' });
+    });
+
+    // The dedicated POST /subtasks endpoint mutation should fire with the parent
+    // id and the SubtaskCreate body — server mints the ULID.
+    await waitFor(() => {
+      expect(createSubtaskMutate).toHaveBeenCalledTimes(1);
+    });
+    const callArg = createSubtaskMutate.mock.calls[0]?.[0] as {
+      itemId: string;
+      body: { title: string; status?: string; sort_order?: number };
+    };
+    expect(callArg.itemId).toBe(EDIT_ID);
+    expect(callArg.body.title).toBe('New child task');
+
+    // Parent PATCH must NOT have been called with subtasks in the body.
+    // (It may not have been called at all here — the user hasn't clicked Save.)
+    for (const call of patchItemMutate.mock.calls) {
+      const patch = call[0] as { patch?: { subtasks?: unknown } };
+      expect(patch.patch?.subtasks).toBeUndefined();
+    }
+  });
+
+  it('toggling a subtask in edit mode calls usePatchSubtask (server stamps completed_at)', async () => {
+    renderTaskModal();
+    openEditModal(EDIT_ID);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Expand "More" to reveal the subtask list
+    fireEvent.click(screen.getByRole('button', { name: /more/i }));
+
+    // The existing subtask checkbox
+    const checkbox = await screen.findByRole('checkbox', {
+      name: /mark subtask "pre-existing sub" complete/i,
+    });
+
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    // The dedicated PATCH /subtasks/:sid endpoint should fire with status: 'done'.
+    // The server stamps completed_at; client just sends the status change.
+    await waitFor(() => {
+      expect(patchSubtaskMutate).toHaveBeenCalledTimes(1);
+    });
+    const callArg = patchSubtaskMutate.mock.calls[0]?.[0] as {
+      itemId: string;
+      subtaskId: string;
+      patch: { status?: string };
+    };
+    expect(callArg.itemId).toBe(EDIT_ID);
+    expect(callArg.subtaskId).toBe('01HXYZSUBTASK0000000000001');
+    expect(callArg.patch.status).toBe('done');
+
+    // Parent PATCH must NOT have been called with subtasks in the body for this interaction.
+    for (const call of patchItemMutate.mock.calls) {
+      const patch = call[0] as { patch?: { subtasks?: unknown } };
+      expect(patch.patch?.subtasks).toBeUndefined();
+    }
   });
 });

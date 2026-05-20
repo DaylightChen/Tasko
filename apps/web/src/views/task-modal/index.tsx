@@ -15,7 +15,14 @@ import { Trash2 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useConfig } from '../../api/config';
-import { useCreateItem, useItem, usePatchItem } from '../../api/items';
+import {
+  useCreateItem,
+  useCreateSubtask,
+  useDeleteSubtask,
+  useItem,
+  usePatchItem,
+  usePatchSubtask,
+} from '../../api/items';
 import { useCreateTag, useTags } from '../../api/tags';
 import { Button } from '../../components/button';
 import { DatePicker } from '../../components/date-picker';
@@ -56,6 +63,9 @@ function TaskModalContent() {
   // API hooks
   const createItem = useCreateItem();
   const patchItem = usePatchItem();
+  const createSubtask = useCreateSubtask();
+  const patchSubtask = usePatchSubtask();
+  const deleteSubtask = useDeleteSubtask();
   const createTag = useCreateTag();
   const { data: tagsData } = useTags(true);
 
@@ -177,6 +187,9 @@ function TaskModalContent() {
         await createItem.mutateAsync(body);
         close();
       } else if (mode === 'edit' && editingItemId) {
+        // Subtasks are persisted eagerly via the dedicated endpoints
+        // (useCreateSubtask / usePatchSubtask / useDeleteSubtask) — don't
+        // include them in the parent PATCH body.
         const patch: ItemPatch = {
           title: values.title.trim(),
           notes: values.notes,
@@ -189,7 +202,6 @@ function TaskModalContent() {
           recurrence: values.recurrence,
           project_id: values.project_id as ProjectId,
           parent_id: values.parent_id as ItemId | null,
-          subtasks: values.subtasks as Subtask[],
         };
         await patchItem.mutateAsync({ id: editingItemId, patch });
         close();
@@ -212,7 +224,18 @@ function TaskModalContent() {
     return result as Tag;
   };
 
+  // In new mode subtasks live in form state and ship via the parent POST body.
+  // In edit mode each interaction calls its dedicated endpoint so the server
+  // mints ULIDs, stamps completed_at, and keeps the array authoritative.
   const handleSubtaskToggle = (id: string, done: boolean) => {
+    if (mode === 'edit' && editingItemId) {
+      void patchSubtask.mutateAsync({
+        itemId: editingItemId,
+        subtaskId: id as SubtaskId,
+        patch: { status: done ? 'done' : 'todo' },
+      });
+      return;
+    }
     setField(
       'subtasks',
       (values.subtasks as Subtask[]).map((s) =>
@@ -222,6 +245,14 @@ function TaskModalContent() {
   };
 
   const handleSubtaskRename = (id: string, title: string) => {
+    if (mode === 'edit' && editingItemId) {
+      void patchSubtask.mutateAsync({
+        itemId: editingItemId,
+        subtaskId: id as SubtaskId,
+        patch: { title },
+      });
+      return;
+    }
     setField(
       'subtasks',
       (values.subtasks as Subtask[]).map((s) => (s.id === id ? { ...s, title } : s)) as Subtask[],
@@ -229,14 +260,44 @@ function TaskModalContent() {
   };
 
   const handleSubtaskDelete = (id: string) => {
+    if (mode === 'edit' && editingItemId) {
+      void deleteSubtask.mutateAsync({
+        itemId: editingItemId,
+        subtaskId: id as SubtaskId,
+      });
+      return;
+    }
     setField('subtasks', (values.subtasks as Subtask[]).filter((s) => s.id !== id) as Subtask[]);
   };
 
   const handleSubtaskReorder = (reordered: Subtask[]) => {
+    if (mode === 'edit' && editingItemId) {
+      // Send one PATCH per subtask whose sort_order changed. Server's
+      // withWriteLock serializes them; cache converges on the last response.
+      const current = (existingItem?.subtasks ?? []) as Subtask[];
+      const byId = new Map(current.map((s) => [s.id, s.sort_order]));
+      for (const s of reordered) {
+        if (byId.get(s.id) !== s.sort_order) {
+          void patchSubtask.mutateAsync({
+            itemId: editingItemId,
+            subtaskId: s.id as SubtaskId,
+            patch: { sort_order: s.sort_order },
+          });
+        }
+      }
+      return;
+    }
     setField('subtasks', reordered as Subtask[]);
   };
 
   const handleSubtaskAdd = (subtask: SubtaskCreate) => {
+    if (mode === 'edit' && editingItemId) {
+      // Strip the client-computed sort_order so the server picks max+1024;
+      // this avoids stale/colliding values on rapid adds or after reorders.
+      const { sort_order: _drop, ...body } = subtask;
+      void createSubtask.mutateAsync({ itemId: editingItemId, body });
+      return;
+    }
     const tempId = crypto.randomUUID() as unknown as SubtaskId; // brand cast — temp id only, dropped in POST body strip
     setField('subtasks', [...(values.subtasks as Subtask[]), { ...subtask, id: tempId } as Subtask]);
   };
@@ -424,7 +485,11 @@ function TaskModalContent() {
             <div className={styles.field}>
               <p className={styles.fieldLabel}>Subtasks</p>
               <SubtaskList
-                subtasks={values.subtasks as Subtask[]}
+                subtasks={
+                  mode === 'edit'
+                    ? ((existingItem?.subtasks ?? []) as Subtask[])
+                    : (values.subtasks as Subtask[])
+                }
                 onToggle={handleSubtaskToggle}
                 onRename={handleSubtaskRename}
                 onDelete={handleSubtaskDelete}
