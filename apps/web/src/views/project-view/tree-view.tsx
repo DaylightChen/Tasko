@@ -820,11 +820,11 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
             onClick={() => taskModal.openNew({ initialProjectId: projectId })}
           >
             <Plus size={14} aria-hidden="true" />
-            Add Task in project
+            Add Task in Project
           </Button>
           {completedCount > 0 && (
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
               className={styles.showCompletedBtn}
               onClick={() => setShowCompleted((v) => !v)}

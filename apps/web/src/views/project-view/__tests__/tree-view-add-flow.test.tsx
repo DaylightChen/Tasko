@@ -4,7 +4,7 @@
  * Covers:
  * - Click "+ Add Epic" → inline TextInput appears
  * - Type text + Enter → createItem.mutate called with { type: 'epic', parent_id: null, project_id, title, due_date: today }
- * - Click "+ Add Task in project" → taskModalStore.openNew called with initialProjectId
+ * - Click "+ Add Task in Project" → taskModalStore.openNew called with initialProjectId
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Item, ItemId, LocalDate, ProjectId } from '@tasko/types';
@@ -196,8 +196,8 @@ describe('TreeView — add flows', () => {
     expect(createMutate).not.toHaveBeenCalled();
   });
 
-  it('clicking "+ Add Task in project" opens the task modal with initialProjectId', () => {
-    // The "+ Add Task in project" button is only rendered in the non-empty state header.
+  it('clicking "+ Add Task in Project" opens the task modal with initialProjectId', () => {
+    // The "+ Add Task in Project" button is only rendered in the non-empty state header.
     // Provide a non-empty item list so the full header renders.
     const epicItem = makeItem('epic-1', { type: 'epic', title: 'An Epic', sort_order: 0 });
     renderTreeView([epicItem]);
@@ -205,7 +205,7 @@ describe('TreeView — add flows', () => {
     // Reset modal state just before the interaction
     useTaskModalStore.setState({ mode: 'closed' });
 
-    const addTaskBtn = screen.getByRole('button', { name: /Add Task in project/i });
+    const addTaskBtn = screen.getByRole('button', { name: /Add Task in Project/i });
     fireEvent.click(addTaskBtn);
 
     const state = useTaskModalStore.getState();

@@ -228,9 +228,9 @@ describe('TreeView — render', () => {
     expect(screen.getByRole('button', { name: /Add Epic/i })).toBeTruthy();
   });
 
-  it('renders the "Add Task in project" button', () => {
+  it('renders the "Add Task in Project" button', () => {
     renderTreeView();
-    expect(screen.getByRole('button', { name: /Add Task in project/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Add Task in Project/i })).toBeTruthy();
   });
 });
 
