@@ -78,18 +78,9 @@
   background: var(--color-border-subtle);
 }
 
+/* Push the show/hide-completed toggle to the right end of the .addActions row. */
 .showCompletedBtn {
-  align-self: flex-start;
-  background: transparent;
-  border: none;
-  font-size: var(--text-small);
-  color: var(--text-subtle);
-  cursor: pointer;
-  padding: var(--space-2) 0;
-}
-
-.showCompletedBtn:hover {
-  color: var(--accent);
+  margin-left: auto;
 }
 
 .loadingPlaceholder {

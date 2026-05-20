@@ -822,6 +822,16 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
             <Plus size={14} aria-hidden="true" />
             Add Task in project
           </Button>
+          {completedCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.showCompletedBtn}
+              onClick={() => setShowCompleted((v) => !v)}
+            >
+              {showCompleted ? 'Hide completed' : `Show ${completedCount} completed`}
+            </Button>
+          )}
         </div>
 
         {/* + Add Epic inline row (top-level) */}
@@ -966,17 +976,6 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
             </div>
           )}
         </TreeDndContext>
-
-        {/* Show N completed toggle */}
-        {completedCount > 0 && (
-          <button
-            type="button"
-            className={styles.showCompletedBtn}
-            onClick={() => setShowCompleted((v) => !v)}
-          >
-            {showCompleted ? 'Hide completed' : `Show ${completedCount} completed`}
-          </button>
-        )}
 
         {/* Context menu */}
         {contextMenuState && (
