@@ -65,6 +65,7 @@ function TaskModalContent() {
   // Refs for focus management
   const titleRef = useRef<HTMLInputElement>(null);
   const dueDateRef = useRef<HTMLButtonElement>(null);
+  const startDateRef = useRef<HTMLButtonElement>(null);
 
   // "More" disclosure state
   const [moreOpen, setMoreOpen] = useState(false);
@@ -326,6 +327,7 @@ function TaskModalContent() {
         <p className={styles.fieldLabel}>Start date (optional)</p>
         <div className={styles.startDateWrapper}>
           <button
+            ref={startDateRef}
             type="button"
             className={styles.dateBtn}
             data-error={errors.start_date ? '' : undefined}
@@ -350,6 +352,7 @@ function TaskModalContent() {
             weekStart={weekStart}
             open={startDateOpen}
             onClose={() => setStartDateOpen(false)}
+            anchorEl={startDateRef.current}
             isMobile={isMobile}
           />
         </div>
