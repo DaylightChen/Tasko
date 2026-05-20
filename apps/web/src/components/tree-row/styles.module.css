@@ -17,22 +17,22 @@
 
 .row:hover,
 .row[data-state~="hover"] {
-  background: var(--canvas-subtle);
+  background: var(--color-canvas-subtle);
 }
 
 .row:focus-visible,
 .row[data-state~="focus"] {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-accent);
   outline-offset: -2px;
 }
 
 .row[data-state~="selected"] {
-  background: var(--accent-subtle);
+  background: var(--color-accent-subtle);
 }
 
 .row[data-state~="completed"] .title {
   text-decoration: line-through;
-  color: var(--text-subtle);
+  color: var(--color-text-subtle);
 }
 
 /* Indent guide */
@@ -41,7 +41,7 @@
   width: 24px;
   min-width: 24px;
   align-self: stretch;
-  border-left: 1px solid var(--border-subtle);
+  border-left: 1px solid var(--color-border-subtle);
   margin-left: 11px;
 }
 
@@ -72,7 +72,7 @@
 
 /* Type icon */
 .typeIcon {
-  color: var(--text-subtle);
+  color: var(--color-text-subtle);
   flex-shrink: 0;
 }
 
@@ -90,7 +90,7 @@
   border: none;
   cursor: text;
   font: inherit;
-  color: var(--text);
+  color: var(--color-text);
   text-align: left;
   padding: 0;
   white-space: nowrap;
@@ -101,17 +101,17 @@
 
 .title[data-completed] {
   text-decoration: line-through;
-  color: var(--text-subtle);
+  color: var(--color-text-subtle);
 }
 
 .inlineEditInput {
   flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
   font: inherit;
-  color: var(--text);
+  color: var(--color-text);
   outline: none;
 }
 
@@ -173,7 +173,7 @@
 /* Priority dot */
 .priorityDot {
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--color-accent);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -182,17 +182,17 @@
 
 .priorityDot[data-priority="none"] {
   background: transparent;
-  border: 1.5px solid var(--text-disabled);
+  border: 1.5px solid var(--color-text-disabled);
 }
 
 .priorityDot[data-priority="low"] {
-  background: var(--accent);
+  background: var(--color-priority-low);
 }
 .priorityDot[data-priority="medium"] {
-  background: var(--priority-medium, #f59e0b);
+  background: var(--color-priority-medium);
 }
 .priorityDot[data-priority="high"] {
-  background: var(--overdue, #dc2626);
+  background: var(--color-priority-high);
 }
 
 /* Rollup progress */
@@ -203,9 +203,11 @@
 }
 
 .rollupLabel {
-  font-size: var(--text-small);
-  color: var(--text-subtle);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  color: var(--color-text-subtle);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .rollupBar {
@@ -228,7 +230,7 @@
 /* Drag source placeholder */
 .row[data-state~="drag-source-placeholder"] {
   opacity: 0.4;
-  background: var(--accent-subtle);
+  background: var(--color-accent-subtle);
   animation: placeholderPulse var(--motion-medium, 1.2s) ease-in-out infinite;
 }
 
@@ -244,14 +246,14 @@
 
 /* Drop target */
 .row[data-state~="drop-target"] {
-  background: var(--accent-subtle) !important;
-  outline: 2px dashed var(--accent);
+  background: var(--color-accent-subtle) !important;
+  outline: 2px dashed var(--color-accent);
   outline-offset: -2px;
 }
 
 /* Depth-cap reject */
 .row[data-state~="depth-cap-reject"] {
-  outline: 2px solid var(--overdue);
+  outline: 2px solid var(--color-overdue);
   outline-offset: -2px;
   cursor: no-drop;
 }
@@ -276,7 +278,7 @@
   right: var(--space-2);
   top: 50%;
   transform: translateY(-50%);
-  background: var(--canvas-subtle);
+  background: var(--color-canvas-subtle);
   border-radius: var(--radius-sm);
   padding: 2px var(--space-1);
 }
@@ -290,12 +292,12 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-subtle);
+  color: var(--color-text-subtle);
   border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
 .hoverBtn:hover {
-  color: var(--text);
-  background: var(--canvas);
+  color: var(--color-text);
+  background: var(--color-canvas);
 }
