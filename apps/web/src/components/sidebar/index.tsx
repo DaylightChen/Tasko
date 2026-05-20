@@ -1,6 +1,16 @@
-import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import type { FolderId, ProjectId } from '@tasko/types';
-import { CalendarDays, CheckCircle2, Hash, Inbox, List, Sun, Sunrise, Trash2 } from 'lucide-react';
+import {
+  CalendarDays,
+  CheckCircle2,
+  Hash,
+  Inbox,
+  List,
+  Settings as SettingsIcon,
+  Sun,
+  Sunrise,
+  Trash2,
+} from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
@@ -470,14 +480,12 @@ export function Sidebar() {
           <SidebarNavItem to="/trash" icon={Trash2} label="Trash" selected={isActive('/trash')} />
         </li>
         <li>
-          <Link
+          <SidebarNavItem
             to="/settings"
-            className={styles.navItem}
-            data-active={isActive('/settings') ? '' : undefined}
-            aria-current={isActive('/settings') ? 'page' : undefined}
-          >
-            <span className={styles.navLabel}>Settings</span>
-          </Link>
+            icon={SettingsIcon}
+            label="Settings"
+            selected={isActive('/settings')}
+          />
         </li>
       </ul>
 
