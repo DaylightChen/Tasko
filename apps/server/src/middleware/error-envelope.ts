@@ -13,7 +13,7 @@ export class HttpError extends Error {
   }
 }
 
-export function envelope(err: unknown, _req: FastifyRequest, reply: FastifyReply): void {
+export function envelope(err: unknown, req: FastifyRequest, reply: FastifyReply): void {
   if (err instanceof HttpError) {
     void reply
       .code(err.statusCode)
@@ -26,5 +26,8 @@ export function envelope(err: unknown, _req: FastifyRequest, reply: FastifyReply
       .send({ error: { code: 'VALIDATION', message: 'Invalid request body.', details: err.issues } });
     return;
   }
+  // Unhandled — log full error so it's debuggable from server stderr instead
+  // of disappearing into a generic 500.
+  req.log.error({ err, url: req.url, method: req.method }, 'unhandled error in route');
   void reply.code(500).send({ error: { code: 'INTERNAL', message: 'Server error.' } });
 }

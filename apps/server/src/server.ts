@@ -65,6 +65,23 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
     credentials: false,
   });
 
+  // Tolerate `Content-Type: application/json` with an empty body. Fastify v5's
+  // default JSON parser throws FST_ERR_CTP_EMPTY_JSON_BODY in that case, which
+  // bites DELETE / no-body requests where a client still advertises JSON.
+  // Treat an empty body the same as undefined.
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+    const raw = typeof body === 'string' ? body : '';
+    if (raw.trim() === '') {
+      done(null, undefined);
+      return;
+    }
+    try {
+      done(null, JSON.parse(raw));
+    } catch (err) {
+      done(err as Error, undefined);
+    }
+  });
+
   // Routes
   registerHealthRoute(app);
   registerEventsRoute(app);

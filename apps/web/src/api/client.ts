@@ -27,15 +27,16 @@ export async function apiCall<TOut>(
   responseSchema: ZodSchema<TOut>,
 ): Promise<TOut> {
   const url = new URL(path, window.location.origin);
-  const init: RequestInit = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tasko-Tab-Id': getTabId(),
-    },
+  // Only advertise application/json when there's a body. Fastify v5 rejects
+  // Content-Type: application/json + empty body with FST_ERR_CTP_EMPTY_JSON_BODY,
+  // which our error envelope rewraps as a 500. (Bites DELETE in particular.)
+  const headers: Record<string, string> = {
+    'X-Tasko-Tab-Id': getTabId(),
   };
+  const init: RequestInit = { method, headers };
 
   if (body !== undefined) {
+    headers['Content-Type'] = 'application/json';
     init.body = JSON.stringify(body);
   }
 
