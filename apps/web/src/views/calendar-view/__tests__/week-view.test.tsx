@@ -463,6 +463,33 @@ describe('CalendarWeekView — week range header microcopy §24', () => {
     const text = rangeLabel?.textContent?.trim() ?? '';
     expect(text).toMatch(/^[A-Z][a-z]+ \d{1,2} – [A-Z][a-z]+ \d{1,2}, \d{4}$/);
   });
+
+  it('Default week always contains today, regardless of mon/sun weekStart preference', () => {
+    // Regression: the realign effect used to derive startOfWeek from the
+    // previous week's start, which for a sun→mon switch landed on the
+    // *previous* Monday — i.e. the week before today's. The fix is to
+    // anchor on the middle of the week (prev + 3 days) so both preferences
+    // produce a startOfWeek inside today's calendar week.
+    // today is mocked to '2026-05-19' (Tuesday); config is 'sun'.
+    setupItemsMock([]);
+    // Ensure URL is clean for this test (other tests pollute it).
+    window.history.replaceState(null, '', '/calendar/week');
+    renderWeek();
+
+    const rangeLabel = document.querySelector('[aria-live="polite"]');
+    const text = rangeLabel?.textContent?.trim() ?? '';
+    // The week containing 2026-05-19:
+    //   sun-week: May 17 – May 23
+    //   mon-week: May 18 – May 24
+    // Either way it should contain May 19 (today). Use the day-of-month
+    // range as the assertion.
+    const m = text.match(/(\d{1,2}) – \w+ (\d{1,2})/);
+    expect(m).not.toBeNull();
+    const start = Number(m?.[1] ?? 0);
+    const end = Number(m?.[2] ?? 0);
+    expect(start).toBeLessThanOrEqual(19);
+    expect(end).toBeGreaterThanOrEqual(19);
+  });
 });
 
 describe('CalendarWeekView — multi-day item chip positions (folded from week-view-additional)', () => {

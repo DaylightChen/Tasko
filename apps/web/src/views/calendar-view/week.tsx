@@ -153,18 +153,30 @@ export function CalendarWeekView() {
   const today = todayLocal();
 
   const { data: configData } = useConfig();
-  const weekStart: 'sun' | 'mon' = configData?.week_start ?? 'sun';
+  // System default is 'mon' (per packages/types schemas/config.ts) — match it
+  // so the pre-config-loaded state lines up with the post-load state.
+  const weekStart: 'sun' | 'mon' = configData?.week_start ?? 'mon';
 
-  // Week from URL param or default to current week
+  // Week from URL param or default to current week. The URL value may have
+  // been written with a different weekStart preference (e.g. sun-saved then
+  // user flipped to mon), so we anchor on the *middle* of that week to land
+  // on the right Monday/Sunday regardless.
   const [weekStartDate, setWeekStartDate] = useState<LocalDate>(() => {
-    if (typeof window === 'undefined') return startOfWeek(today, 'sun');
+    if (typeof window === 'undefined') return startOfWeek(today, 'mon');
     const fromUrl = parseWeekParam(window.location.search);
-    return fromUrl ? startOfWeek(fromUrl, 'sun') : startOfWeek(today, 'sun');
+    return fromUrl
+      ? startOfWeek(addDays(fromUrl, 3), 'mon')
+      : startOfWeek(today, 'mon');
   });
 
-  // When weekStart config loads, re-align current week start
+  // When weekStart config loads (or changes), re-align the current week start
+  // to the matching weekStart preference. Anchor on the MIDDLE of the
+  // currently-displayed week (prev + 3 days) so both weekStarts produce a
+  // start-of-week within the same calendar week. Anchoring on prev directly
+  // would shift sun→mon to the *previous* Monday (since the Sunday-start IS
+  // the last day of the previous Monday-week).
   useEffect(() => {
-    setWeekStartDate((prev) => startOfWeek(prev, weekStart));
+    setWeekStartDate((prev) => startOfWeek(addDays(prev, 3), weekStart));
   }, [weekStart]);
 
   // Sync week param to URL
