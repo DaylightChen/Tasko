@@ -125,6 +125,10 @@ export function Sidebar() {
   const handleContextMenu = useCallback(
     (e: MouseEvent, type: 'project' | 'folder', id: string, name: string) => {
       e.preventDefault();
+      // Stop bubbling: otherwise right-clicking a project nested inside a
+      // folder fires the project handler first, then the folder handler
+      // overwrites the menu with folder actions.
+      e.stopPropagation();
       setContextMenu({ type, id, name, x: e.clientX, y: e.clientY });
     },
     [],

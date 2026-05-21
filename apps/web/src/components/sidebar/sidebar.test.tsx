@@ -320,6 +320,57 @@ describe('Sidebar', () => {
       expect(screen.getByText('Toggle hierarchical')).toBeTruthy();
       expect(screen.getByText('Delete')).toBeTruthy();
     });
+
+    it('right-clicking a project NESTED in a folder shows project actions, not folder actions', () => {
+      // Regression: the project's contextmenu handler used to bubble up to
+      // the folder's handler, which would overwrite the menu with folder
+      // actions ("Rename folder", "Delete folder", etc.) instead of project
+      // actions ("Rename", "Move to folder", "Toggle hierarchical", "Delete").
+      vi.mocked(useProjects).mockReturnValue({
+        data: {
+          projects: [
+            makeProject('inbox-1', 'Inbox', { is_inbox: true }),
+            makeProject('proj-nested', 'NestedProj', { folder_id: 'folder-1' }),
+          ],
+        },
+      } as ReturnType<typeof useProjects>);
+      vi.mocked(useFolders).mockReturnValue({
+        data: {
+          folders: [
+            {
+              id: 'folder-1',
+              schema_version: 1,
+              name: 'Life',
+              sort_order: 0,
+              created_at: NOW_ISO,
+              updated_at: NOW_ISO,
+            },
+          ],
+        },
+      } as ReturnType<typeof useFolders>);
+      // Other mocks default
+      vi.mocked(useTags).mockReturnValue({ data: { tags: [] } } as ReturnType<typeof useTags>);
+      vi.mocked(useItems).mockReturnValue({
+        data: { items: [], count: 0 },
+      } as ReturnType<typeof useItems>);
+
+      renderSidebar();
+
+      const nested = screen.getByText('NestedProj');
+      const li = nested.closest('li');
+      if (!li) throw new Error('nested project li not found');
+      fireEvent.contextMenu(li);
+
+      // Project actions visible
+      expect(screen.getByText('Rename')).toBeTruthy();
+      expect(screen.getByText('Move to folder')).toBeTruthy();
+      expect(screen.getByText('Toggle hierarchical')).toBeTruthy();
+      expect(screen.getByText('Delete')).toBeTruthy();
+
+      // Folder-only actions NOT visible
+      expect(screen.queryByText('Delete folder')).toBeNull();
+      expect(screen.queryByText('Rename folder')).toBeNull();
+    });
   });
 
   describe('Inbox right-click disabled', () => {
