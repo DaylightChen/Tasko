@@ -4,7 +4,7 @@ import { ListTree, Plus, SquareKanban } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFolders } from '../../api/folders';
-import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../api/items';
+import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../api/items';
 import { useProjects } from '../../api/projects';
 import { Button } from '../../components/button';
 import { ConfirmationPrompt } from '../../components/confirmation-prompt';
@@ -18,7 +18,6 @@ import { useMultiSelect } from '../../hooks/useMultiSelect';
 import { todayLocal } from '../../lib/date-fmt';
 import { rollupProgress } from '../../lib/rollup';
 import { useHotkeyStore } from '../../store/hotkey-registry';
-import { useSnackbarStore } from '../../store/snackbar';
 import { useTaskModalStore } from '../../store/task-modal';
 import { useTreeExpansionStore } from '../../store/tree-expansion';
 import { BulkActionsToolbar } from '../_shared/BulkActionsToolbar';
@@ -563,7 +562,6 @@ interface TreeViewProps {
 export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewProps) {
   const today = todayLocal();
   const taskModal = useTaskModalStore();
-  const snackbar = useSnackbarStore();
   const expansion = useTreeExpansionStore();
 
   // Folder subtitle: look up the project's folder name (if any).
@@ -587,6 +585,7 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   const [currentView, setCurrentView] = useState<string>('tree');
   const [inlineAddState, setInlineAddState] = useState<InlineAddState | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [deleteConfirmItem, setDeleteConfirmItem] = useState<Item | null>(null);
   const [contextMenuState, setContextMenuState] = useState<{
     item: Item;
     x: number;
@@ -660,6 +659,7 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
   const createItem = useCreateItem();
   const patchItem = usePatchItem();
   const moveItem = useMoveItem();
+  const deleteItem = useDeleteItem();
 
   const focusedItemRef = useRef<Item | null>(null);
   focusedItemRef.current = focusedItem;
@@ -986,9 +986,7 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
             onOpen={() => handleItemClick(contextMenuState.item)}
             onMarkComplete={() => handleMarkComplete(contextMenuState.item)}
             onMoveTo={() => setMoveToPickerItem(contextMenuState.item)}
-            onDelete={() => {
-              snackbar.show({ variant: 'info', text: 'Trash (task-12)', durationMs: 3000 });
-            }}
+            onDelete={() => setDeleteConfirmItem(contextMenuState.item)}
           />
         )}
 
@@ -1021,6 +1019,41 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
           body={parentCompletionBody}
           confirmLabel="Complete all"
           destructive={false}
+        />
+
+        {/* Delete confirmation (Epic / Feature / Task from the context menu) */}
+        <ConfirmationPrompt
+          open={deleteConfirmItem !== null}
+          onCancel={() => setDeleteConfirmItem(null)}
+          onConfirm={() => {
+            if (deleteConfirmItem) {
+              const id = deleteConfirmItem.id as ItemId;
+              const childCount = allItems.filter(
+                (i) => i.parent_id === id && i.trashed_at === null,
+              ).length;
+              deleteItem.mutate({
+                id,
+                title: deleteConfirmItem.title,
+                childCount,
+              });
+            }
+            setDeleteConfirmItem(null);
+          }}
+          title="Move to Trash?"
+          body={(() => {
+            if (!deleteConfirmItem) return '';
+            const id = deleteConfirmItem.id as ItemId;
+            const childCount = allItems.filter(
+              (i) => i.parent_id === id && i.trashed_at === null,
+            ).length;
+            const subCount = deleteConfirmItem.subtasks?.length ?? 0;
+            const total = childCount + subCount;
+            const tail = total > 0 ? ` Its ${total} nested item${total === 1 ? '' : 's'} will go with it.` : '';
+            return `"${deleteConfirmItem.title}" will be moved to Trash. You can restore it later.${tail}`;
+          })()}
+          confirmLabel="Move to Trash"
+          destructive={false}
+          isPending={deleteItem.isPending}
         />
       </div>
     </>

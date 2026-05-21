@@ -18,6 +18,7 @@ import { useConfig } from '../../api/config';
 import {
   useCreateItem,
   useCreateSubtask,
+  useDeleteItem,
   useDeleteSubtask,
   useItem,
   usePatchItem,
@@ -66,6 +67,7 @@ function TaskModalContent() {
   const createSubtask = useCreateSubtask();
   const patchSubtask = usePatchSubtask();
   const deleteSubtask = useDeleteSubtask();
+  const deleteItem = useDeleteItem();
   const createTag = useCreateTag();
   const { data: tagsData } = useTags(true);
 
@@ -526,14 +528,16 @@ function TaskModalContent() {
             <Button
               variant="destructive"
               size="sm"
+              isLoading={deleteItem.isPending}
+              disabled={deleteItem.isPending || !editingItemId}
               onClick={() => {
-                // Task-12 wires the actual trash call.
-                snackbar.show({
-                  variant: 'info',
-                  text: 'Coming soon',
-                  durationMs: 5000,
+                if (!editingItemId) return;
+                deleteItem.mutate({
+                  id: editingItemId,
+                  title: values.title,
                 });
                 setShowDeleteConfirm(false);
+                close();
               }}
             >
               Move to Trash

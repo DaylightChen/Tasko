@@ -31,6 +31,7 @@ vi.mock('../../api/folders', () => ({
 }));
 
 vi.mock('../../api/items', () => ({
+  useDeleteItem: () => ({ mutate: vi.fn(), mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }), isPending: false }),
   usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
 }));

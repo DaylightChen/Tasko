@@ -27,6 +27,7 @@ vi.mock('../../../api/tags', () => ({
 // Mock api/items so the row's inline subtask toggle doesn't need a
 // QueryClient wrapper for these unit tests.
 vi.mock('../../../api/items', () => ({
+  useDeleteItem: () => ({ mutate: vi.fn(), mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }), isPending: false }),
   usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
 }));
 

@@ -45,7 +45,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 // ── Imports after mocks ───────────────────────────────────────────────────────
 
-import { useCreateItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
+import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useFolders } from '../../../api/folders';
 import { useProjects } from '../../../api/projects';
 import { useHotkeyStore } from '../../../store/hotkey-registry';
@@ -149,6 +149,7 @@ function setupMocks(items: Item[]) {
   vi.mocked(useCreateItem).mockReturnValue(noopMutation as unknown as ReturnType<typeof useCreateItem>);
   vi.mocked(usePatchItem).mockReturnValue(noopMutation as unknown as ReturnType<typeof usePatchItem>);
   vi.mocked(useMoveItem).mockReturnValue(noopMutation as unknown as ReturnType<typeof useMoveItem>);
+  vi.mocked(useDeleteItem).mockReturnValue(noopMutation as unknown as ReturnType<typeof useDeleteItem>);
   vi.mocked(useProjects).mockReturnValue({
     data: { projects: [] },
     isLoading: false,
