@@ -154,9 +154,9 @@ describe('SettingsView', () => {
     expect(screen.getByText('View keyboard shortcuts')).toBeTruthy();
   });
 
-  it('renders "Tasko v1.0 · Local-first" about text', () => {
+  it('renders "Tasko v0.1 · Local-first" about text', () => {
     setupMocks();
     renderSettings();
-    expect(screen.getByText('Tasko v1.0 · Local-first')).toBeTruthy();
+    expect(screen.getByText('Tasko v0.1 · Local-first')).toBeTruthy();
   });
 });

@@ -1,6 +1,7 @@
 {
   "name": "@tasko/server",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "main": "./dist/server.js",

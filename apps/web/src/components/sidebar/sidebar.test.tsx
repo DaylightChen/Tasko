@@ -8,7 +8,7 @@
  * - PROJECTS section header as h2
  * - TAGS section header as h2
  * - Bottom navigation links (Calendar, Completed, Trash, Settings)
- * - Footer "Tasko v1.0 · Local files in <data-dir>"
+ * - Footer "Local · <data-dir>" (version removed from sidebar footer; see SyncFooter)
  * - Today count badge (N) and overdue sub-badge ·O when overdue > 0
  * - Inbox nav item prevents context menu
  * - Right-click on a project row opens context menu with expected items
@@ -75,7 +75,7 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
     useQuery: vi.fn().mockReturnValue({
       data: {
         ok: true,
-        version: '1.0',
+        version: '0.1.0',
         data_dir: '/home/user/.tasko',
         item_count: 0,
         uptime_s: 0,
