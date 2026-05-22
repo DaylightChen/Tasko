@@ -40,10 +40,9 @@
 ## Axe E2E suite deferred to task-20 (Playwright infra not present until task-20)
 
 **Discovered:** 2026-05-20 (implement, Task 19)
-**Status:** deferred to task-20
-**Symptom:** Task-19 brief listed `apps/web/test/e2e/a11y-views.spec.ts` as a required output (AxeBuilder scan across all 13 routes). However Playwright infrastructure (playwright.config.ts, test fixtures, webServer wiring) does not exist until task-20 sets it up in its step 1.
-**Workaround:** None needed pre-task-20; automated a11y coverage for individual component behaviours is provided by Vitest unit tests for reduced-motion (tokens.css) and virtualization thresholds.
-**Revisit when:** Task-20 Playwright setup is complete. The a11y-views spec is listed as a deliverable in task-20's brief step 3.
+**Status:** resolved 2026-05-20 (task-20, commit `e9d10b3`)
+**Symptom (original):** Task-19 brief listed `apps/web/test/e2e/a11y-views.spec.ts` as a required output (AxeBuilder scan across all 13 routes). However Playwright infrastructure (playwright.config.ts, test fixtures, webServer wiring) did not exist until task-20 set it up in its step 1.
+**Resolution:** Task-20 added Playwright + `@axe-core/playwright` to web devDeps, scaffolded `apps/web/playwright.config.ts`, and shipped `a11y-views.spec.ts` covering 11 of the 13 routes (2 dynamic-URL routes excluded — see "Remaining deferred E2E specs" below).
 
 ---
 
@@ -60,7 +59,7 @@
 ## TreeRow `aria-label` on `role="treeitem"` (deferred to task-18)
 - **Where:** `apps/web/src/components/tree-row/index.tsx`
 - **What:** TreeRow's `role="treeitem"` div doesn't set `aria-label`. Accessibility spec §3.6 and microcopy §29 define full row labels: `"Epic: <Title>, N of M tasks complete"`, `"Feature: <Title>, N of M tasks complete"`, etc.
-- **Why deferred:** task-18 is the consolidated a11y / hotkey-registry sweep. Adding the aria-label now means re-touching the same code surface in two tasks. Logged for task-18's a11y audit pass.
+- **Status:** resolved 2026-05-20 (task-18 a11y audit pass, commit `367e4f8`).
 
 ---
 

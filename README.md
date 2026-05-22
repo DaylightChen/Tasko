@@ -1,5 +1,7 @@
 # Tasko
 
+> **Status:** v1 shipped (2026-05-22). 20 phased-dev tasks plus a post-v1 polish sweep landed. See [docs/STATUS.md](docs/STATUS.md) for the full release record and [docs/known-issues.md](docs/known-issues.md) for v1.1 candidates.
+
 Tasko is a single-user, web-based personal task tracker that combines lightweight TickTick-style daily task management with an optional Epic → Feature → Task hierarchy for the user's larger projects — local-first, with manual git sync, no accounts, no notifications, no clutter.
 
 The **Today view** is the home of the product. Open Tasko, see what is due, what is overdue, and what is in progress on multi-day work, and get through the day.

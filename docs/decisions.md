@@ -344,3 +344,15 @@
 **Consequences:** Sequential execution: each task starts from the committed output of the previous. No parallel branches. Integration accumulates naturally — task 8's tests exercise tasks 1–7, task 17's tests exercise 1–16, task 20's E2E sweep is the final acceptance gate. If a task is found to be too large in practice during implement, the implementer agent can split it into `task-NN-a` / `task-NN-b` files — but the plan's sequencing must hold.
 
 ---
+
+## 2026-05-22 — v1 approved ready for daily use; post-v1 polish folded into implement phase
+
+**Phase:** implement
+
+**Decision:** v1 is approved ready for daily use on 2026-05-22. The implement phase is recorded as complete. The ~30 post-task-20 polish commits landed between 2026-05-20 and 2026-05-22 are NOT promoted into a new feature scope or a v1.0.1 patch scope — they are folded into the implement phase's history as the close-out polish sweep.
+
+**Rationale:** The brief for task-20 explicitly defined the v1 acceptance gate (green CI, ~304 kB gzipped bundle, 1531 tests, README + known-issues docs) — and that gate was met on 2026-05-20. But hands-on use immediately surfaced a cluster of high-impact gaps the automated suite did not catch: a Fastify v5 regression on DELETE with empty body, a schema mismatch that hid every project from the sidebar, an SSE subscriber bug that 500'd mutations when a tab disconnected, several routes silently rendering the wrong view, and a long tail of UX-preview-vs-shipped-CSS deltas. Treating these as a v1.1 backlog would have shipped a product the author wouldn't trust as a daily tool. Treating them as task-21 would have stretched the brief past its frozen scope. Folding them into the implement phase as polish — same scope, same plan, no new features — preserves the planning contract while honoring the reality that release-readiness is "the shipped behavior matches the spec," not "the test suite is green."
+
+**Consequences:** The implement phase's `history` entry in `docs/.phased-dev/scopes/project.json` carries a `notes` field summarizing the polish sweep. `docs/STATUS.md` documents the sweep's scope (critical fixes, UX preview alignment, subtask UX, Move-to-Trash, release engineering). Any further v1.1-class work (calendar drag-to-reschedule, multi-step undo, tag management UI, mobile QA, the 11 deferred E2E specs, etc.) must be created as a **new feature scope** via `/phased-dev:start-feature` — the implement phase is closed. This decision establishes the precedent for the rest of the project: bug fixes that close gaps between spec and shipped behavior may extend a phase's close-out; new behavior requires a new scope.
+
+---

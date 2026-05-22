@@ -31,7 +31,7 @@
     }
   ],
   "currentPhase": "implement",
-  "phaseStatus": "not_started",
+  "phaseStatus": "complete",
   "paths": {
     "brainstormDir": "docs/brainstorm/",
     "uxDir": "docs/ux/",
@@ -60,6 +60,12 @@
       "phase": "plan",
       "completedAt": "2026-05-18T13:19:28Z",
       "approvedAt": "2026-05-18T13:19:28Z"
+    },
+    {
+      "phase": "implement",
+      "completedAt": "2026-05-20T01:30:00Z",
+      "approvedAt": "2026-05-22T00:00:00Z",
+      "notes": "All 20 tasks shipped (last: task-20, commit e9d10b3, 2026-05-20). Post-v1 polish sweep 2026-05-20→2026-05-22: ~30 commits hardening DELETE/SSE/Inbox-schema, aligning Tree/Kanban/Sidebar with UX preview, inline subtasks, dark-mode contrast fix, calendar-week default, CI + pre-push hook. v1 approved ready for daily use 2026-05-22."
     }
   ]
 }
