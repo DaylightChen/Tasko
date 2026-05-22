@@ -1028,9 +1028,7 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
           onConfirm={() => {
             if (deleteConfirmItem) {
               const id = deleteConfirmItem.id as ItemId;
-              const childCount = allItems.filter(
-                (i) => i.parent_id === id && i.trashed_at === null,
-              ).length;
+              const childCount = allItems.filter((i) => i.parent_id === id && i.trashed_at === null).length;
               deleteItem.mutate({
                 id,
                 title: deleteConfirmItem.title,
@@ -1043,12 +1041,11 @@ export function TreeView({ projectId, projectName, onNavigateKanban }: TreeViewP
           body={(() => {
             if (!deleteConfirmItem) return '';
             const id = deleteConfirmItem.id as ItemId;
-            const childCount = allItems.filter(
-              (i) => i.parent_id === id && i.trashed_at === null,
-            ).length;
+            const childCount = allItems.filter((i) => i.parent_id === id && i.trashed_at === null).length;
             const subCount = deleteConfirmItem.subtasks?.length ?? 0;
             const total = childCount + subCount;
-            const tail = total > 0 ? ` Its ${total} nested item${total === 1 ? '' : 's'} will go with it.` : '';
+            const tail =
+              total > 0 ? ` Its ${total} nested item${total === 1 ? '' : 's'} will go with it.` : '';
             return `"${deleteConfirmItem.title}" will be moved to Trash. You can restore it later.${tail}`;
           })()}
           confirmLabel="Move to Trash"

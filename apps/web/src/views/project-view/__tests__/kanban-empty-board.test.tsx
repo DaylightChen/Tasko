@@ -15,7 +15,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
 vi.mock('../../../api/items', () => ({
-  useDeleteItem: () => ({ mutate: vi.fn(), mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }), isPending: false }),
+  useDeleteItem: () => ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }),
+    isPending: false,
+  }),
   usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(() => ({ data: { items: [], count: 0 }, isLoading: false })),
   usePatchItem: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),

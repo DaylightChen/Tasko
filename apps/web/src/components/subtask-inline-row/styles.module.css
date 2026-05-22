@@ -9,9 +9,8 @@
   padding: 2px var(--space-1);
   border-radius: var(--radius-sm);
   background: var(--color-canvas-subtle);
-  transition:
-    background-color var(--motion-fast) var(--ease-standard),
-    color var(--motion-fast) var(--ease-standard);
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard);
 }
 
 .row:hover {

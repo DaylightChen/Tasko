@@ -35,7 +35,7 @@ test('priority menu pill colors match the design tokens used on the task row', a
   // for each priority pill. We compare two computed strings — they should
   // be identical (same rgb).
   const result = await modal.evaluate((modalEl) => {
-    function bg(el: Element | null) {
+    function bg(el: Element | null | undefined) {
       return el ? getComputedStyle(el).backgroundColor : null;
     }
     const root = document.documentElement;
@@ -46,8 +46,8 @@ test('priority menu pill colors match the design tokens used on the task row', a
 
     // Each pill is a <label> wrapping a hidden <input type="radio"> + a
     // colored .dot span + a label. We can find each pill by its label text.
-    const pills = Array.from(modalEl.querySelectorAll('label')).filter(
-      (el) => /^(None|Low|Medium|High)$/i.test(el.textContent?.trim() ?? ''),
+    const pills = Array.from(modalEl.querySelectorAll('label')).filter((el) =>
+      /^(None|Low|Medium|High)$/i.test(el.textContent?.trim() ?? ''),
     );
     const byName: Record<string, Element | null> = { None: null, Low: null, Medium: null, High: null };
     for (const pill of pills) {
@@ -69,7 +69,7 @@ test('priority menu pill colors match the design tokens used on the task row', a
   function hexToRgb(hex: string): string {
     const m = hex.replace('#', '').match(/^([0-9a-f]{6})$/i);
     if (!m) return hex;
-    const v = m[1]!;
+    const v = m[0];
     const r = Number.parseInt(v.slice(0, 2), 16);
     const g = Number.parseInt(v.slice(2, 4), 16);
     const b = Number.parseInt(v.slice(4, 6), 16);

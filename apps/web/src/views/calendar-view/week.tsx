@@ -164,9 +164,7 @@ export function CalendarWeekView() {
   const [weekStartDate, setWeekStartDate] = useState<LocalDate>(() => {
     if (typeof window === 'undefined') return startOfWeek(today, 'mon');
     const fromUrl = parseWeekParam(window.location.search);
-    return fromUrl
-      ? startOfWeek(addDays(fromUrl, 3), 'mon')
-      : startOfWeek(today, 'mon');
+    return fromUrl ? startOfWeek(addDays(fromUrl, 3), 'mon') : startOfWeek(today, 'mon');
   });
 
   // When weekStart config loads (or changes), re-align the current week start

@@ -50,10 +50,7 @@ test.describe('Dark theme — task title contrast', () => {
     // has no items, skip gracefully rather than failing.
     const title = page.locator('button[data-state="inline-editable"]').first();
     const titleCount = await page.locator('button[data-state="inline-editable"]').count();
-    test.skip(
-      titleCount === 0,
-      'No tasks in the dev data dir — cannot run dark-theme contrast assertions',
-    );
+    test.skip(titleCount === 0, 'No tasks in the dev data dir — cannot run dark-theme contrast assertions');
 
     await expect(title).toBeVisible();
 

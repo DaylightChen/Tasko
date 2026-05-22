@@ -98,7 +98,8 @@ async function assertCalendarPainted(
   });
 
   expect(measurements, 'date dialog element should be present in DOM').not.toBeNull();
-  const { dialog, wrapper } = measurements!;
+  if (!measurements) throw new Error('measurements unexpectedly null after assertion');
+  const { dialog, wrapper } = measurements;
 
   // Dialog must actually have realistic calendar dimensions.
   expect(dialog.width).toBeGreaterThan(200);
@@ -108,8 +109,9 @@ async function assertCalendarPainted(
   // We require it to be at least 90% of the dialog's own width/height —
   // i.e. the dialog is rendered inside it, not clipped by it.
   expect(wrapper).not.toBeNull();
-  expect(wrapper!.width).toBeGreaterThanOrEqual(dialog.width * 0.9);
-  expect(wrapper!.height).toBeGreaterThanOrEqual(dialog.height * 0.9);
+  if (!wrapper) throw new Error('wrapper unexpectedly null after assertion');
+  expect(wrapper.width).toBeGreaterThanOrEqual(dialog.width * 0.9);
+  expect(wrapper.height).toBeGreaterThanOrEqual(dialog.height * 0.9);
 
   // Picker must be anchored near the trigger, not stranded at (0,0).
   // Floating-UI's `bottom-start` placement puts the popover's top-left
@@ -117,14 +119,14 @@ async function assertCalendarPainted(
   // for `flip`/`shift` middleware.
   const triggerBox = await trigger.boundingBox();
   expect(triggerBox, 'trigger button must have a bounding box').not.toBeNull();
-  const dx = Math.abs(wrapper!.x - triggerBox!.x);
-  const dy = Math.abs(wrapper!.y - (triggerBox!.y + triggerBox!.height));
-  expect(
-    dx,
-    `picker x (${wrapper!.x}) should be near trigger x (${triggerBox!.x}); got dx=${dx}`,
-  ).toBeLessThan(50);
+  if (!triggerBox) throw new Error('triggerBox unexpectedly null after assertion');
+  const dx = Math.abs(wrapper.x - triggerBox.x);
+  const dy = Math.abs(wrapper.y - (triggerBox.y + triggerBox.height));
+  expect(dx, `picker x (${wrapper.x}) should be near trigger x (${triggerBox.x}); got dx=${dx}`).toBeLessThan(
+    50,
+  );
   expect(
     dy,
-    `picker y (${wrapper!.y}) should be just below trigger bottom (${triggerBox!.y + triggerBox!.height}); got dy=${dy}`,
+    `picker y (${wrapper.y}) should be just below trigger bottom (${triggerBox.y + triggerBox.height}); got dy=${dy}`,
   ).toBeLessThan(50);
 }

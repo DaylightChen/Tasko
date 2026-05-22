@@ -62,9 +62,7 @@ describe('ProjectRow', () => {
   });
 
   it('renders count badge when count > 0', () => {
-    const { container } = render(
-      <ProjectRow id="p1" name="Work" selected={false} count={7} />,
-    );
+    const { container } = render(<ProjectRow id="p1" name="Work" selected={false} count={7} />);
     const badge = container.querySelector('[class*="badge"]') as HTMLElement | null;
     expect(badge).toBeTruthy();
     expect(badge?.textContent).toBe('7');

@@ -272,11 +272,7 @@ export function registerItemRoutes(app: FastifyInstance): void {
             while (parentId !== null) {
               if (keptIds.has(parentId)) break;
               const parent = index.items.get(parentId);
-              if (
-                !parent ||
-                parent.trashed_at !== null ||
-                parent.project_id !== projectId.data
-              ) {
+              if (!parent || parent.trashed_at !== null || parent.project_id !== projectId.data) {
                 break;
               }
               if (parent.status === 'done') {

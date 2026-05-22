@@ -45,8 +45,8 @@ vi.mock('@tanstack/react-router', () => ({
 
 // ── Imports after mocks ───────────────────────────────────────────────────────
 
-import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useFolders } from '../../../api/folders';
+import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useProjects } from '../../../api/projects';
 import { useHotkeyStore } from '../../../store/hotkey-registry';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';

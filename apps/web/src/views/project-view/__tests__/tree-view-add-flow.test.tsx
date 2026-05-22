@@ -39,8 +39,8 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => vi.fn(),
 }));
 
-import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useFolders } from '../../../api/folders';
+import { useCreateItem, useDeleteItem, useItems, useMoveItem, usePatchItem } from '../../../api/items';
 import { useProjects } from '../../../api/projects';
 import { useTaskModalStore } from '../../../store/task-modal';
 import { useTreeExpansionStore } from '../../../store/tree-expansion';

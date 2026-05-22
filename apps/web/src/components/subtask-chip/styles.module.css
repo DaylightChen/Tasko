@@ -16,9 +16,8 @@
   border: none;
   cursor: pointer;
   font-variant-numeric: tabular-nums;
-  transition: background-color var(--motion-fast) var(--ease-standard),
-    color var(--motion-fast) var(--ease-standard),
-    box-shadow var(--motion-fast) var(--ease-standard);
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .chip:hover {

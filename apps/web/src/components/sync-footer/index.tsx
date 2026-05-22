@@ -28,9 +28,7 @@ export function SyncFooter({ dataDir }: SyncFooterProps) {
       title={dataDir ? `Right-click to copy: ${dataDir}` : undefined}
     >
       <HardDrive size={14} aria-hidden="true" className={styles.icon} />
-      <span className={styles.text}>
-        {dataDir ? `Local · ${dataDir}` : 'Local files'}
-      </span>
+      <span className={styles.text}>{dataDir ? `Local · ${dataDir}` : 'Local files'}</span>
     </div>
   );
 }

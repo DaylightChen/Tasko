@@ -18,25 +18,49 @@ function makeSubtask(overrides: Partial<Subtask> = {}): Subtask {
 
 describe('SubtaskInlineRow', () => {
   it('renders the title', () => {
-    render(<SubtaskInlineRow subtask={makeSubtask({ title: 'Buy milk' })} onToggle={() => {}} onOpenParent={() => {}} />);
+    render(
+      <SubtaskInlineRow
+        subtask={makeSubtask({ title: 'Buy milk' })}
+        onToggle={() => {}}
+        onOpenParent={() => {}}
+      />,
+    );
     expect(screen.getByText('Buy milk')).toBeInTheDocument();
   });
 
   it('checkbox unchecked when status=todo', () => {
-    render(<SubtaskInlineRow subtask={makeSubtask({ status: 'todo' })} onToggle={() => {}} onOpenParent={() => {}} />);
+    render(
+      <SubtaskInlineRow
+        subtask={makeSubtask({ status: 'todo' })}
+        onToggle={() => {}}
+        onOpenParent={() => {}}
+      />,
+    );
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).not.toBeChecked();
   });
 
   it('checkbox checked when status=done', () => {
-    render(<SubtaskInlineRow subtask={makeSubtask({ status: 'done' })} onToggle={() => {}} onOpenParent={() => {}} />);
+    render(
+      <SubtaskInlineRow
+        subtask={makeSubtask({ status: 'done' })}
+        onToggle={() => {}}
+        onOpenParent={() => {}}
+      />,
+    );
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).toBeChecked();
   });
 
   it('clicking the checkbox calls onToggle with the new state', () => {
     const onToggle = vi.fn();
-    render(<SubtaskInlineRow subtask={makeSubtask({ status: 'todo' })} onToggle={onToggle} onOpenParent={() => {}} />);
+    render(
+      <SubtaskInlineRow
+        subtask={makeSubtask({ status: 'todo' })}
+        onToggle={onToggle}
+        onOpenParent={() => {}}
+      />,
+    );
     fireEvent.click(screen.getByRole('checkbox'));
     expect(onToggle).toHaveBeenCalledWith(true);
   });
@@ -44,7 +68,13 @@ describe('SubtaskInlineRow', () => {
   it('clicking the title row calls onOpenParent (not onToggle)', () => {
     const onToggle = vi.fn();
     const onOpenParent = vi.fn();
-    render(<SubtaskInlineRow subtask={makeSubtask({ title: 'Click me' })} onToggle={onToggle} onOpenParent={onOpenParent} />);
+    render(
+      <SubtaskInlineRow
+        subtask={makeSubtask({ title: 'Click me' })}
+        onToggle={onToggle}
+        onOpenParent={onOpenParent}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: /click me/i }));
     expect(onOpenParent).toHaveBeenCalledTimes(1);
     expect(onToggle).not.toHaveBeenCalled();

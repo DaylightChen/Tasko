@@ -39,16 +39,14 @@ test('navigating to /project/<id>/kanban renders the kanban board, not the tree/
       items: Array<{ project_id: string; type: string }>;
     };
   });
-  const projectIdsWithTasks = new Set(
-    data.items.filter((i) => i.type === 'task').map((i) => i.project_id),
-  );
+  const projectIdsWithTasks = new Set(data.items.filter((i) => i.type === 'task').map((i) => i.project_id));
   const target = data.projects.find((p) => !p.is_inbox && projectIdsWithTasks.has(p.id));
-  test.skip(
-    !target,
-    'No non-Inbox project with at least one task in dev data — cannot assert kanban columns',
-  );
+  if (!target) {
+    test.skip(true, 'No non-Inbox project with at least one task in dev data — cannot assert kanban columns');
+    return;
+  }
 
-  await page.goto(`/project/${target!.id}/kanban`);
+  await page.goto(`/project/${target.id}/kanban`);
   await page.waitForLoadState('domcontentloaded');
   // Allow router + dnd-kit + react-query to settle
   await page.waitForTimeout(300);
@@ -67,7 +65,7 @@ test('navigating to /project/<id>/kanban renders the kanban board, not the tree/
   const treeBtn = page.getByRole('tab', { name: /Tree view|List view/ });
   await expect(treeBtn).toBeVisible();
   await treeBtn.click();
-  await expect(page).toHaveURL(new RegExp(`/project/${target!.id}/?$`));
+  await expect(page).toHaveURL(new RegExp(`/project/${target.id}/?$`));
   // The kanban <section> must be gone now (we're back on the index route).
   await expect(page.locator('section[aria-label="Kanban board"]')).toHaveCount(0);
 });

@@ -23,13 +23,7 @@ export interface FolderHeaderProps {
  * Keyboard: Right/Enter/Space = expand; Left = collapse.
  * Folder icon is fixed (Folder); the chevron carries the expanded state.
  */
-export function FolderHeader({
-  name,
-  expanded,
-  onToggle,
-  children,
-  id,
-}: FolderHeaderProps) {
+export function FolderHeader({ name, expanded, onToggle, children, id }: FolderHeaderProps) {
   const controlsId = id ? `folder-${id}-list` : undefined;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {

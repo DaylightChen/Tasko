@@ -186,12 +186,7 @@ export function useDeleteSubtask() {
 
   return useMutation({
     mutationFn: ({ itemId, subtaskId }: { itemId: ItemId; subtaskId: SubtaskId }) =>
-      apiCall(
-        'DELETE',
-        `/api/items/${itemId}/subtasks/${subtaskId}`,
-        undefined,
-        ItemSchema,
-      ) as Promise<Item>,
+      apiCall('DELETE', `/api/items/${itemId}/subtasks/${subtaskId}`, undefined, ItemSchema) as Promise<Item>,
     onSuccess: (parent) => {
       queryClient.setQueryData(itemKeys.detail(parent.id as ItemId), parent);
       queryClient.invalidateQueries({ queryKey: itemKeys.all });

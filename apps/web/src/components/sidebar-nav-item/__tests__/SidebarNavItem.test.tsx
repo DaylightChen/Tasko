@@ -44,9 +44,7 @@ describe('SidebarNavItem', () => {
   });
 
   it('renders count badge "5" when count=5', () => {
-    const { container } = render(
-      <SidebarNavItem to="/today" label="Today" count={5} selected={false} />,
-    );
+    const { container } = render(<SidebarNavItem to="/today" label="Today" count={5} selected={false} />);
     const badge = container.querySelector('[class*="badge"]') as HTMLElement | null;
     expect(badge).toBeTruthy();
     expect(badge?.textContent).toContain('5');

@@ -487,7 +487,7 @@ export function TreeRow({
       {/* Inline subtasks (when expanded) — rendered last so flex-wrap puts
           this row on its own line below the parent content + hover actions. */}
       {showSubtaskChip && subtasksExpanded && (
-        <ul className={styles.subtasks} role="list" aria-label={`Subtasks of ${item.title}`}>
+        <ul className={styles.subtasks} aria-label={`Subtasks of ${item.title}`}>
           {item.subtasks.map((s) => (
             <li key={s.id} className={styles.subtaskListItem}>
               <SubtaskInlineRow

@@ -58,7 +58,11 @@ vi.mock('../../api/tags', () => ({
 }));
 
 vi.mock('../../api/items', () => ({
-  useDeleteItem: () => ({ mutate: vi.fn(), mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }), isPending: false }),
+  useDeleteItem: () => ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn().mockResolvedValue({ trashed: [] }),
+    isPending: false,
+  }),
   usePatchSubtask: () => ({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false }),
   useItems: vi.fn(),
 }));
@@ -349,10 +353,12 @@ describe('Sidebar', () => {
         },
       } as ReturnType<typeof useFolders>);
       // Other mocks default
-      vi.mocked(useTags).mockReturnValue({ data: { tags: [] } } as ReturnType<typeof useTags>);
+      vi.mocked(useTags).mockReturnValue({
+        data: { tags: [] },
+      } as unknown as ReturnType<typeof useTags>);
       vi.mocked(useItems).mockReturnValue({
         data: { items: [], count: 0 },
-      } as ReturnType<typeof useItems>);
+      } as unknown as ReturnType<typeof useItems>);
 
       renderSidebar();
 
