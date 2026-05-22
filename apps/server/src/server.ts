@@ -1,5 +1,9 @@
+import { existsSync } from 'node:fs';
 import { access } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import type { ServerConfig } from './config/load.js';
@@ -82,6 +86,10 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
     }
   });
 
+  // Error envelope — set early so it applies to every route + plugin context
+  // registered after this point.
+  app.setErrorHandler(envelope);
+
   // Routes
   registerHealthRoute(app);
   registerEventsRoute(app);
@@ -93,15 +101,50 @@ export async function buildServer(config: ServerConfig): Promise<FastifyInstance
   registerConfigRoutes(app);
   registerBulkRoutes(app);
 
-  // 404 handler for unmatched routes
-  app.setNotFoundHandler((_req, reply) => {
+  // Serve the built web SPA at `/` if its dist directory can be located. The
+  // server runs from one of two known layouts:
+  //   (a) source/dev:      apps/server/dist/server.js → apps/web/dist/
+  //   (b) bundled release: <root>/server.js          → <root>/web/
+  // Honor TASKO_SPA_DIR for unusual deployments. If no candidate has an
+  // index.html, skip static serving and keep the JSON 404 behavior (so the
+  // API still works headless and tests don't depend on a built SPA).
+  const spaRoot = resolveSpaRoot();
+
+  if (spaRoot) {
+    app.log.info(`Serving web SPA from ${spaRoot}`);
+    await app.register(fastifyStatic, { root: spaRoot });
+  }
+
+  // 404 handler for unmatched routes. `/api/*` always returns the error
+  // envelope; everything else falls back to the SPA's index.html when the
+  // SPA is present (so client-side routes like /today, /calendar work on
+  // direct hit / refresh).
+  app.setNotFoundHandler((req, reply) => {
+    const isApi = req.url.startsWith('/api/');
+    if (!isApi && spaRoot && req.method === 'GET') {
+      void reply.type('text/html').sendFile('index.html', spaRoot);
+      return;
+    }
     void reply.code(404).send({ error: { code: 'INTERNAL', message: 'Route not found.' } });
   });
 
-  // Error envelope — replaces the default error handler
-  app.setErrorHandler(envelope);
-
   return app;
+}
+
+function resolveSpaRoot(): string | null {
+  const serverDir = dirname(fileURLToPath(import.meta.url));
+  const candidates: string[] = [];
+  if (process.env.TASKO_SPA_DIR) candidates.push(process.env.TASKO_SPA_DIR);
+  // apps/server/dist → apps/web/dist (source/dev layout)
+  candidates.push(join(serverDir, '..', '..', 'web', 'dist'));
+  // <root>/server.js + <root>/web (bundled release layout)
+  candidates.push(join(serverDir, 'web'));
+  // <root>/bin/server.js + <root>/web (alt bundled layout)
+  candidates.push(join(serverDir, '..', 'web'));
+  for (const candidate of candidates) {
+    if (existsSync(join(candidate, 'index.html'))) return candidate;
+  }
+  return null;
 }
 
 // Fastify type augmentation:
