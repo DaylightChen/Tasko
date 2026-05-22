@@ -1,0 +1,82 @@
+/* KanbanView styles */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-4) var(--space-6);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.heading {
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-line-height);
+  letter-spacing: var(--text-display-tracking);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.headingSubtitle {
+  display: inline-block;
+  margin-left: var(--space-3);
+  font-size: var(--text-small-size);
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+.quickAdd {
+  margin-bottom: var(--space-3);
+}
+
+/* Board: 3 equal columns via grid. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+  flex: 1;
+  min-height: 0;
+  padding-bottom: var(--space-2);
+}
+
+/* Empty board state */
+.emptyBoard {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Drag overlay */
+.dragOverlayCard {
+  opacity: 0.85;
+  box-shadow: var(--elevation-3);
+  transform: rotate(2deg);
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: var(--space-3);
+  }
+
+  .board {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dragOverlayCard {
+    transform: none;
+  }
+}

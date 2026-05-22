@@ -1,0 +1,95 @@
+.viewBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  outline: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.overdueHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  font-size: var(--text-h2-size, 1.125rem);
+  font-weight: var(--text-h2-weight, 600);
+  color: var(--text);
+  margin: 0;
+}
+
+.sectionDate {
+  font-size: var(--text-small-size, 0.8125rem);
+  font-weight: 400;
+  color: var(--text-subtle);
+  margin-left: var(--space-2);
+}
+
+.ghostBtn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 4px);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-small-size, 0.8125rem);
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+
+.ghostBtn:hover {
+  background: var(--canvas-subtle);
+  color: var(--text);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  background: var(--canvas-subtle);
+  border-radius: var(--radius-md, 8px);
+  animation: shimmer 1.5s infinite;
+}
+
+.firstRunHint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+  font-size: var(--text-small-size, 0.8125rem);
+}
+
+.startHereArrow {
+  font-size: 1rem;
+}
+
+.startHereLabel {
+  font-style: italic;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

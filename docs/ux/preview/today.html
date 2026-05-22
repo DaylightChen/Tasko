@@ -1,0 +1,233 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Today view (desktop, populated)" -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Today (populated)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> and
+        <a href="../component-inventory.md">component-inventory.md</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Today — populated state. Toggle the theme to compare light + dark.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today-empty.html">Today (empty)</a>
+        <a href="today-first-run.html">Today (first run)</a>
+        <a href="inbox.html">Inbox</a>
+      </nav>
+    </div>
+
+    <div class="mobile-topbar">
+      <button class="icon-btn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="mobile-topbar__title">Today</span>
+      <button class="icon-btn" aria-label="Filter">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </button>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="today" aria-label="Primary navigation"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">Today</h1>
+          <div class="view-header__controls">
+            <button class="btn btn--secondary btn--sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="11" y2="6"/><line x1="3" y1="12" x2="16" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              Sort: Due
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn btn--ghost btn--sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Filter
+            </button>
+            <span class="kbd">⌘K</span>
+          </div>
+        </header>
+
+        <div class="quick-add">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <input type="text" placeholder="Add task to Inbox by default…" />
+          <span class="t-caption text-subtle" style="white-space: nowrap;">N to focus</span>
+        </div>
+
+        <div class="section-header">
+          <div class="section-header__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            Overdue <span class="section-header__date">(3)</span>
+          </div>
+          <button class="btn btn--ghost btn--sm">Move all overdue to today</button>
+        </div>
+
+        <div class="task-list">
+          <div class="task-row is-overdue" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox" aria-label="Pay electric bill"></span>
+            <span class="task-row__title">Pay electric bill</span>
+            <span class="task-row__meta">
+              <span class="date-chip is-overdue">May 14 (4d)</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row is-overdue" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Send invoice to client</span>
+            <span class="task-row__meta">
+              <span class="date-chip is-overdue">May 16 (2d)</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row is-overdue" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Reschedule dentist</span>
+            <span class="task-row__meta">
+              <span class="date-chip is-overdue">May 17 (1d)</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-header__title">
+            Today
+            <span class="section-header__date">— Wed, May 18</span>
+          </div>
+        </div>
+
+        <div class="task-list">
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Buy laptop charger</span>
+            <span class="task-row__meta">
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Write conf talk</span>
+            <span class="task-row__meta">
+              <span class="multiday-chip multiday-chip--start">Day 1 of 5</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row is-selected" tabindex="0" aria-selected="true">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Reply to Alice</span>
+            <span class="task-row__meta">
+              <span class="tag-chip">#waiting</span>
+              <span class="date-chip">09:00</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Pricing call with Finance</span>
+            <span class="task-row__meta">
+              <span class="tag-chip">#urgent</span>
+              <span class="date-chip">11:30</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row" tabindex="0">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox"></span>
+            <span class="task-row__title">Take dog to vet</span>
+            <span class="task-row__meta">
+              <span class="tag-chip">#call</span>
+              <span class="date-chip">14:00</span>
+              <span class="task-row__hover-actions">
+                <button class="icon-btn icon-btn--sm" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                <button class="icon-btn icon-btn--sm" aria-label="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </span>
+            </span>
+          </div>
+          <div class="task-row is-completed" tabindex="0" aria-label="completed">
+            <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+            <span class="checkbox is-checked" aria-checked="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="task-row__title">Standup</span>
+            <span class="task-row__meta">
+              <span class="date-chip">11:00</span>
+            </span>
+          </div>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 32px;">
+          <strong>Annotation:</strong> overdue rows use a 3px
+          <code class="code">--overdue</code> left-edge bar (never a full red row tint).
+          The selected row ("Reply to Alice") shows the <code class="code">--accent-subtle</code> background.
+          The strike-through completed row ("Standup") shows the final state of the check-off animation.
+        </p>
+
+        <div style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 50;">
+          <div class="snackbar">
+            <span class="snackbar__icon snackbar__icon--success">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </span>
+            <span class="snackbar__message">Task completed.</span>
+            <button class="snackbar__action">Undo</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

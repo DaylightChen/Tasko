@@ -1,0 +1,228 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fieldLabel {
+  font-size: var(--text-small-strong-size, 12px);
+  font-weight: var(--text-small-strong-weight, 600);
+  color: var(--color-text-subtle);
+  line-height: 1.4;
+}
+
+.requiredHint {
+  font-size: var(--text-caption-size, 11px);
+  color: var(--color-text-subtle);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.fieldError {
+  font-size: var(--text-caption-size, 11px);
+  color: var(--color-overdue);
+  margin: 0;
+}
+
+.titleInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-sunken);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  box-sizing: border-box;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.titleInput:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  background-color: var(--color-surface);
+}
+
+.titleInput[data-error] {
+  border-color: var(--color-overdue);
+}
+
+.titleInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.startDateWrapper {
+  position: relative;
+}
+
+.dateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.dateBtn:hover {
+  border-color: var(--color-border-strong);
+}
+
+.dateBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.dateBtn[data-error] {
+  border-color: var(--color-overdue);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 88px;
+  max-height: 320px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-sunken);
+  font-size: var(--text-body-size);
+  color: var(--color-text);
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+
+.textarea:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  background-color: var(--color-surface);
+}
+
+.disclosure {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-3);
+}
+
+.disclosureToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  color: var(--color-text-subtle);
+  font-size: var(--text-small-size);
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+
+.disclosureToggle:hover {
+  color: var(--color-text);
+}
+
+.disclosureToggle:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.disclosureChevron {
+  display: inline-block;
+  transition: transform var(--motion-fast) var(--ease-standard);
+  font-style: normal;
+}
+
+.disclosureChevron[data-open] {
+  transform: rotate(180deg);
+}
+
+.moreContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.deleteBtn {
+  color: var(--color-overdue);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.footerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* Delete confirmation inline */
+.deleteConfirm {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface-elevated);
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: 1;
+}
+
+.deleteConfirmTitle {
+  font-size: var(--text-body-strong-size);
+  font-weight: var(--text-body-strong-weight);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.deleteConfirmBody {
+  font-size: var(--text-small-size);
+  color: var(--color-text-subtle);
+  margin: 0;
+}
+
+.deleteConfirmActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .titleInput,
+  .dateBtn,
+  .textarea,
+  .disclosureToggle,
+  .disclosureChevron {
+    transition: none;
+  }
+}

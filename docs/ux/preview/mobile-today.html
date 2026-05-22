@@ -1,0 +1,345 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Today view (mobile)" + "Task modal — mobile sheet" -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Mobile Today</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+    <style>
+      /* Force mobile layout — frame two phone-sized previews side by side */
+      body {
+        background: var(--canvas-subtle);
+        min-height: 100vh;
+      }
+      .phone-stage {
+        display: flex;
+        gap: 32px;
+        padding: 32px 16px;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .phone {
+        width: 390px;
+        max-width: 100%;
+        background: var(--canvas);
+        border-radius: 28px;
+        box-shadow: 0 18px 56px rgba(0, 0, 0, 0.18),
+          0 0 0 1px var(--border-subtle);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 760px;
+      }
+      [data-theme="dark"] .phone {
+        box-shadow: 0 18px 56px rgba(0, 0, 0, 0.6),
+          0 0 0 1px var(--border-subtle);
+      }
+      .phone__inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .mobile-topbar { display: flex !important; }
+      .mobile-bottomnav { display: flex !important; }
+      .phone .main {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+      }
+      .phone .task-row { min-height: 44px; padding: 8px 4px; }
+      .phone .task-row__title { font-size: 15px; }
+      .phone .section-header__title { font-size: 17px; }
+      .phone .view-header__title { font-size: 24px; line-height: 32px; }
+
+      .phone-label {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-subtle);
+        margin-top: 12px;
+      }
+
+      /* Sheet modal preview inside phone 2 */
+      .phone-sheet-stage {
+        position: relative;
+        height: 100%;
+        background: var(--scrim);
+        display: flex;
+        align-items: flex-end;
+        justify-content: stretch;
+      }
+      .phone-sheet-stage .sheet {
+        max-width: none;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> §"Today (mobile)" + §"Task modal — mobile sheet".
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Mobile preview — Today list and Task sheet rendered inside phone frames.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today.html">Today (desktop)</a>
+        <a href="task-modal.html">Task modal (desktop)</a>
+      </nav>
+    </div>
+
+    <div class="phone-stage">
+      <!-- Phone 1: Today populated -->
+      <div>
+        <div class="phone">
+          <div class="phone__inner">
+            <div class="mobile-topbar">
+              <button class="icon-btn" aria-label="Menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
+              <span class="mobile-topbar__title">Today</span>
+              <div style="display: flex; gap: 4px;">
+                <button class="icon-btn" aria-label="Filter">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </button>
+                <button class="icon-btn" aria-label="More">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <main class="main">
+              <div class="quick-add">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <input type="text" placeholder="Add task" />
+              </div>
+
+              <div class="section-header" style="margin-top: 8px;">
+                <div class="section-header__title">
+                  Overdue <span class="section-header__date">(3)</span>
+                </div>
+              </div>
+              <button class="btn btn--ghost btn--sm" style="margin-bottom: 8px;">Move all to today</button>
+
+              <div class="task-list">
+                <div class="task-row is-overdue">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Pay electric bill</span>
+                  <span class="task-row__meta"><span class="date-chip is-overdue">May 14</span></span>
+                </div>
+                <div class="task-row is-overdue">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Send invoice</span>
+                  <span class="task-row__meta"><span class="date-chip is-overdue">May 16</span></span>
+                </div>
+                <div class="task-row is-overdue">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Reschedule dentist</span>
+                  <span class="task-row__meta"><span class="date-chip is-overdue">May 17</span></span>
+                </div>
+              </div>
+
+              <div class="section-header">
+                <div class="section-header__title">
+                  Today
+                  <span class="section-header__date">Wed May 18</span>
+                </div>
+              </div>
+
+              <div class="task-list">
+                <div class="task-row">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Buy laptop charger</span>
+                </div>
+                <div class="task-row">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Write conf talk</span>
+                  <span class="task-row__meta"><span class="multiday-chip multiday-chip--start">Day 1 of 5</span></span>
+                </div>
+                <div class="task-row">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--medium"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Reply to Alice</span>
+                  <span class="task-row__meta">
+                    <span class="tag-chip">#wait</span>
+                    <span class="date-chip">09:00</span>
+                  </span>
+                </div>
+                <div class="task-row">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--high"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Pricing call</span>
+                  <span class="task-row__meta">
+                    <span class="tag-chip">#urgent</span>
+                    <span class="date-chip">11:30</span>
+                  </span>
+                </div>
+                <div class="task-row">
+                  <span class="task-row__priority"><span class="priority-dot priority-dot--low"></span></span>
+                  <span class="checkbox"></span>
+                  <span class="task-row__title">Take dog to vet</span>
+                  <span class="task-row__meta">
+                    <span class="tag-chip">#call</span>
+                    <span class="date-chip">14:00</span>
+                  </span>
+                </div>
+              </div>
+            </main>
+
+            <nav class="mobile-bottomnav" aria-label="Primary">
+              <a class="mobile-bottomnav__item is-selected" href="#" aria-current="page">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M5 5l1.5 1.5M17.5 17.5L19 19M2 12h2M20 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+                <span>Today</span>
+              </a>
+              <a class="mobile-bottomnav__item" href="#">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                <span>Calendar</span>
+              </a>
+              <a class="mobile-bottomnav__item mobile-bottomnav__item--add" href="#" aria-label="Add task">
+                <span class="bubble">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                </span>
+              </a>
+              <a class="mobile-bottomnav__item" href="#">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                <span>Inbox</span>
+              </a>
+              <a class="mobile-bottomnav__item" href="#">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <span>More</span>
+              </a>
+            </nav>
+          </div>
+        </div>
+        <p class="phone-label">Today (mobile) — comfortable 44px row height, right/left swipe gestures available.</p>
+      </div>
+
+      <!-- Phone 2: Add Task sheet -->
+      <div>
+        <div class="phone">
+          <div class="phone__inner">
+            <div class="mobile-topbar">
+              <button class="icon-btn" aria-label="Menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </button>
+              <span class="mobile-topbar__title">Today</span>
+              <span></span>
+            </div>
+
+            <div class="phone-sheet-stage">
+              <div class="sheet">
+                <div class="sheet__handle"></div>
+                <div class="sheet__header">
+                  <span class="t-h2">Add task</span>
+                  <button class="icon-btn" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <div class="sheet__body">
+                  <div>
+                    <label class="field-label">Title</label>
+                    <div class="input">
+                      <input class="input--text" type="text" value="Buy laptop charger" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="field-label">
+                      Due date <span class="field-required">· Required</span>
+                    </label>
+                    <div class="row">
+                      <button class="date-chip-trigger" type="button" style="border: 1px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); display: inline-flex; gap: 6px; background: var(--surface);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span>Today, May 18</span>
+                      </button>
+                      <button class="btn btn--ghost btn--sm">+ time</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="field-label">
+                      Project <span class="field-required">· Required</span>
+                    </label>
+                    <button class="date-chip-trigger" type="button" style="width: 100%; border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); display: flex; gap: 6px; background: var(--surface); justify-content: flex-start;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                      <span class="text-muted">Pick a project</span>
+                    </button>
+                  </div>
+                  <div>
+                    <label class="field-label">Tags</label>
+                    <div class="input" style="height: auto; min-height: 44px; padding: 6px 12px;">
+                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1;">
+                        <span class="tag-chip">
+                          #urgent
+                          <svg class="x" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="Add tag…"
+                          style="border: 0; outline: 0; background: transparent; flex: 1; min-width: 80px; font-size: 14px; color: var(--text);"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="field-label">Priority</label>
+                    <div class="priority-radio-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <button class="priority-radio" style="padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="priority-dot priority-dot--none"></span>None
+                      </button>
+                      <button class="priority-radio" style="padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="priority-dot priority-dot--low"></span>Low
+                      </button>
+                      <button class="priority-radio is-selected" style="padding: 6px 12px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent-subtle); color: var(--accent-on-subtle); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="priority-dot priority-dot--medium"></span>Med
+                      </button>
+                      <button class="priority-radio" style="padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="priority-dot priority-dot--high"></span>High
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="sheet__footer">
+                  <button class="btn btn--ghost">Cancel</button>
+                  <button class="btn btn--primary">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="phone-label">Task sheet (mobile) — slide-up from bottom; drag handle at top; safe-area-inset padding under the footer.</p>
+      </div>
+    </div>
+
+    <p style="max-width: 720px; margin: 16px auto 48px; color: var(--text-subtle); font-size: 13px; padding: 0 24px; text-align: center;">
+      <strong>Annotation:</strong> phone frames are decorative — real device
+      sizing would render full-width. Mobile row height is "comfortable" 44px
+      vs desktop's "cozy" 38–40px. Bottom nav center "Add" tab is slightly
+      elevated with a 44px round accent bubble.
+    </p>
+
+    <script src="theme.js"></script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.heading {
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line-height);
+  letter-spacing: var(--text-display-tracking);
+  font-weight: var(--text-display-weight);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.headingSubtitle {
+  display: inline-block;
+  margin-left: var(--space-3);
+  font-size: var(--text-small-size);
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Below-header row holding the project-level "+ Add Epic / Add Task" actions. */
+.addActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.treeNodeWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.looseDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 var(--space-2);
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+.looseDivider::before,
+.looseDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+/* Push the show/hide-completed toggle to the right end of the .addActions row. */
+.showCompletedBtn {
+  margin-left: auto;
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  background: var(--canvas-subtle);
+  border-radius: var(--radius-md);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Inline add row */
+.inlineAddRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+}
+
+.inlineAddInput {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.inlineAddHint {
+  font-size: var(--text-small);
+  color: var(--text-disabled);
+  white-space: nowrap;
+}
+
+/* Context menu — matches kanban-card / sidebar context-menu styling. */
+.contextMenu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contextMenuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+.contextMenuItem:hover {
+  background: var(--color-canvas-subtle);
+}
+
+.contextMenuItem:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.contextMenuItemDestructive {
+  color: var(--color-text-overdue);
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "files": { "ignore": ["dist/**", "node_modules/**", "docs/**", ".remember/**", "**/routeTree.gen.ts"] },
+  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "useExhaustiveDependencies": "error",
+        "noUnusedImports": "error"
+      },
+      "style": {
+        "useImportType": "error"
+      }
+    }
+  },
+  "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "always" } },
+  "overrides": [
+    {
+      "include": [
+        "apps/web/src/components/dropdown/index.tsx",
+        "apps/web/src/components/sheet/index.tsx",
+        "apps/web/src/components/tag-input/index.tsx",
+        "apps/web/src/components/project-picker/index.tsx",
+        "apps/web/src/components/time-picker/index.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off"
+          }
+        }
+      }
+    }
+  ]
+}

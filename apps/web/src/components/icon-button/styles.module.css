@@ -1,0 +1,71 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast)
+    var(--ease-standard);
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- Sizes ---- */
+.root[data-size="sm"] {
+  width: 28px;
+  height: 28px;
+}
+
+.root[data-size="md"] {
+  width: 32px;
+  height: 32px;
+}
+
+.root[data-size="lg"] {
+  width: 44px;
+  height: 44px;
+}
+
+/* ---- Hover ---- */
+.root:hover:not(:disabled) {
+  background-color: var(--color-canvas-subtle);
+  color: var(--color-text);
+}
+
+/* ---- Active ---- */
+.root:active:not(:disabled) {
+  background-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* ---- Selected ---- */
+.root[data-selected] {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+.root[data-selected]:hover:not(:disabled) {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+/* ---- Disabled ---- */
+.root:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

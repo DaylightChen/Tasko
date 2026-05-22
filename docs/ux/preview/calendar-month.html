@@ -1,0 +1,294 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Calendar view (month)" + component-inventory §26, §27 -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Calendar (Month)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+    <style>
+      /* Calendar-specific overrides */
+      .cal-week-row {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        position: relative;
+      }
+      .cal-span {
+        position: absolute;
+        height: 18px;
+        top: 28px;
+        left: 4px;
+        right: 4px;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        border-radius: var(--radius-xs);
+        font-size: 13px;
+        z-index: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cal-span--start { background: var(--accent-subtle); color: var(--accent-on-subtle); font-weight: 500; }
+      .cal-span--mid { background: var(--tag-bg); color: var(--tag-text); }
+      .cal-span--end { background: var(--accent-subtle); color: var(--accent-on-subtle); font-weight: 500; justify-content: flex-end; }
+      .cal-span::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        bottom: 2px;
+        width: 2px;
+        background: var(--priority-medium);
+      }
+      .cal-span--mid::before { display: none; }
+      .cal-span--end::before { display: none; }
+      .cal-spacer-after-span { height: 22px; }
+    </style>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> + component <a href="../component-inventory.md">§26-27</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Calendar (Month) — today's accent circle on May 18, multi-day span across May 18–22, time-prefixed events, +N more overflow.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today.html">Today</a>
+        <a href="project-kanban.html">Kanban</a>
+      </nav>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="calendar"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">Calendar</h1>
+          <div class="view-header__controls">
+            <button class="icon-btn icon-btn--sm" aria-label="Previous month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="t-body-strong">May 2026</span>
+            <button class="icon-btn icon-btn--sm" aria-label="Next month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="toggle-group" role="tablist" aria-label="Calendar view">
+              <button class="icon-btn is-selected" role="tab" aria-selected="true" aria-label="Month">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+              <button class="icon-btn" role="tab" aria-selected="false" aria-label="Week">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="9" y2="22"/><line x1="15" y1="4" x2="15" y2="22"/></svg>
+              </button>
+            </div>
+            <button class="btn btn--ghost btn--sm">Filter</button>
+          </div>
+        </header>
+
+        <div class="calendar" role="grid" aria-label="May 2026">
+          <div class="calendar__weekdays" role="row">
+            <div class="calendar__weekday">Mon</div>
+            <div class="calendar__weekday">Tue</div>
+            <div class="calendar__weekday">Wed</div>
+            <div class="calendar__weekday">Thu</div>
+            <div class="calendar__weekday">Fri</div>
+            <div class="calendar__weekday">Sat</div>
+            <div class="calendar__weekday">Sun</div>
+          </div>
+
+          <div class="calendar__grid">
+            <!-- Week 1: Apr 27 - May 3 -->
+            <div class="calendar__cell is-out-of-month" role="gridcell"><span class="calendar__day-num">27</span></div>
+            <div class="calendar__cell is-out-of-month" role="gridcell"><span class="calendar__day-num">28</span></div>
+            <div class="calendar__cell is-out-of-month" role="gridcell"><span class="calendar__day-num">29</span></div>
+            <div class="calendar__cell is-out-of-month" role="gridcell"><span class="calendar__day-num">30</span></div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">1</span>
+              <div class="calendar__event calendar__event--priority-medium">
+                <span class="calendar__event-title">Pay rent</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">2</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">3</span></div>
+
+            <!-- Week 2: May 4 - 10 -->
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">4</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">5</span></div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">6</span>
+              <div class="calendar__event calendar__event--priority-low">
+                <span class="calendar__event-time">09:00</span>
+                <span class="calendar__event-title">Standup</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">7</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">8</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">9</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">10</span></div>
+
+            <!-- Week 3: May 11 - 17 -->
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">11</span></div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">12</span>
+              <div class="calendar__event calendar__event--priority-low">
+                <span class="calendar__event-time">09:00</span>
+                <span class="calendar__event-title">Standup</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">13</span></div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">14</span>
+              <div class="calendar__event calendar__event--priority-medium is-overdue">
+                <span class="calendar__event-title">Pay electric</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">15</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">16</span></div>
+            <div class="calendar__cell" role="gridcell"><span class="calendar__day-num">17</span></div>
+
+            <!-- Week 4: May 18 - 24 — TODAY week, multi-day span Wed–Sun -->
+            <!-- This week we use a positioned multi-day overlay row -->
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num is-today">18</span>
+              <div class="cal-spacer-after-span"></div>
+              <div class="calendar__event calendar__event--priority-medium">
+                <span class="calendar__event-time">09:00</span>
+                <span class="calendar__event-title">Reply Alice</span>
+              </div>
+              <div class="calendar__event calendar__event--priority-high">
+                <span class="calendar__event-time">11:30</span>
+                <span class="calendar__event-title">Pricing call</span>
+              </div>
+              <span class="calendar__more">+2 more</span>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">19</span>
+              <div class="cal-spacer-after-span"></div>
+              <div class="calendar__event calendar__event--priority-medium">
+                <span class="calendar__event-time">10:00</span>
+                <span class="calendar__event-title">1:1 with mgr</span>
+              </div>
+              <div class="calendar__event calendar__event--priority-none">
+                <span class="calendar__event-title">Send draft</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">20</span>
+              <div class="cal-spacer-after-span"></div>
+              <div class="calendar__event calendar__event--priority-low">
+                <span class="calendar__event-title">Submit expenses</span>
+              </div>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">21</span>
+              <div class="cal-spacer-after-span"></div>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">22</span>
+              <div class="cal-spacer-after-span"></div>
+              <span class="calendar__more">+1 more</span>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">23</span>
+            </div>
+            <div class="calendar__cell" role="gridcell">
+              <span class="calendar__day-num">24</span>
+            </div>
+          </div>
+
+          <!-- The multi-day span is rendered as an absolutely-positioned bar
+               overlaying the May 18–22 cells. We achieve this by placing it
+               as a separate grid row of its own at the same vertical band. -->
+          <style>
+            /* Position the span across the May 18–22 cells (week starting
+               position 4 of the calendar grid which begins May 18 row).
+               We position the span by overlaying it on top of the
+               relevant cells via a separate absolutely-positioned element. */
+            .cal-multiday-overlay {
+              position: relative;
+              margin-top: -90px; /* lift onto the May 18 row */
+              height: 22px;
+              pointer-events: none;
+              z-index: 2;
+              display: grid;
+              grid-template-columns: repeat(7, 1fr);
+              margin-bottom: 68px; /* restore space afterwards */
+            }
+            .cal-multiday-overlay__bar {
+              grid-column: 1 / span 5;
+              height: 20px;
+              margin: 0 4px;
+              border-radius: var(--radius-xs);
+              background: var(--accent-subtle);
+              color: var(--accent-on-subtle);
+              font-size: 13px;
+              font-weight: 500;
+              display: flex;
+              align-items: center;
+              padding: 0 8px;
+              gap: 6px;
+              position: relative;
+              pointer-events: auto;
+              overflow: hidden;
+            }
+            .cal-multiday-overlay__bar::before {
+              content: "";
+              position: absolute;
+              left: 0;
+              top: 2px;
+              bottom: 2px;
+              width: 2px;
+              background: var(--priority-medium);
+            }
+            .cal-multiday-overlay__chip {
+              margin-left: auto;
+              background: var(--accent);
+              color: var(--text-on-accent);
+              padding: 1px 6px;
+              border-radius: 999px;
+              font-size: 11px;
+              font-weight: 600;
+            }
+          </style>
+          <div class="cal-multiday-overlay" aria-hidden="true">
+            <div class="cal-multiday-overlay__bar">
+              <span>Write conf talk</span>
+              <span class="cal-multiday-overlay__chip">Day 5 of 5</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 24px;">
+          <strong>Annotation:</strong> May 18 (today) shows the
+          <code class="code">--accent</code>-filled circle on the day number.
+          The "Write conf talk" multi-day span runs across May 18–22 — the
+          start day has a left-edge priority strip and the end-day chip shows
+          "Day 5 of 5". Timed events show a 4-char fixed-width
+          <strong>time prefix</strong> (e.g., "09:00"). The Day 14 event uses
+          the overdue treatment. "+2 more" / "+1 more" links open a
+          day-detail popover.
+        </p>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

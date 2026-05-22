@@ -1,0 +1,108 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-body-size);
+  font-weight: 500;
+  line-height: var(--text-body-line-height);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+  width: 100%;
+  white-space: nowrap;
+}
+
+.item:hover:not([data-selected]):not([data-disabled]) {
+  background: var(--color-border-subtle);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.item[data-selected] {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-on-subtle);
+}
+
+.item[data-selected] .icon {
+  color: var(--color-accent-on-subtle);
+}
+
+.item[data-disabled] {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.item[data-disabled] .icon {
+  color: var(--color-text-disabled);
+}
+
+/* Drop target */
+.item[data-drop-target] {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+  background: var(--color-accent-subtle);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-subtle);
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+
+.label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-small-strong-size);
+  font-weight: var(--text-small-strong-weight);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.overdueBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 6px;
+  margin-left: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .item {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .icon {
+    transition: none;
+  }
+}

@@ -9,3 +9,25 @@
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Turbo
+.turbo/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+
+# Playwright
+playwright-report/
+test-results/

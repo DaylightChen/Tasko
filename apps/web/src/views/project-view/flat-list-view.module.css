@@ -1,0 +1,84 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  max-width: 800px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.heading {
+  font-size: var(--text-heading);
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.quickAddRow {
+  display: flex;
+}
+
+.quickAddInput {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.quickAddInput:focus {
+  border-color: var(--accent);
+}
+
+.quickAddInput::placeholder {
+  color: var(--text-disabled);
+}
+
+.list,
+.completedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.showCompletedBtn {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  font-size: var(--text-small);
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: var(--space-2) 0;
+}
+
+.showCompletedBtn:hover {
+  color: var(--accent);
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  background: var(--canvas-subtle);
+  border-radius: var(--radius-md);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

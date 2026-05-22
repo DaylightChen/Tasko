@@ -1,0 +1,101 @@
+.label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.label[data-disabled] {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Visually hidden native input */
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  margin: 0;
+}
+
+/* The visible circular control */
+.visual {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-text-subtle);
+  background: var(--color-surface);
+  transition: background-color var(--motion-fast) var(--ease-spring-soft), border-color var(--motion-fast)
+    var(--ease-spring-soft), transform var(--motion-fast) var(--ease-spring-soft);
+  color: transparent;
+  flex-shrink: 0;
+}
+
+/* md = 20px, sm = 16px */
+.label[data-size="md"] .visual {
+  width: 20px;
+  height: 20px;
+}
+
+.label[data-size="sm"] .visual {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hover */
+.label:hover:not([data-disabled]) .visual {
+  border-color: var(--color-text);
+  background: var(--color-accent-subtle);
+}
+
+/* Focus-visible from keyboard */
+.label:focus-within .visual {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Checked */
+.label[data-state="checked"] .visual {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #ffffff;
+}
+
+/* Indeterminate */
+.label[data-state="indeterminate"] .visual {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #ffffff;
+}
+
+.indeterminateBar {
+  display: block;
+  width: 8px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 1px;
+}
+
+/* Disabled */
+.label[data-disabled] .visual {
+  border-color: var(--color-text-disabled);
+  background: var(--color-surface);
+  color: transparent;
+}
+
+.label[data-disabled][data-state="checked"] .visual {
+  background: var(--color-text-disabled);
+  border-color: var(--color-text-disabled);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual {
+    transition: none;
+  }
+}

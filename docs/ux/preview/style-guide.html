@@ -1,0 +1,774 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../design-language.md + ../component-inventory.md -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Style guide</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+    <style>
+      .sg-main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+      .sg-type-row {
+        display: grid;
+        grid-template-columns: 220px 80px 1fr;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-subtle);
+        align-items: baseline;
+      }
+      .sg-type-row__meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-subtle);
+      }
+      .sg-spacing { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+      .sg-spacing__item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+      .sg-spacing__bar { background: var(--accent); border-radius: 2px; }
+      .sg-spacing__label { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); }
+
+      .sg-row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .sg-radius { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+      .sg-radius__box {
+        width: 80px;
+        height: 80px;
+        background: var(--accent-subtle);
+        border: 1px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--accent-on-subtle);
+      }
+
+      .sg-elevation { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 32px; padding: 16px; background: var(--canvas-subtle); border-radius: 8px; }
+      .sg-elevation__box {
+        height: 96px;
+        background: var(--surface);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-subtle);
+      }
+
+      .sg-motion-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+      .sg-motion-list li {
+        padding: 8px 12px;
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-subtle);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .sg-icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+      .sg-icon-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 12px;
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+      }
+      .sg-icon-box svg { color: var(--text); }
+      .sg-icon-box code { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); }
+
+      .sg-table { width: 100%; border-collapse: collapse; }
+      .sg-table th, .sg-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
+      .sg-table th { font-weight: 500; color: var(--text-subtle); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+      .sg-table td:first-child { font-family: var(--font-mono); font-size: 12px; color: var(--text-subtle); width: 200px; }
+    </style>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is
+        <a href="../design-language.md">design-language.md</a> and
+        <a href="../component-inventory.md">component-inventory.md</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Style guide</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="#color">Color</a>
+        <a href="#typography">Typography</a>
+        <a href="#buttons">Buttons</a>
+        <a href="#inputs">Inputs</a>
+        <a href="#chips">Chips</a>
+        <a href="#priority">Priority</a>
+        <a href="#status">Status</a>
+        <a href="#snackbar">Snackbar</a>
+        <a href="#icons">Icons</a>
+        <a href="#spacing">Spacing</a>
+      </nav>
+    </div>
+
+    <main class="sg-main">
+      <section class="sg-section" id="color">
+        <h2 class="sg-section__title">1. Color tokens</h2>
+        <p class="sg-section__hint">
+          Semantic light/dark pairs. Switch theme in the top banner to see
+          parity. Every token below is referenced by name from
+          <code class="code">design-language.md</code>.
+        </p>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Canvas & surface</h3>
+        <div class="sg-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--canvas)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">canvas</div>
+              <div class="swatch__hex">App background</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--canvas-subtle)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">canvas-subtle</div>
+              <div class="swatch__hex">Sidebar offset</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--surface)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">surface</div>
+              <div class="swatch__hex">Cards, modals</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--surface-elevated)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">surface-elevated</div>
+              <div class="swatch__hex">Hover / selected</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--surface-sunken)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">surface-sunken</div>
+              <div class="swatch__hex">Input fields</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Text</h3>
+        <div class="sg-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text</div>
+              <div class="swatch__hex">Primary</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text-strong)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text-strong</div>
+              <div class="swatch__hex">Emphasis only</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text-subtle)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text-subtle</div>
+              <div class="swatch__hex">Meta / helper</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text-muted)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text-muted</div>
+              <div class="swatch__hex">Non-text only</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text-disabled)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text-disabled</div>
+              <div class="swatch__hex">Disabled controls</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--text-overdue)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">text-overdue</div>
+              <div class="swatch__hex">Overdue date string</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Accent (amber — the warmth)</h3>
+        <div class="sg-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--accent)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">accent</div>
+              <div class="swatch__hex">Primary buttons</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--accent-hover)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">accent-hover</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--accent-pressed)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">accent-pressed</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--accent-subtle)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">accent-subtle</div>
+              <div class="swatch__hex">Today pill, focus row</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--accent-on-subtle)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">accent-on-subtle</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Status</h3>
+        <div class="sg-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--overdue)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">overdue</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--overdue-subtle)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">overdue-subtle</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--success)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">success</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--status-in-progress)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">status-in-progress</div>
+              <div class="swatch__hex">Kanban blue (only here)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--status-todo)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">status-todo</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--status-done)"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">status-done</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Border</h3>
+        <div class="sg-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--border)"></div>
+            <div class="swatch__info"><div class="swatch__name">border</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--border-strong)"></div>
+            <div class="swatch__info"><div class="swatch__name">border-strong</div></div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--border-subtle)"></div>
+            <div class="swatch__info"><div class="swatch__name">border-subtle</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="typography">
+        <h2 class="sg-section__title">2. Typography</h2>
+        <p class="sg-section__hint">
+          Inter, three weights (400 / 500 / 600). Tabular numerals everywhere
+          numbers appear. No italics, no all-caps for system UI text (except
+          tracked section labels like "PROJECTS").
+        </p>
+
+        <div class="sg-type-row">
+          <div class="t-display">Today</div>
+          <div class="sg-type-row__meta">text-display<br />28 / 36 / 600</div>
+          <div class="t-small text-subtle">View titles — Today, Calendar, project name.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-h1">Add task</div>
+          <div class="sg-type-row__meta">text-h1<br />22 / 30 / 600</div>
+          <div class="t-small text-subtle">Modal titles, settings section headers.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-h2">Today, Wed May 18</div>
+          <div class="sg-type-row__meta">text-h2<br />18 / 26 / 600</div>
+          <div class="t-small text-subtle">Folder headers, kanban column header.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-h3">Draft pricing tiers</div>
+          <div class="sg-type-row__meta">text-h3<br />15 / 22 / 600</div>
+          <div class="t-small text-subtle">Card titles, bold row variants.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-body">Pay electric bill</div>
+          <div class="sg-type-row__meta">text-body<br />14 / 20 / 400</div>
+          <div class="t-small text-subtle">Default. Task rows, dropdowns.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-body-strong">Today</div>
+          <div class="sg-type-row__meta">text-body-strong<br />14 / 20 / 500</div>
+          <div class="t-small text-subtle">Sidebar items, button labels.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-small">May 18, 09:00 · #urgent</div>
+          <div class="sg-type-row__meta">text-small<br />13 / 18 / 400</div>
+          <div class="t-small text-subtle">Date chips, tag chips, helper text.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-small-strong">12</div>
+          <div class="sg-type-row__meta">text-small-strong<br />13 / 18 / 500</div>
+          <div class="t-small text-subtle">Sidebar count badges, kanban count.</div>
+        </div>
+        <div class="sg-type-row">
+          <div class="t-caption text-subtle">2/5 subtasks · Required</div>
+          <div class="sg-type-row__meta">text-caption<br />12 / 16 / 400</div>
+          <div class="t-small text-subtle">Microcopy, meta info, shortcut hints.</div>
+        </div>
+        <div class="sg-type-row">
+          <span class="kbd">⌘K</span>
+          <div class="sg-type-row__meta">text-mono<br />12 / 16 / 500</div>
+          <div class="t-small text-subtle">Keyboard shortcut chips.</div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="buttons">
+        <h2 class="sg-section__title">3. Buttons</h2>
+        <p class="sg-section__hint">
+          One primary per surface at rest. Destructive is reserved for permanent
+          delete confirmations.
+        </p>
+
+        <h3 class="t-h3">Variants</h3>
+        <div class="sg-row">
+          <button class="btn btn--primary">Save</button>
+          <button class="btn btn--secondary">Cancel</button>
+          <button class="btn btn--ghost">Show 6 completed</button>
+          <button class="btn btn--destructive">Delete forever</button>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Sizes</h3>
+        <div class="sg-row">
+          <button class="btn btn--primary btn--sm">Save</button>
+          <button class="btn btn--primary">Save</button>
+          <button class="btn btn--primary btn--lg">Save</button>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">States</h3>
+        <div class="sg-row">
+          <button class="btn btn--primary">Default</button>
+          <button class="btn btn--primary" style="background: var(--accent-hover)">Hover</button>
+          <button class="btn btn--primary" style="background: var(--accent-pressed); transform: scale(0.98);">Pressed</button>
+          <button class="btn btn--primary" disabled>Disabled</button>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">Icon button</h3>
+        <div class="sg-row">
+          <button class="icon-btn" aria-label="More">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+          <button class="icon-btn" aria-label="Plus">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="icon-btn is-selected" aria-label="List view">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+          <span class="t-small text-subtle">default · default · selected (in toggle group)</span>
+        </div>
+
+        <h3 class="t-h3" style="margin-top: 24px;">View-toggle group</h3>
+        <div class="sg-row">
+          <div class="toggle-group" role="tablist" aria-label="View">
+            <button class="icon-btn is-selected" role="tab" aria-selected="true" aria-label="Tree">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+            </button>
+            <button class="icon-btn" role="tab" aria-selected="false" aria-label="Kanban">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="15" y="3" width="6" height="18" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="inputs">
+        <h2 class="sg-section__title">4. Inputs</h2>
+
+        <div style="max-width: 480px; display: flex; flex-direction: column; gap: 24px;">
+          <div>
+            <label class="field-label">Title</label>
+            <div class="input"><input class="input--text" type="text" placeholder="Task title" /></div>
+            <p class="field-helper">Default</p>
+          </div>
+          <div>
+            <label class="field-label">Title</label>
+            <div class="input" style="border-color: var(--accent); outline: 2px solid var(--focus-ring); outline-offset: 2px; background: var(--surface);">
+              <input class="input--text" type="text" value="Buy laptop charger" />
+            </div>
+            <p class="field-helper">Focused</p>
+          </div>
+          <div>
+            <label class="field-label">
+              Project<span class="field-required">· Required</span>
+            </label>
+            <div class="input input--error"><input class="input--text" type="text" placeholder="Pick a project" /></div>
+            <p class="field-error">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Pick a project.
+            </p>
+          </div>
+          <div>
+            <label class="field-label">Quick-add (full-width)</label>
+            <div class="quick-add">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              <input type="text" placeholder="Add task" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="chips">
+        <h2 class="sg-section__title">5. Chips</h2>
+        <div class="sg-row">
+          <span class="tag-chip">#urgent</span>
+          <span class="tag-chip">#waiting</span>
+          <span class="tag-chip">#call</span>
+          <span class="tag-chip">#design</span>
+          <span class="t-small text-subtle">Tag chips — default tag-bg + tag-text</span>
+        </div>
+        <div class="sg-row">
+          <span class="date-chip is-today">Today</span>
+          <span class="date-chip">Tomorrow</span>
+          <span class="date-chip is-overdue">May 14 (4d)</span>
+          <span class="date-chip">Jun 5</span>
+          <span class="t-small text-subtle">Date chips</span>
+        </div>
+        <div class="sg-row">
+          <span class="multiday-chip multiday-chip--start">Day 1 of 5</span>
+          <span class="multiday-chip">Day 2 of 5</span>
+          <span class="multiday-chip multiday-chip--end">Day 5 of 5</span>
+          <span class="t-small text-subtle">Multi-day chips</span>
+        </div>
+        <div class="sg-row">
+          <span class="subtask-progress">2/5</span>
+          <span class="subtask-progress">1/3</span>
+          <span class="subtask-progress">0/4</span>
+          <span class="t-small text-subtle">Subtask progress</span>
+        </div>
+        <div class="sg-row">
+          <span class="filter-chip">
+            Tag: urgent
+            <svg class="x" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+          <span class="filter-chip">
+            Project: Q3 Launch
+            <svg class="x" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
+          <span class="t-small text-subtle">Filter chips (session-only)</span>
+        </div>
+      </section>
+
+      <section class="sg-section" id="priority">
+        <h2 class="sg-section__title">6. Priority dots</h2>
+        <p class="sg-section__hint">
+          Color + size carry the signal. Sized so they remain meaningful in
+          grayscale.
+        </p>
+        <div class="sg-row">
+          <span class="row" style="gap: 4px;">
+            <span class="priority-dot priority-dot--none"></span>
+            <span class="t-small text-subtle">None — 6px hollow</span>
+          </span>
+          <span class="row" style="gap: 4px;">
+            <span class="priority-dot priority-dot--low"></span>
+            <span class="t-small text-subtle">Low — 6px gray</span>
+          </span>
+          <span class="row" style="gap: 4px;">
+            <span class="priority-dot priority-dot--medium"></span>
+            <span class="t-small text-subtle">Medium — 8px amber</span>
+          </span>
+          <span class="row" style="gap: 4px;">
+            <span class="priority-dot priority-dot--high"></span>
+            <span class="t-small text-subtle">High — 10px red</span>
+          </span>
+        </div>
+      </section>
+
+      <section class="sg-section" id="status">
+        <h2 class="sg-section__title">7. Status & checkbox</h2>
+        <div class="sg-row">
+          <div class="row" style="gap: 6px;">
+            <span class="kanban-column__status-dot kanban-column__status-dot--todo"></span>
+            <span class="t-small text-subtle">To Do</span>
+          </div>
+          <div class="row" style="gap: 6px;">
+            <span class="kanban-column__status-dot kanban-column__status-dot--in-progress"></span>
+            <span class="t-small text-subtle">In Progress (only blue in v1)</span>
+          </div>
+          <div class="row" style="gap: 6px;">
+            <span class="kanban-column__status-dot kanban-column__status-dot--done"></span>
+            <span class="t-small text-subtle">Done</span>
+          </div>
+        </div>
+
+        <div class="sg-row" style="margin-top: 16px;">
+          <div class="checkbox" aria-label="unchecked"></div>
+          <div class="checkbox is-checked" aria-label="checked">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="checkbox checkbox--sm" aria-label="small unchecked"></div>
+          <div class="checkbox checkbox--sm is-checked" aria-label="small checked">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="t-small text-subtle">Default 20px (task) · 16px (subtask)</span>
+        </div>
+      </section>
+
+      <section class="sg-section" id="snackbar">
+        <h2 class="sg-section__title">8. Snackbar variants</h2>
+        <div class="col" style="gap: 12px;">
+          <div class="snackbar">
+            <span class="snackbar__icon snackbar__icon--success">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </span>
+            <span class="snackbar__message">Task completed.</span>
+            <button class="snackbar__action">Undo</button>
+          </div>
+          <div class="snackbar">
+            <span class="snackbar__icon snackbar__icon--info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+            </span>
+            <span class="snackbar__message">Task moved to Trash.</span>
+            <button class="snackbar__action">Undo</button>
+          </div>
+          <div class="snackbar">
+            <span class="snackbar__icon snackbar__icon--error">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </span>
+            <span class="snackbar__message">Couldn't save. Try again.</span>
+            <button class="snackbar__action">Retry</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="icons">
+        <h2 class="sg-section__title">9. Iconography</h2>
+        <p class="sg-section__hint">
+          Lucide, 1.5px stroke, inheriting from a text token (usually
+          <code class="code">text-subtle</code>). Default 24px, 20px compact,
+          16px inline.
+        </p>
+        <div class="sg-icon-grid">
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M5 5l1.5 1.5M17.5 17.5L19 19M2 12h2M20 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>
+            <code>sun (Today)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 14H2"/><path d="M22 18H2"/><path d="M22 10 22 6"/><path d="M2 10 2 6"/><path d="M4 6 4 10"/><path d="M20 6 20 10"/><path d="M2 6h20"/><path d="M2 10h20"/><path d="M12 2v4"/></svg>
+            <code>sunrise (Tomorrow)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <code>calendar-days</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            <code>inbox</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <code>list (All)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            <code>layers (Epic)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <code>layout-grid (Feature)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+            <code>square-check-big (Task)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+            <code>corner-down-right (Subtask)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="15" y="3" width="6" height="18" rx="1"/></svg>
+            <code>columns-3 (Kanban)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+            <code>calendar</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+            <code>trash-2</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <code>check-circle-2</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><path d="M22 19h-4.5"/><path d="M16 5a3 3 0 0 0-3 3v8.6"/><path d="M19 12V9a4 4 0 0 0-4-4H8"/><path d="M2 8.5A2.5 2.5 0 0 1 4.5 6H8"/><path d="M2 12.5A2.5 2.5 0 0 1 4.5 10H8"/></svg>
+            <code>command (⌘K)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            <code>hash (Tag)</code>
+          </div>
+          <div class="sg-icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <code>folder</code>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section" id="spacing">
+        <h2 class="sg-section__title">10. Spacing scale (4px grid)</h2>
+        <div class="sg-spacing">
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 4px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-1 · 4</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 8px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-2 · 8</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 12px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-3 · 12</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 16px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-4 · 16</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 24px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-5 · 24</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 32px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-6 · 32</div>
+          </div>
+          <div class="sg-spacing__item">
+            <div class="sg-spacing__bar" style="width: 48px; height: 32px;"></div>
+            <div class="sg-spacing__label">space-7 · 48</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2 class="sg-section__title">11. Radius scale</h2>
+        <div class="sg-radius">
+          <div>
+            <div class="sg-radius__box" style="border-radius: 2px;">2</div>
+            <div class="sg-spacing__label" style="text-align: center; margin-top: 4px;">radius-xs</div>
+          </div>
+          <div>
+            <div class="sg-radius__box" style="border-radius: 6px;">6</div>
+            <div class="sg-spacing__label" style="text-align: center; margin-top: 4px;">radius-sm</div>
+          </div>
+          <div>
+            <div class="sg-radius__box" style="border-radius: 8px;">8</div>
+            <div class="sg-spacing__label" style="text-align: center; margin-top: 4px;">radius-md</div>
+          </div>
+          <div>
+            <div class="sg-radius__box" style="border-radius: 12px;">12</div>
+            <div class="sg-spacing__label" style="text-align: center; margin-top: 4px;">radius-lg</div>
+          </div>
+          <div>
+            <div class="sg-radius__box" style="border-radius: 9999px;">∞</div>
+            <div class="sg-spacing__label" style="text-align: center; margin-top: 4px;">radius-full</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2 class="sg-section__title">12. Elevation</h2>
+        <div class="sg-elevation">
+          <div class="sg-elevation__box" style="box-shadow: var(--elevation-0);">elevation-0 · flat</div>
+          <div class="sg-elevation__box" style="box-shadow: var(--elevation-1);">elevation-1 · hover</div>
+          <div class="sg-elevation__box" style="box-shadow: var(--elevation-2);">elevation-2 · dropdown</div>
+          <div class="sg-elevation__box" style="box-shadow: var(--elevation-3);">elevation-3 · modal</div>
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2 class="sg-section__title">13. Motion durations</h2>
+        <p class="sg-section__hint">
+          Easing curves: standard, accelerate (exits), decelerate (entrances),
+          spring-soft (checkbox tick).
+        </p>
+        <table class="sg-table">
+          <thead>
+            <tr><th>Token</th><th>Duration</th><th>Used for</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>motion-instant</td><td>80ms</td><td>Reduced-motion replacement</td></tr>
+            <tr><td>motion-fast</td><td>120ms</td><td>Hover, focus, button press</td></tr>
+            <tr><td>motion-base</td><td>200ms</td><td>Checkbox tick, dropdown open, sidebar select</td></tr>
+            <tr><td>motion-medium</td><td>300ms</td><td>Modal slide, snackbar slide, fade-collapse</td></tr>
+            <tr><td>motion-slow</td><td>480ms</td><td>Bulk-overdue "fly to today" (one place)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <p style="color: var(--text-subtle); font-size: 13px; margin-top: 48px;">
+        ← <a href="index.html">Back to all previews</a>
+      </p>
+    </main>
+
+    <script src="theme.js"></script>
+  </body>
+</html>

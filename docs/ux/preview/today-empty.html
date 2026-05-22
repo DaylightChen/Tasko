@@ -1,0 +1,84 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Today view (desktop, empty)" + ../microcopy.md §5 -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Today (empty)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> +
+        <a href="../microcopy.md">microcopy.md</a> (warm flourish #1).
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Today — empty (non-first-run). "You're caught up. Enjoy the day." is one of the two warm flourishes.</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="today.html">Today (populated)</a>
+        <a href="today-first-run.html">Today (first run)</a>
+      </nav>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="today"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">Today</h1>
+          <div class="view-header__controls">
+            <button class="btn btn--secondary btn--sm">
+              Sort: Due
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn btn--ghost btn--sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Filter
+            </button>
+          </div>
+        </header>
+
+        <div class="quick-add">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <input type="text" placeholder="Add task" />
+        </div>
+
+        <div class="empty-state">
+          <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M5 5l1.5 1.5M17.5 17.5L19 19M2 12h2M20 12h2M5 19l1.5-1.5M17.5 6.5L19 5"/>
+          </svg>
+          <h2 class="empty-state__headline">Nothing due today.</h2>
+          <p class="empty-state__subline">You're caught up. Enjoy the day.</p>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 32px; text-align: center;">
+          <strong>Annotation:</strong> the subline is one of the
+          <em>two warm flourishes</em> permitted in v1 microcopy. Everywhere
+          else uses terse-neutral voice.
+        </p>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

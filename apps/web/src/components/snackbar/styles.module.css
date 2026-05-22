@@ -1,0 +1,69 @@
+.snackbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--elevation-3);
+  max-width: 480px;
+  min-width: 240px;
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  pointer-events: all;
+}
+
+.snackbar[data-variant="error"],
+.snackbar[data-variant="depth-cap"] {
+  border-color: var(--color-overdue);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.iconSuccess {
+  color: var(--color-success);
+}
+
+.iconInfo {
+  color: var(--color-text-subtle);
+}
+
+.iconError {
+  color: var(--color-overdue);
+}
+
+.text {
+  flex: 1;
+}
+
+.action {
+  background: none;
+  border: none;
+  padding: 0 var(--space-1);
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-strong-size);
+  font-weight: var(--text-body-strong-weight);
+  line-height: var(--text-body-strong-line-height);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: text-decoration var(--motion-fast) var(--ease-standard);
+}
+
+.action:hover {
+  text-decoration: underline;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}

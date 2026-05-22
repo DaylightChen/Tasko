@@ -1,0 +1,46 @@
+.root {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  transition: box-shadow var(--motion-fast) var(--ease-standard), background-color var(--motion-fast)
+    var(--ease-standard);
+}
+
+.root:hover,
+.root[data-state~="hover"] {
+  box-shadow: var(--elevation-2);
+  background: var(--color-surface-elevated);
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.root[data-state~="selected"] {
+  background: var(--color-accent-subtle);
+  border-left: 2px solid var(--color-accent);
+}
+
+.root[data-state~="dragging"] {
+  box-shadow: var(--elevation-drag);
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+
+.root[data-state~="drop-target"] {
+  outline: 2px dashed var(--color-accent);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+
+  .root[data-state~="dragging"] {
+    transform: none;
+  }
+}

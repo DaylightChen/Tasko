@@ -1,0 +1,16 @@
+.tooltip {
+  z-index: 9000;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  box-shadow: var(--elevation-1);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  line-height: var(--text-caption-line-height);
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--color-text);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 240px;
+}

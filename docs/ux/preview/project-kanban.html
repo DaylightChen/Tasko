@@ -1,0 +1,210 @@
+<!doctype html>
+<!-- Preview only — not a build target. Source of truth: ../screens.md "Per-project Kanban" + component-inventory §25 -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasko — Q3 Launch (Kanban)</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("tasko-theme");
+        if (stored === "light" || stored === "dark")
+          document.documentElement.setAttribute("data-theme", stored);
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="preview-banner" role="note">
+      <div>
+        <strong>Preview only — for human review.</strong>
+        Source of truth is <a href="../screens.md">screens.md</a> §"Per-project Kanban" + component <a href="../component-inventory.md">§25 Kanban card</a>.
+      </div>
+      <div>
+        <button type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+          <span id="theme-toggle-label">Theme: auto</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="preview-toolbar">
+      <span class="preview-toolbar__title">Kanban — three columns with status dots. Cards carry priority left-strip + tag chips + subtask progress + date chip (only today/overdue).</span>
+      <nav class="preview-toolbar__nav">
+        <a href="index.html">← All previews</a>
+        <a href="project-tree.html">Q3 Launch (Tree)</a>
+        <a href="today.html">Today</a>
+      </nav>
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" data-current="q3launch"></aside>
+
+      <main class="main">
+        <header class="view-header">
+          <h1 class="view-header__title">
+            Q3 Launch <span class="view-header__subtitle">(in Work)</span>
+          </h1>
+          <div class="view-header__controls">
+            <div class="toggle-group" role="tablist" aria-label="View">
+              <a href="project-tree.html" class="icon-btn" role="tab" aria-selected="false" aria-label="Tree">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+              </a>
+              <button class="icon-btn is-selected" role="tab" aria-selected="true" aria-label="Kanban">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="15" y="3" width="6" height="18" rx="1"/></svg>
+              </button>
+            </div>
+            <button class="btn btn--secondary btn--sm">
+              Sort: Due
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn btn--ghost btn--sm">Filter</button>
+          </div>
+        </header>
+
+        <div class="quick-add">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <input type="text" placeholder="Add task to Q3 Launch" />
+        </div>
+
+        <div class="kanban">
+          <!-- To Do column -->
+          <div class="kanban-column">
+            <div class="kanban-column__header">
+              <span class="kanban-column__status-dot kanban-column__status-dot--todo" aria-hidden="true"></span>
+              <span class="kanban-column__title">To Do</span>
+              <span class="kanban-column__count">(8)</span>
+              <button class="icon-btn icon-btn--sm kanban-column__add" aria-label="Add task in To Do">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--high"></span>
+              <div class="kanban-card__title">Draft pricing tiers</div>
+              <div class="kanban-card__meta">
+                <span class="tag-chip">#urgent</span>
+                <span class="kanban-card__date is-today">Today</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--medium"></span>
+              <div class="kanban-card__title">Hand off to design</div>
+              <div class="kanban-card__meta">
+                <span class="tag-chip">#design</span>
+                <span class="kanban-card__date is-today">Today</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--medium"></span>
+              <div class="kanban-card__title">Get finance sign-off</div>
+              <div class="kanban-card__meta">
+                <span class="subtask-progress">0/2</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--low"></span>
+              <div class="kanban-card__title">Review competitor pricing page</div>
+              <div class="kanban-card__meta">
+                <span class="tag-chip">#research</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--none"></span>
+              <div class="kanban-card__title">Update legal copy on terms page</div>
+              <div class="kanban-card__meta">
+                <span class="kanban-card__date" style="background: var(--overdue-subtle); color: var(--overdue-text); padding: 1px 6px; border-radius: 999px;">May 14 (4d)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- In Progress column -->
+          <div class="kanban-column">
+            <div class="kanban-column__header">
+              <span class="kanban-column__status-dot kanban-column__status-dot--in-progress" aria-hidden="true"></span>
+              <span class="kanban-column__title">In Progress</span>
+              <span class="kanban-column__count">(3)</span>
+              <button class="icon-btn icon-btn--sm kanban-column__add" aria-label="Add task in In Progress">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--high"></span>
+              <div class="kanban-card__title">Pricing analysis</div>
+              <div class="kanban-card__meta">
+                <span class="subtask-progress">2/4</span>
+                <span class="tag-chip">#urgent</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--medium"></span>
+              <div class="kanban-card__title">Sketch layout</div>
+              <div class="kanban-card__meta">
+                <span class="subtask-progress">1/3</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--medium"></span>
+              <div class="kanban-card__title">Backend schema</div>
+              <div class="kanban-card__meta">
+                <span class="tag-chip">#tech</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Done column -->
+          <div class="kanban-column">
+            <div class="kanban-column__header">
+              <span class="kanban-column__status-dot kanban-column__status-dot--done" aria-hidden="true"></span>
+              <span class="kanban-column__title">Done</span>
+              <span class="kanban-column__count">(12)</span>
+              <button class="icon-btn icon-btn--sm kanban-column__add" aria-label="Add task in Done">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+
+            <div class="kanban-card" tabindex="0" style="opacity: 0.7;">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--high"></span>
+              <div class="kanban-card__title" style="color: var(--text-subtle);">Brief from PM</div>
+              <div class="kanban-card__meta">
+                <span class="tag-chip">#urgent</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0" style="opacity: 0.7;">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--medium"></span>
+              <div class="kanban-card__title" style="color: var(--text-subtle);">Slack channel</div>
+              <div class="kanban-card__meta">
+                <span class="kanban-card__date">Done Mon</span>
+              </div>
+            </div>
+
+            <div class="kanban-card" tabindex="0" style="opacity: 0.7;">
+              <span class="kanban-card__priority-strip kanban-card__priority-strip--none"></span>
+              <div class="kanban-card__title" style="color: var(--text-subtle);">Setup analytics</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="color: var(--text-subtle); font-size: 13px; margin-top: 32px;">
+          <strong>Annotation:</strong> only items with <code class="code">type=task</code>
+          render here — Epics, Features, Subtasks never appear on the Kanban
+          board. Priority left-strip color encodes priority (red / amber / gray /
+          none). Date chip is shown only when overdue or today (per locked
+          decision); future dates render no chip on cards. The "Pricing
+          analysis" card demonstrates a subtask progress chip alongside a tag.
+        </p>
+      </main>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script src="theme.js"></script>
+  </body>
+</html>

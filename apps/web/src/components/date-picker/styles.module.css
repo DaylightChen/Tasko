@@ -1,0 +1,50 @@
+.popover {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  outline: none;
+}
+
+.calendarWrapper {
+  /* Override the user-agent default `position: absolute` on <dialog>, which
+   * otherwise removes the calendar from normal flow and collapses the floating
+   * popover wrapper to a 2px box (then clipped). */
+  position: static;
+  display: block;
+  margin: 0;
+  border: 0;
+  padding: var(--space-3);
+  background: transparent;
+  color: inherit;
+  outline: none;
+}
+
+.calendarWrapper:focus {
+  outline: none;
+}
+
+.quickSelect {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: var(--space-2);
+}
+
+/* react-day-picker today modifier class */
+.today {
+  color: var(--color-accent) !important;
+  font-weight: 600 !important;
+  border: 1px solid var(--color-border-strong) !important;
+  border-radius: var(--radius-sm) !important;
+}

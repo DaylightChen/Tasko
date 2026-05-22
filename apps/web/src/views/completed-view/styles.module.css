@@ -1,0 +1,97 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle, var(--border-subtle));
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-h1-size, 1.5rem);
+  font-weight: var(--text-h1-weight, 700);
+  color: var(--color-text, var(--text));
+  margin: 0;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sortSelect {
+  font-size: var(--text-small-size, 0.8125rem);
+  color: var(--color-text, var(--text));
+  background: var(--color-surface, var(--surface));
+  border: 1px solid var(--color-border, var(--border));
+  border-radius: var(--radius-sm, 4px);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+}
+
+.sortSelect:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--focus-ring));
+  outline-offset: 1px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.groupHeader {
+  font-size: var(--text-h2-size, 1.125rem);
+  font-weight: var(--text-h2-weight, 600);
+  color: var(--color-text, var(--text));
+  margin: 0 0 var(--space-2) 0;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle, var(--border-subtle));
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Wrapper so we can position the timestamp absolutely to the right */
+.completedRowWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.completedRowWrapper > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.timestamp {
+  font-size: var(--text-caption-size, 0.75rem);
+  color: var(--color-text-subtle, var(--text-subtle));
+  flex-shrink: 0;
+  padding-right: var(--space-4);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.loadingPlaceholder {
+  height: 200px;
+  margin: var(--space-4) var(--space-6);
+  background: var(--color-canvas-subtle, var(--canvas-subtle));
+  border-radius: var(--radius-md, 8px);
+}

@@ -1,0 +1,128 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast)
+    var(--ease-standard);
+  white-space: nowrap;
+}
+
+.trigger:hover {
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.triggerIcon {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+.triggerLabel {
+  flex: 1;
+}
+
+.chevron {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.chevron[data-open] {
+  transform: rotate(180deg);
+}
+
+.menu {
+  z-index: 8000;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+  padding: var(--space-1) 0;
+  max-height: 320px;
+  overflow-y: auto;
+  min-width: 160px;
+  outline: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-line-height);
+  color: var(--color-text);
+  cursor: pointer;
+  background-color: transparent;
+  user-select: none;
+  transition: background-color var(--motion-fast) var(--ease-standard);
+}
+
+@media (max-width: 768px) {
+  .option {
+    height: 44px;
+  }
+}
+
+.option:hover,
+.option[data-active] {
+  background-color: var(--color-canvas-subtle);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
+.option[data-disabled] {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.option[data-disabled]:hover {
+  background-color: transparent;
+}
+
+.optionIcon {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+.checkIcon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .chevron,
+  .option {
+    transition: none;
+  }
+}
