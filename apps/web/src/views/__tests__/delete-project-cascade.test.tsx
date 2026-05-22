@@ -69,7 +69,7 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
   return {
     ...actual,
     useQuery: vi.fn().mockReturnValue({
-      data: { ok: true, version: '1.0', data_dir: '/home/user/.tasko', item_count: 0, uptime_s: 0 },
+      data: { ok: true, version: '0.1.0', data_dir: '/home/user/.tasko', item_count: 0, uptime_s: 0 },
     }),
   };
 });

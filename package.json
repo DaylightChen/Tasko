@@ -1,6 +1,7 @@
 {
   "name": "tasko",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@9.0.0",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {

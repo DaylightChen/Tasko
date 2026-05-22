@@ -8,7 +8,7 @@
 project
 
 ## Current Phase
-**implement** (not started)
+**implement** (complete) — v1 approved ready for daily use on 2026-05-22.
 
 ## Last Completed
 - `brainstorm` — approved 2026-05-18. Output: `docs/brainstorm/product-spec.md`
@@ -38,8 +38,21 @@ project
 
 **v1 is functionally complete. All 20 tasks shipped.** The release artifacts are: a green test suite, a runnable production build, a CI workflow, and a README + known-issues package documenting every binding decision and every deferred v1.1 candidate.
 
+### Post-v1 polish sweep (2026-05-20 → 2026-05-22)
+
+After task-20 landed, ~30 follow-up commits hardened v1 against real-use bugs surfaced during hands-on testing. None added features; all closed gaps between the shipped behavior and the UX/engineering specs:
+
+- **Critical fixes:** DELETE 500 (Fastify v5 rejects `Content-Type: application/json` + empty body) — `3ee6580`; INBOX_PROJECT_ID schema regression making every project vanish from the sidebar — `a55b720`; SSE broker subscriber isolation so a dead socket can't 500 a mutation — `8e98e33`; `/project/<id>/kanban` silently rendering tree view — `f64499a`; checkbox click opening the edit modal — `a16ffd8`; calendar week defaulting to previous week — `640333f`; active items dropped under completed ancestors in tree view — `49db688`.
+- **UX preview alignment:** Sidebar + task-list parity (`93406ef`, `c60f157`); project Tree + Kanban parity (`f8991c0`, `178a796`, `4066b40` follow-ups); tree-row context menu styling + hover pattern unification (`b3791ce`, `bf86d58`); priority pills (`68544e7`); design-token repair in tree-row CSS (`f50951e`); dead `⋯` button removed (`36a612b`); "Show N completed" toggle moved into the Add row (`51f80e5`, `a8203d3`); Settings sidebar icon (`bf44e9b`); date picker visibility inside Task modal (`3f6622d`); tag chips rendering tag name vs raw ULID (`6c03b39`); dark-theme task-title contrast (`4a07ef3`); Enter inside inline-edit no longer triggers a phantom keyboard drag (`3407129`); folder context menu no longer swallows right-clicks on nested projects (`def7c72`).
+- **Subtask UX shipped:** dedicated `/subtasks` endpoint for modal edits (`842e9d9`); inline subtask visibility in tree + flat-list views (`f17a778`); subtask chip + chevron unification (`30aa00d`); level-aware inline indent (`ce789fa`).
+- **Move-to-Trash:** wired up for Tasks/Epics/Features in tree-view + modal (`2464c46`).
+- **Release engineering:** CI fix for `pnpm/action-setup` version source (`ebcad01`); CI typecheck + lint failures repaired (`878a8ba`); husky pre-push hook running typecheck + lint (`ef8332a`).
+
+Test count: still 1531 across types + server + web (no test regressions through the polish sweep).
+
 ## What's Next
-- All implementation tasks complete. Run `/phased-dev:advance-phase` to finalize the implement phase.
+- v1 ships. `implement` phase recorded complete with the post-v1 polish sweep in scope JSON `history`.
+- Subsequent work (feature additions, v1.1 candidates) should be created as new feature scopes via `/phased-dev:start-feature`.
 
 ## Task Progress
 

@@ -26,7 +26,7 @@ describe('GET /api/health', () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body) as Record<string, unknown>;
     expect(body.ok).toBe(true);
-    expect(body.version).toBe('1.0.0');
+    expect(body.version).toBe('0.1.0');
     expect(body.data_dir).toBe(dataDir);
     expect(body.item_count).toBe(0);
     expect(typeof body.uptime_s).toBe('number');

@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build + publish release bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Resolve version
+        id: version
+        run: |
+          # Strip leading 'v' from the tag so the bundle dir is tasko-0.1.0,
+          # not tasko-v0.1.0. github.ref_name is e.g. "v0.1.0".
+          version="${GITHUB_REF_NAME#v}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "bundle=tasko-${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Stage release bundle
+        run: |
+          mkdir -p "${{ steps.version.outputs.bundle }}"
+          # Rename to .mjs so Node treats the file as ESM without needing a
+          # package.json alongside it. The source-layout dist/server.js is fine
+          # because apps/server/package.json has "type": "module"; the bundle
+          # has no package.json next to it, so the extension must carry it.
+          cp apps/server/dist/server.js "${{ steps.version.outputs.bundle }}/server.mjs"
+          cp -R apps/web/dist "${{ steps.version.outputs.bundle }}/web"
+          cp README.md "${{ steps.version.outputs.bundle }}/README.md"
+          cp CHANGELOG.md "${{ steps.version.outputs.bundle }}/CHANGELOG.md"
+          cp LICENSE "${{ steps.version.outputs.bundle }}/LICENSE"
+          # Drop a small RUN.md so the user knows exactly what to type after untar.
+          cat > "${{ steps.version.outputs.bundle }}/RUN.md" <<'EOF'
+          # Running Tasko from the prebuilt bundle
+
+          You need **Node.js 20 or later** installed (`node --version`). No pnpm,
+          no build step.
+
+          ```bash
+          # First run: create the data directory at ~/Documents/.tasko-data
+          node server.mjs --init
+
+          # Subsequent runs
+          node server.mjs
+          ```
+
+          Then open <http://127.0.0.1:7373> in your browser.
+
+          ## Configuration
+
+          | Flag / Env var | Default | Description |
+          |---|---|---|
+          | `--data-dir <path>` / `TASKO_DATA_DIR` | `~/Documents/.tasko-data` | Directory where all task data is stored as JSON |
+          | `--port <n>` / `TASKO_PORT` | `7373` | Server port |
+          | `--host <addr>` | `127.0.0.1` | Bind address (no auth — do not expose) |
+
+          See `README.md` (data layout, multi-device-via-git, manual smoke test
+          checklist) and `CHANGELOG.md` (what shipped in this release).
+          EOF
+
+      - name: Create tarball
+        run: |
+          tar -czf "${{ steps.version.outputs.bundle }}.tar.gz" "${{ steps.version.outputs.bundle }}"
+          ls -lh "${{ steps.version.outputs.bundle }}.tar.gz"
+
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          # Pull the section for this version from CHANGELOG.md and write it
+          # to a file. Looks for `## [<version>]` and stops at the next `## `.
+          awk -v ver="${{ steps.version.outputs.version }}" '
+            $0 ~ "^## \\[" ver "\\]" { capture=1; print; next }
+            capture && /^## \[/ { exit }
+            capture { print }
+          ' CHANGELOG.md > release-notes.md
+          echo "Generated release notes ($(wc -l < release-notes.md) lines):"
+          head -20 release-notes.md
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Tasko ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: ${{ steps.version.outputs.bundle }}.tar.gz
+          draft: true
+          prerelease: ${{ startsWith(steps.version.outputs.version, '0.') }}

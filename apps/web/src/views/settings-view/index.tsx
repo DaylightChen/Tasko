@@ -106,7 +106,7 @@ export function SettingsView() {
         <h2 className={styles.sectionHeading} id="about-heading">
           ABOUT
         </h2>
-        <p className={styles.aboutText}>Tasko v1.0 · Local-first</p>
+        <p className={styles.aboutText}>Tasko v0.1 · Local-first</p>
         <Button variant="ghost" size="md" onClick={() => shortcutHelp.show()}>
           View keyboard shortcuts
         </Button>

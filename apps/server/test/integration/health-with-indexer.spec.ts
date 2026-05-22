@@ -78,14 +78,14 @@ describe('GET /api/health with indexer', () => {
     expect(body.item_count).toBe(1);
   });
 
-  it('returns ok:true and version 1.0.0', async () => {
+  it('returns ok:true and version 0.1.0', async () => {
     const config = loadConfig(['--init'], { TASKO_DATA_DIR: dataDir });
     server = await buildServer({ ...config, logLevel: 'fatal' });
 
     const res = await server.inject({ method: 'GET', url: '/api/health' });
     const body = JSON.parse(res.body) as Record<string, unknown>;
     expect(body.ok).toBe(true);
-    expect(body.version).toBe('1.0.0');
+    expect(body.version).toBe('0.1.0');
     expect(typeof body.uptime_s).toBe('number');
   });
 });

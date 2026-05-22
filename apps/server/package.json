@@ -1,12 +1,13 @@
 {
   "name": "@tasko/server",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "main": "./dist/server.js",
   "scripts": {
     "dev": "tsx watch src/bin/tasko-server.ts",
-    "build": "esbuild src/bin/tasko-server.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server.js --external:fsevents --external:chokidar",
+    "build": "esbuild src/bin/tasko-server.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server.js --external:fsevents --external:chokidar --define:process.env.NODE_ENV='\"production\"' --banner:js='import{createRequire as ___cr}from\"module\";const require=___cr(import.meta.url);'",
     "start": "node dist/server.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
