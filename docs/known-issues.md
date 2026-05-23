@@ -16,6 +16,112 @@
 
 ---
 
+## v0.1 post-release polish pass (2026-05-23)
+
+The following defects were found and fixed in a single pass after v0.1.0
+shipped. They are documented here so future readers understand why specific
+patterns exist in the code.
+
+### Click on a task row accidentally triggered drag
+
+**Status:** resolved 2026-05-23
+**Symptom:** `apps/web/src/lib/dnd-sensors.ts` configured a unified
+`PointerSensor` with `{ delay: 100, tolerance: 5 }`. Any mouse-down held >100ms
+with the slightest cursor jitter (≥5px) activated a drag, which both flashed
+`data-state="drag-source-placeholder"` on the row and occasionally reordered
+tasks the user never intended to move. This affected every task row, tree
+row, kanban card, and sidebar entry.
+**Fix:** Split into `MouseSensor` with `{ distance: 8 }` (drag only after
+intentional movement, so clicks never trigger) and `TouchSensor` with
+`{ delay: 250, tolerance: 5 }` (preserves page scrolling). Regression
+coverage: `apps/web/src/lib/__tests__/dnd-sensors.test.ts` and
+`apps/web/test/e2e/click-vs-drag.spec.ts`.
+
+### CommandPaletteHost rendered outside RouterProvider — navigation no-op
+
+**Status:** resolved 2026-05-23
+**Symptom:** `apps/web/src/main.tsx` mounted `<CommandPaletteHost />` as a
+**sibling** of `<RouterProvider>`. Its `useNavigate()` hook ran without a
+router context, so `navigate({ to: '/today' })` silently no-op'd. The
+command palette opened, accepted input, closed on Enter — but no route
+change happened. Affected every "Go to …" command (Today, Tomorrow,
+Inbox, project pages, settings, etc.).
+**Fix:** Moved the host into the route tree's root layout
+(`apps/web/src/routes/__root.tsx`) so it renders inside RouterProvider.
+Regression coverage: `apps/web/test/e2e/command-palette.spec.ts` now
+asserts the URL change.
+
+### Bulk "Move all overdue to today" Undo was a no-op
+
+**Status:** resolved 2026-05-23
+**Symptom:** `useBulkMoveOverdue` captured `priorDates` as a `let`
+variable inside the hook body. React-query's `onMutate` populated it,
+but any re-render between `onMutate` and `onSuccess` re-initialized
+`priorDates = []`. By the time `onSuccess` registered the undo, the
+captured list was empty, so `Promise.all([])` ran and no PATCH calls
+fired. The snackbar Undo button "succeeded" but no dates were restored.
+**Fix:** Threaded `priorDates` through react-query's mutation `context`
+(same pattern as `useBulkMoveToProject`), so it survives re-renders.
+Regression coverage: `apps/web/test/e2e/today-overdue.spec.ts`.
+
+### E2E suite was effectively broken since v1 ship
+
+Several latent bugs prevented the Playwright suite from running:
+- `seedItem` / `seedProject` helpers in `apps/web/test/e2e/_helpers/setup.ts`
+  were missing required schema fields (`type`, `parent_id`, `start_date`,
+  `due_time`, `recurrence`, `folder_id`, `icon`) — every spec using them
+  failed on 400 from the API.
+- 14 calls to `page.waitForLoadState('networkidle')` across 8 specs never
+  settled because the app holds a persistent SSE connection — every spec
+  using that wait timed out at 30s. Replaced with a `waitForPageReady`
+  helper that uses `domcontentloaded` + a short settle timer.
+- The keyboard-help spec used `keyboard.press('Shift+/')`, which in
+  headless chromium dispatches `key === '/'` (not `'?'`) because no OS
+  keyboard layout is applied. Replaced with a synthetic
+  `KeyboardEvent({ key: '?', shiftKey: true })` matching what real
+  hardware emits.
+- The overlay locator `[role="dialog"]` was a CSS attribute selector,
+  which doesn't match `<dialog>`'s implicit role; updated to match
+  by aria-label.
+
+### Accessibility (axe) violations across multiple views
+
+**Status:** resolved 2026-05-23 (mix of fixes + documented deferrals)
+
+Fixed:
+- Hover-actions chevron in task rows was wrapped in `aria-hidden`
+  while still focusable (axe `aria-hidden-focus`). Now uses `inert` +
+  `aria-hidden` together so the subtree is fully excluded.
+- Sidebar / project-tree drop-zone `<div>`s had `aria-label` without
+  a role (axe `aria-prohibited-attr`). Switched to `aria-hidden` —
+  they're purely visual drop targets, with no AT semantics needed.
+- Kanban card `<div>` carried `aria-selected` without a hosting role
+  (axe `aria-allowed-attr`). Removed the attribute — multi-select state
+  is conveyed visually via `data-selected`.
+- Color contrast: kanban "Today" date chip used `--color-accent`
+  (#d97706, ~2.84:1) — bumped to `--color-accent-pressed` (~5.5:1).
+  Kanban empty-state used `--color-text-muted` (~3.3:1) — switched to
+  `--color-text-subtle` (~6.2:1). Calendar out-of-month day numbers had
+  the same problem and got the same fix. Calendar "today" circle was
+  white-on-`--color-accent` (~3.16:1) — moved to `--color-accent-pressed`
+  for ~8.9:1.
+- Calendar week all-day cells had bare `aria-label` (no role); added
+  `role="button"` so the attribute is permitted.
+- Calendar week time-grid was scrollable but not keyboard-focusable
+  (axe `scrollable-region-focusable`). Converted from `<div>` to
+  `<section aria-label="Time grid" tabIndex={0}>`.
+
+Deferred to v1.1 (documented via `disableRules` in `a11y-views.spec.ts`):
+- **nested-interactive** — dnd-kit's `useSortable.attributes` adds
+  `role="button"` directly to the row, nesting the row's child
+  controls (checkbox, title button, chevron). Fix requires a wrapper
+  refactor so the role lives on a dedicated drag handle.
+- **list** — virtualized lists put absolute-positioned children inside
+  `<ul>` for `@tanstack/react-virtual`; axe sees non-`<li>` children.
+  Fix requires a `role="presentation"` wrapper or a non-list scaffold.
+
+---
+
 ## INBOX_PROJECT_ID contains chars excluded from the ULID base32 alphabet
 
 **Discovered:** 2026-05-18 (implement, Task 02)

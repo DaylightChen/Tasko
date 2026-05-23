@@ -188,7 +188,9 @@
 }
 
 .dateChip[data-today] {
-  color: var(--color-accent);
+  /* --color-accent (#d97706) on white is ~2.84:1 — fails WCAG AA.
+     --color-accent-pressed (#92400e) is ~5.5:1 and stays accent-hued. */
+  color: var(--color-accent-pressed);
   font-weight: 500;
 }
 

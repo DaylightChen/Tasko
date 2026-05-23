@@ -123,7 +123,7 @@ export function ProjectRootDropZone({ projectId, isDropTarget }: ProjectRootDrop
       ref={setNodeRef}
       style={{ minHeight: 8 }}
       data-state={isDropTarget ? 'drop-target' : undefined}
-      aria-label="Drop here to move to project root"
+      aria-hidden="true"
     />
   );
 }

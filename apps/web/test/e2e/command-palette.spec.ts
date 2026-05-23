@@ -10,6 +10,7 @@
 import { expect, test } from '@playwright/test';
 import { cleanupAll } from './_helpers/cleanup';
 import { seedProject } from './_helpers/setup';
+import { waitForPageReady } from './_helpers/wait';
 
 test.describe('Command palette', () => {
   test.beforeEach(async () => {
@@ -22,28 +23,24 @@ test.describe('Command palette', () => {
 
   test('opens with Mod+K and navigates to Today', async ({ page }) => {
     await page.goto('/inbox');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
-    // Open command palette
     await page.keyboard.press('Meta+k');
 
     const dialog = page.locator('[aria-label="Command palette"]');
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
-    // Type "today"
-    await page.keyboard.type('today');
+    const cmdkInput = page.locator('input[aria-label="Type a command"]');
+    await cmdkInput.click();
+    await cmdkInput.fill('today');
 
-    // "Go to Today" should appear
     const todayItem = page.locator('[cmdk-item]', { hasText: 'Go to Today' });
     await expect(todayItem).toBeVisible();
 
-    // Press Enter to navigate
+    await cmdkInput.focus();
     await page.keyboard.press('Enter');
 
-    // Should navigate to /today
     await expect(page).toHaveURL(/\/today/, { timeout: 5_000 });
-
-    // Palette should be closed
     await expect(dialog).not.toBeVisible();
   });
 
@@ -51,7 +48,7 @@ test.describe('Command palette', () => {
     await seedProject({ name: 'My Test Project' });
 
     await page.goto('/today');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     // Open command palette
     await page.keyboard.press('Meta+k');
@@ -69,7 +66,7 @@ test.describe('Command palette', () => {
 
   test('dismisses on Escape', async ({ page }) => {
     await page.goto('/today');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     await page.keyboard.press('Meta+k');
     const dialog = page.locator('[aria-label="Command palette"]');

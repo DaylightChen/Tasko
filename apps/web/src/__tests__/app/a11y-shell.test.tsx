@@ -37,6 +37,13 @@ vi.mock('../../views/task-modal', () => ({
   TaskModal: () => null,
 }));
 
+// Mock CommandPaletteHost (it lives in __root now so the host renders inside
+// the router tree where its useNavigate() has context). Its real impl pulls
+// in useConfig/useQuery which need a QueryClientProvider we don't set up here.
+vi.mock('../../app/command-palette-host', () => ({
+  CommandPaletteHost: () => null,
+}));
+
 describe('a11y shell — __root.tsx', () => {
   it('renders a skip-link pointing to #main', async () => {
     // Dynamically import RootLayout after mocks are set up

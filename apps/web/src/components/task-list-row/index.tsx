@@ -529,7 +529,15 @@ export function TaskListRow({
        * The "More actions" (⋯) button was scoped here in the original UX
        * spec but no menu was implemented in v1 — see docs/known-issues.md
        * (Row "More actions" menu deferred to v1.1). */}
-      <div className={styles.hoverActions} aria-hidden={!isHovered && !isFocused}>
+      {/* `inert` makes the chevron button non-focusable when the row isn't
+          hovered/focused; combined with `aria-hidden`, the button is also
+          removed from the accessibility tree. axe `aria-hidden-focus` passes
+          because the inert subtree contains nothing focusable. */}
+      <div
+        className={styles.hoverActions}
+        inert={!isHovered && !isFocused}
+        aria-hidden={!isHovered && !isFocused}
+      >
         <button
           type="button"
           className={styles.hoverBtn}

@@ -8,11 +8,12 @@
  * Requires: dev server running on localhost:5173.
  */
 import { expect, test } from '@playwright/test';
+import { waitForPageReady } from './_helpers/wait';
 
 test.describe('Settings — theme switch', () => {
   test('switches to dark theme', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     // Click Dark radio
     const darkRadio = page.getByRole('radio', { name: 'Dark' });
@@ -25,7 +26,7 @@ test.describe('Settings — theme switch', () => {
 
   test('switches to light theme', async ({ page }) => {
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     const lightRadio = page.getByRole('radio', { name: 'Light' });
     await expect(lightRadio).toBeVisible();
@@ -37,7 +38,7 @@ test.describe('Settings — theme switch', () => {
   test('switches to system theme', async ({ page }) => {
     // Start in dark mode
     await page.goto('/settings');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     await page.getByRole('radio', { name: 'Dark' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

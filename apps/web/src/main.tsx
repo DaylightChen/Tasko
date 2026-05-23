@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { CommandPaletteHost } from './app/command-palette-host';
 import { ErrorBoundary } from './app/error-boundary';
 import { GlobalShortcuts } from './app/global-shortcuts';
 import { GlobalUndo } from './app/global-undo';
@@ -42,6 +41,10 @@ declare module '@tanstack/react-router' {
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element not found');
 
+// CommandPaletteHost calls `useNavigate()` and so MUST render inside
+// <RouterProvider>; as a sibling of it, the navigate function has no router
+// context and silently no-ops. The host is wired up via the route tree's
+// __root layout (apps/web/src/routes/__root.tsx) instead.
 createRoot(rootEl).render(
   <StrictMode>
     <ErrorBoundary>
@@ -52,7 +55,6 @@ createRoot(rootEl).render(
             <GlobalShortcuts />
             <SSEConnector />
             <SnackbarHost />
-            <CommandPaletteHost />
             <ShortcutHelpHost />
             <RouterProvider router={router} />
           </HotkeyProvider>
