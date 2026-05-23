@@ -84,6 +84,34 @@ Several latent bugs prevented the Playwright suite from running:
   which doesn't match `<dialog>`'s implicit role; updated to match
   by aria-label.
 
+### E2E suite could destroy real data — no test-data isolation
+
+**Status:** resolved 2026-05-23 (with apologies — this regression actually
+fired in the field during the polish pass before the safeguards landed)
+**Symptom:** `apps/web/playwright.config.ts` documented `pnpm dev` as the
+prerequisite, which starts the server pointing at the default
+`~/Documents/.tasko-data` — the user's REAL data. The e2e helpers'
+`cleanupAll` then deletes every item, empties trash, and removes every
+non-Inbox project against whatever the server is serving. Running
+`pnpm test:e2e` while `pnpm dev` was up wiped real items, projects,
+and tags. There is no soft-delete fallback — `trash/empty` permanently
+unlinks files.
+**Fix:**
+- New `pnpm dev:test` script (root `package.json`) sets
+  `TASKO_DATA_DIR=$PWD/.tasko-data-test` and runs the server with
+  `--init` so the isolated dir is created on first run. Added to
+  `.gitignore`.
+- New safety guard in `apps/web/test/e2e/_helpers/cleanup.ts`:
+  `cleanupAll` first calls `/api/health`, reads `data_dir`, and
+  ABORTS with a clear error if the path does not end in
+  `/.tasko-data-test`. The Playwright config header now points
+  developers at `pnpm dev:test`.
+**Net result:** even if a developer forgets the new script and starts
+plain `pnpm dev` against their real data, the cleanup helpers refuse
+to run; the only way to wipe real data via e2e is now to manually
+spawn a server with `TASKO_DATA_DIR` set to a path containing
+`/.tasko-data-test`.
+
 ### Accessibility (axe) violations across multiple views
 
 **Status:** resolved 2026-05-23 (mix of fixes + documented deferrals)

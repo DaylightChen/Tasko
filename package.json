@@ -6,6 +6,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "concurrently \"pnpm --filter @tasko/server dev\" \"pnpm --filter @tasko/web dev\"",
+    "dev:test": "TASKO_DATA_DIR=$PWD/.tasko-data-test concurrently \"pnpm --filter @tasko/server dev:test\" \"pnpm --filter @tasko/web dev\"",
     "build": "pnpm --filter @tasko/types build && pnpm --filter @tasko/server build && pnpm --filter @tasko/web build",
     "start": "pnpm --filter @tasko/server start",
     "test": "pnpm -r test",
