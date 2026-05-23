@@ -436,8 +436,17 @@ export function CalendarWeekView() {
               const dayItems = allDayByDate.get(date) ?? [];
               const isFocused = focusedDayIdx === idx;
               return (
-                // biome-ignore lint/a11y/useKeyWithClickEvents: keyboard nav handled at container level via onKeyDown
+                // The cell is functionally a button (focus + click sets the
+                // focused day) but we can't use a real <button> because it
+                // hosts draggable event chips. We use role="button" (rather
+                // than role="gridcell") so `aria-label` is permitted without
+                // a `role="row"` ancestor that we don't have here.
+                // Keyboard nav is handled at the container's onKeyDown, so
+                // this cell doesn't need its own.
+                // biome-ignore lint/a11y/useKeyWithClickEvents: container-level onKeyDown drives focus
+                // biome-ignore lint/a11y/useSemanticElements: <button> would conflict with descendant draggable chips
                 <div
+                  role="button"
                   key={date}
                   className={styles.allDayCell}
                   data-date={date}
@@ -470,8 +479,11 @@ export function CalendarWeekView() {
             })}
           </div>
 
-          {/* Time grid */}
-          <div className={styles.timeGrid} ref={timeGridRef} aria-label="Time grid">
+          {/* Time grid: `<section aria-label>` gives an implicit role=region;
+              tabIndex=0 makes the scrollable region keyboard-focusable so axe
+              `scrollable-region-focusable` passes. */}
+          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region must be focusable for keyboard scroll (axe) */}
+          <section className={styles.timeGrid} ref={timeGridRef} tabIndex={0} aria-label="Time grid">
             <div className={styles.timeGridContent}>
               {/* 24 hour rows */}
               {Array.from({ length: 24 }, (_, hourIdx) => {
@@ -513,7 +525,7 @@ export function CalendarWeekView() {
                 ];
               }).flat()}
             </div>
-          </div>
+          </section>
         </section>
       )}
     </div>

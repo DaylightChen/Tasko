@@ -9,6 +9,7 @@
  */
 import { expect, test } from '@playwright/test';
 import { cleanupAll } from './_helpers/cleanup';
+import { waitForPageReady } from './_helpers/wait';
 
 test.describe('Quick-add → Task modal validation', () => {
   test.beforeEach(async () => {
@@ -17,7 +18,7 @@ test.describe('Quick-add → Task modal validation', () => {
 
   test('Save without project shows Pick a project. error', async ({ page }) => {
     await page.goto('/today');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     // Type in quick-add input
     const quickAdd = page.getByRole('textbox', { name: 'Add task' });

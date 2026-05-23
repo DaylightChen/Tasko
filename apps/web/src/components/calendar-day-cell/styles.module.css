@@ -54,14 +54,18 @@
   flex-shrink: 0;
 }
 
-/* Out-of-month number: muted */
+/* Out-of-month number: muted. The cell already has a subtler background
+   (canvas-subtle), so the day number itself only needs to be subtle (5b6068
+   ~6.2:1) rather than muted (8b9098 ~3.3:1, fails AA). */
 .cell:not([data-in-month]) .dayNumber {
-  color: var(--color-text-muted);
+  color: var(--color-text-subtle);
 }
 
-/* Today: accent-filled circle */
+/* Today: accent-filled circle. --color-accent (#d97706) with white text is
+   only ~3.16:1 contrast for 12px text. --color-accent-pressed (#92400e) with
+   white reaches ~8.9:1. */
 .dayNumber[data-today] {
-  background: var(--color-accent);
+  background: var(--color-accent-pressed);
   color: var(--color-text-on-accent);
   font-weight: 600;
 }

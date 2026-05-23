@@ -115,6 +115,9 @@ export function KanbanCard({ item, isDragging = false, isSelected = false }: Kan
 
   return (
     <>
+      {/* aria-selected requires a role like option/tab/treeitem; we don't
+          host one of those here, so multi-select state is conveyed via
+          `data-selected` (visual) only. axe aria-allowed-attr otherwise fails. */}
       <div
         ref={cardRef}
         className={styles.card}
@@ -125,7 +128,6 @@ export function KanbanCard({ item, isDragging = false, isSelected = false }: Kan
         data-dragging={isDragging ? '' : undefined}
         data-selected={isSelected ? '' : undefined}
         aria-label={ariaLabel}
-        aria-selected={isSelected}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         onKeyDown={handleKeyDown}

@@ -11,6 +11,7 @@
 import { expect, test } from '@playwright/test';
 import { cleanupAll } from './_helpers/cleanup';
 import { seedItems } from './_helpers/setup';
+import { waitForPageReady } from './_helpers/wait';
 
 const YESTERDAY = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
 const LAST_WEEK = new Date(Date.now() - 7 * 86400_000).toISOString().slice(0, 10);
@@ -33,7 +34,7 @@ test.describe('Today view — overdue strip', () => {
     ]);
 
     await page.goto('/today');
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
     // Assert overdue section heading
     const overdueHeading = page.locator('h2', { hasText: 'Overdue (3)' });
@@ -45,7 +46,7 @@ test.describe('Today view — overdue strip', () => {
     await moveBtn.click();
 
     // Confirm the dialog
-    const confirmBtn = page.getByRole('button', { name: 'Move all' });
+    const confirmBtn = page.getByRole('button', { name: 'Move all', exact: true });
     await expect(confirmBtn).toBeVisible();
     await confirmBtn.click();
 

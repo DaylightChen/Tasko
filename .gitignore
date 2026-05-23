@@ -31,3 +31,7 @@ coverage/
 # Playwright
 playwright-report/
 test-results/
+
+# Project-local test data dir, used by `pnpm dev:test` to isolate the
+# e2e suite from the user's real ~/Documents/.tasko-data
+.tasko-data-test/

@@ -34,39 +34,50 @@ const BulkCompleteResponseSchema = z.object({
  * POST /api/bulk/move-overdue-to-today
  * Undo: PATCH each item back to its prior due/start dates.
  */
+// Prior date for each overdue item — captured in onMutate, threaded through
+// react-query mutation context to onSuccess so the undo action can restore.
+// A hook-scoped `let` would silently reset to [] on re-render between
+// onMutate and onSuccess, leaving Undo as a no-op.
+type BulkMoveOverduePrior = { id: ItemId; due_date: string; start_date: string | null };
+
 export function useBulkMoveOverdue() {
   const queryClient = useQueryClient();
   const snackbar = useSnackbarStore();
   const undo = useUndoStore();
 
-  // Capture prior state before mutating so undo can restore it
-  type PriorEntry = { id: ItemId; due_date: string; start_date: string | null };
-  let priorDates: PriorEntry[] = [];
-
-  return useMutation<z.infer<typeof BulkMoveOverdueResponseSchema>, Error, void>({
+  return useMutation<
+    z.infer<typeof BulkMoveOverdueResponseSchema>,
+    Error,
+    void,
+    { priorDates: BulkMoveOverduePrior[] }
+  >({
     mutationFn: () =>
       apiCall('POST', '/api/bulk/move-overdue-to-today', undefined, BulkMoveOverdueResponseSchema) as Promise<
         z.infer<typeof BulkMoveOverdueResponseSchema>
       >,
 
     onMutate: () => {
-      // Collect current overdue items from the today list cache for undo
       const todayData = queryClient.getQueryData<{ items: Item[]; count: number }>(itemKeys.today());
       const today = new Date().toISOString().slice(0, 10);
-      priorDates = (todayData?.items ?? [])
+      const priorDates = (todayData?.items ?? [])
         .filter((i) => i.due_date < today && i.trashed_at === null && i.status !== 'done')
-        .map((i) => ({ id: i.id as ItemId, due_date: i.due_date, start_date: i.start_date }));
+        .map<BulkMoveOverduePrior>((i) => ({
+          id: i.id as ItemId,
+          due_date: i.due_date,
+          start_date: i.start_date,
+        }));
+      return { priorDates };
     },
 
-    onSuccess: (data) => {
+    onSuccess: (data, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: itemKeys.all });
 
-      const captured = [...priorDates];
+      const priorDates = context?.priorDates ?? [];
       undo.push({
         label: 'Bulk overdue moved to today',
         apply: async () => {
           await Promise.all(
-            captured.map(({ id, due_date, start_date }) =>
+            priorDates.map(({ id, due_date, start_date }) =>
               apiCall('PATCH', `/api/items/${id}`, { due_date, start_date }, ItemSchema),
             ),
           );

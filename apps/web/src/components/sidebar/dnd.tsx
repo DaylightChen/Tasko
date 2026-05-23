@@ -149,7 +149,7 @@ export function TopLevelDropZone() {
       ref={setNodeRef}
       style={{ minHeight: 8 }}
       data-state={isOver ? 'drop-target' : undefined}
-      aria-label="Drop here to remove from folder"
+      aria-hidden="true"
     />
   );
 }
